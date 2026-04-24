@@ -64,3 +64,73 @@ export async function signup(name: string, email: string, password: string) {
   return response.json();
 }
 
+// Photos API
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
+};
+
+export async function fetchPhotos() {
+  const response = await fetch(`${API_URL}/photos`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch photos');
+  return response.json();
+}
+
+export async function createPhoto(data: { url: string; publicId: string }) {
+  const response = await fetch(`${API_URL}/photos`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create photo');
+  return response.json();
+}
+
+export async function uploadPhoto(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_URL}/photos/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  if (!response.ok) throw new Error('Failed to upload photo');
+  return response.json();
+}
+
+export async function deletePhoto(photoId: string) {
+  const response = await fetch(`${API_URL}/photos/${photoId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to delete photo');
+  return response.json();
+}
+
+export async function addCaption(photoId: string, text: string) {
+  const response = await fetch(`${API_URL}/photos/${photoId}/caption`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok) throw new Error('Failed to add caption');
+  return response.json();
+}
+
+export async function searchPhotos(query: string) {
+  const response = await fetch(`${API_URL}/photos/search?q=${query}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to search photos');
+  return response.json();
+}
+
