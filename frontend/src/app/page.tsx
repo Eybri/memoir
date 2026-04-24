@@ -11,9 +11,30 @@ import {
 import { motion } from 'framer-motion';
 import { Heart, Lock, Calendar, Star, ArrowRight } from 'lucide-react';
 
+import { useAuth } from '@/components/AuthProvider';
+import Dashboard from '@/components/Dashboard';
 import Link from 'next/link';
 
 export default function Home() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <Box className="romantic-gradient min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <Heart size={64} className="text-pink-500 fill-pink-500" />
+        </motion.div>
+      </Box>
+    );
+  }
+
+  if (user) {
+    return <Dashboard />;
+  }
+
   return (
     <Box className="romantic-gradient min-h-screen overflow-x-hidden">
       {/* Navigation */}
