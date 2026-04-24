@@ -17,10 +17,12 @@ import { Heart, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 import { useRouter } from 'next/navigation';
-import { login } from '@/lib/api';
+import { login as apiLogin } from '@/lib/api';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -32,9 +34,9 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await login(email, password);
-      // For now just redirect to home or a dashboard
-      console.log('Login success:', response);
+      const response = await apiLogin(email, password);
+      // Store token and user info using AuthProvider
+      login(response.access_token, response.user);
       router.push('/');
     } catch (err: any) {
       setError(err.message);
