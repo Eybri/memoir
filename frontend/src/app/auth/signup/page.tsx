@@ -70,10 +70,10 @@ export default function SignupPage() {
               </Typography>
             </Link>
             <Typography variant="h5" className="font-display font-bold text-amber-950 mb-2">
-              Start Your Forever
+              Create Your Vault
             </Typography>
             <Typography className="text-amber-900/50 font-medium">
-              Create a shared digital vault for your love
+              A secure digital vault for all your memories
             </Typography>
             {error && (
               <Typography color="error" variant="body2" sx={{ mt: 2, fontWeight: 'bold' }}>
@@ -113,7 +113,7 @@ export default function SignupPage() {
             <TextField
               fullWidth
               label="Email Address"
-              placeholder="love@example.com"
+              placeholder="hello@example.com"
               variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -182,8 +182,8 @@ export default function SignupPage() {
               }
               label={
                 <Typography variant="body2" className="text-amber-900/60">
-                  I agree to keep our secrets safe and follow the{' '}
-                  <Link href="#" className="text-amber-600 font-bold">Terms of Love</Link>
+                  I agree to follow the{' '}
+                  <Link href="#" className="text-amber-600 font-bold">Terms of Service</Link>
                 </Typography>
               }
             />

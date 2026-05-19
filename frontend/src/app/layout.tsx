@@ -15,8 +15,8 @@ const outfit = Outfit({
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Memoir | Your Romantic Keepsake",
-  description: "A private vault for your most cherished memories and future promises.",
+  title: "Memoir | Preserve Your Memories",
+  description: "A secure, private vault to store, organize, and cherish your personal photo albums.",
 };
 
 import { AuthProvider } from "@/components/AuthProvider";

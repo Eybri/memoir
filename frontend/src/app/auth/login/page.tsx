@@ -73,7 +73,7 @@ export default function LoginPage() {
               Welcome Back
             </Typography>
             <Typography className="text-amber-900/50 font-medium">
-              Continue your romantic journey
+              Continue preserving your memories
             </Typography>
             {error && (
               <Typography color="error" variant="body2" sx={{ mt: 2, fontWeight: 'bold' }}>
@@ -86,7 +86,7 @@ export default function LoginPage() {
             <TextField
               fullWidth
               label="Email Address"
-              placeholder="hello@soulmate.com"
+              placeholder="hello@example.com"
               variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

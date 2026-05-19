@@ -9,7 +9,7 @@ import {
   Card,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Heart, Lock, Calendar, Star, ArrowRight } from 'lucide-react';
+import { Heart, Lock, Calendar, Star, ArrowRight, Image as ImageIcon } from 'lucide-react';
 
 import { useAuth } from '@/components/AuthProvider';
 import Dashboard from '@/components/Dashboard';
@@ -73,24 +73,26 @@ export default function Home() {
               variant="h1" 
               className="font-display font-extrabold text-amber-950 mb-6 text-5xl md:text-8xl leading-[1.1]"
             >
-              Capture Your <span className="text-gradient">Forever</span> Today
+              Preserve Your <span className="text-gradient">Memories</span> Today
             </Typography>
             <Typography 
               variant="h5" 
               className="text-amber-900/60 mb-10 font-light leading-relaxed max-w-lg text-lg md:text-xl"
             >
-              The digital vault for couples. Store secret letters, photos, and dreams to be opened on your special dates.
+              Preserve your life's story, one snapshot at a time. A secure personal vault to store and cherish your precious photo albums.
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-              <Button 
-                variant="contained" 
-                size="large"
-                disableElevation
-                className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-10 py-5 shadow-2xl shadow-yellow-200 text-lg font-bold transition-all hover:scale-105"
-                endIcon={<ArrowRight />}
-              >
-                Create Your Vault
-              </Button>
+              <Link href="/auth/signup" style={{ textDecoration: 'none' }}>
+                <Button 
+                  variant="contained" 
+                  size="large"
+                  disableElevation
+                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-10 py-5 shadow-2xl shadow-yellow-200 text-lg font-bold transition-all hover:scale-105"
+                  endIcon={<ArrowRight />}
+                >
+                  Create Your Vault
+                </Button>
+              </Link>
               <Button 
                 variant="outlined" 
                 size="large"
@@ -126,15 +128,15 @@ export default function Home() {
               <Box className="space-y-4">
                 <div className="flex justify-between items-end">
                   <div>
-                    <Typography variant="h5" className="text-amber-950 font-bold mb-1 font-display">Locked Memory</Typography>
-                    <Typography className="text-yellow-800/50 font-medium">For Emily • Opens in 324 Days</Typography>
+                    <Typography variant="h5" className="text-amber-950 font-bold mb-1 font-display">Private Album</Typography>
+                    <Typography className="text-yellow-800/50 font-medium">Summer Vacation • Securely Stored</Typography>
                   </div>
-                  <Heart className="text-amber-500 fill-amber-500" size={32} />
+                  <ImageIcon className="text-amber-500" size={32} />
                 </div>
                 
                 <Box className="pt-4">
                   <div className="flex justify-between text-xs font-bold text-yellow-600 mb-2 uppercase tracking-widest">
-                    <span>Progress</span>
+                    <span>Vault Storage</span>
                     <span>12%</span>
                   </div>
                   <div className="h-3 w-full bg-yellow-100/50 rounded-full overflow-hidden p-0.5 border border-yellow-100">
@@ -158,7 +160,7 @@ export default function Home() {
               <div className="bg-yellow-100 p-2 rounded-xl text-yellow-600">
                 <Star size={24} fill="currentColor" />
               </div>
-              <Typography className="font-bold text-amber-900">New Secret Added</Typography>
+              <Typography className="font-bold text-amber-900">New Album Created</Typography>
             </motion.div>
             
             <motion.div 
@@ -170,8 +172,8 @@ export default function Home() {
                 <Calendar size={24} />
               </div>
               <div>
-                <Typography className="font-bold text-amber-900 text-sm">Anniversary 2026</Typography>
-                <Typography variant="caption" className="text-yellow-800/50 font-bold uppercase">Locked</Typography>
+                <Typography className="font-bold text-amber-900 text-sm">Travel memories 2026</Typography>
+                <Typography variant="caption" className="text-yellow-800/50 font-bold uppercase">Stored</Typography>
               </div>
             </motion.div>
           </motion.div>
@@ -183,18 +185,18 @@ export default function Home() {
         <Container maxWidth="lg">
           <Box className="text-center mb-20">
             <Typography variant="h2" className="font-display font-bold text-amber-950 mb-4">
-              Designed for Soulmates
+              Designed for Everyone
             </Typography>
             <Typography className="text-amber-900/50 text-xl max-w-2xl mx-auto">
-              Every feature is crafted to strengthen your bond and preserve your most precious moments.
+              Every feature is crafted to organize and preserve your life's most precious snapshots.
             </Typography>
           </Box>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: <Lock />, title: "Secure Vault", desc: "Military-grade encryption ensures your secrets are safe until the right moment." },
-              { icon: <Calendar />, title: "Time-Locked", desc: "Set specific dates or milestones for your letters and media to unlock automatically." },
-              { icon: <Star />, title: "Rich Memories", desc: "Combine text, voice notes, photos and videos into a single beautiful keepsake." }
+              { icon: <Lock />, title: "Secure Vault", desc: "Secure encryption ensures your private photo albums are safe and only visible to you." },
+              { icon: <Calendar />, title: "Time-Stamped", desc: "Keep track of when memories were captured with automatic timeline sorting." },
+              { icon: <Star />, title: "Rich Captions", desc: "Add sweet details, captions, and context to all of your uploaded memories." }
             ].map((f: { icon: React.ReactElement; title: string; desc: string }, i: number) => (
               <motion.div key={i} whileHover={{ y: -12 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <Card className="glass-card p-10 rounded-[40px] h-full border-0 shadow-lg hover:shadow-2xl transition-all group">
@@ -219,18 +221,20 @@ export default function Home() {
         <Box className="glass-card p-16 rounded-[60px] border-0 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-right from-transparent via-yellow-400 to-transparent opacity-30" />
           <Typography variant="h3" className="font-display font-bold text-amber-950 mb-6">
-            Ready to start your journey?
+            Ready to preserve your story?
           </Typography>
           <Typography className="text-amber-900/60 text-xl mb-10 max-w-xl mx-auto">
-            Join thousands of couples who are building their digital legacy together.
+            Join thousands of people who are keeping their digital memories safe and organized.
           </Typography>
-          <Button 
-            variant="contained" 
-            size="large"
-            className="bg-amber-600 hover:bg-amber-700 rounded-full px-12 py-5 text-xl font-bold shadow-xl shadow-yellow-100 transition-all hover:scale-105"
-          >
-            Get Started for Free
-          </Button>
+          <Link href="/auth/signup" style={{ textDecoration: 'none' }}>
+            <Button 
+              variant="contained" 
+              size="large"
+              className="bg-amber-600 hover:bg-amber-700 rounded-full px-12 py-5 text-xl font-bold shadow-xl shadow-yellow-100 transition-all hover:scale-105 text-white"
+            >
+              Get Started for Free
+            </Button>
+          </Link>
         </Box>
       </Container>
 
@@ -244,7 +248,7 @@ export default function Home() {
             <Heart fill="currentColor" size={20} /> Memoir
           </Typography>
           <Typography variant="body2" className="text-yellow-800/30 font-medium">
-            © 2026 Memoir App. Built with Love and Passion.
+            © 2026 Memoir App. Built with Passion.
           </Typography>
           <Stack direction="row" spacing={4}>
             <Button className="text-yellow-800/40 text-sm capitalize">Privacy</Button>

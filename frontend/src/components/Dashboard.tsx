@@ -276,7 +276,7 @@ export default function Dashboard() {
                 <Stack spacing={2}>
                   <TextField
                     fullWidth
-                    placeholder="Add a sweet caption..."
+                    placeholder="Add a caption..."
                     multiline
                     rows={2}
                     value={newCaption}
