@@ -10,9 +10,6 @@ import {
   IconButton,
   TextField,
   Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Grid
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +25,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { fetchPhotos, addCaption, searchPhotos, uploadPhoto, deletePhoto } from '@/lib/api';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '@/components/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 interface Photo {
   _id: string;
@@ -37,8 +35,9 @@ interface Photo {
   takenAt: string;
 }
 
-export default function Dashboard() {
-  const { user, logout } = useAuth();
+export default function DashboardPage() {
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -48,8 +47,16 @@ export default function Dashboard() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    loadPhotos();
-  }, []);
+    if (!isLoading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, isLoading]);
+
+  useEffect(() => {
+    if (user) {
+      loadPhotos();
+    }
+  }, [user]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,6 +119,19 @@ export default function Dashboard() {
       console.error('Failed to add caption:', error);
     }
   };
+
+  if (isLoading || !user) {
+    return (
+      <Box className="romantic-gradient min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <Camera size={64} className="text-amber-500" />
+        </motion.div>
+      </Box>
+    );
+  }
 
   return (
     <Box className={`min-h-screen transition-all duration-700 ${isSurpriseMode ? 'bg-yellow-950' : 'romantic-gradient'}`}>

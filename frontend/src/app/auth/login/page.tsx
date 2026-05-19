@@ -34,7 +34,7 @@ export default function LoginPage() {
     try {
       const response = await apiLogin(email, password);
       login(response.access_token, response.user);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {

@@ -12,13 +12,20 @@ import { motion } from 'framer-motion';
 import { Camera, Lock, Calendar, Star, ArrowRight, Image as ImageIcon } from 'lucide-react';
 
 import { useAuth } from '@/components/AuthProvider';
-import Dashboard from '@/components/Dashboard';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (isLoading) {
+  React.useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+  if (isLoading || user) {
     return (
       <Box className="romantic-gradient min-h-screen flex items-center justify-center">
         <motion.div
@@ -29,10 +36,6 @@ export default function Home() {
         </motion.div>
       </Box>
     );
-  }
-
-  if (user) {
-    return <Dashboard />;
   }
 
   return (
