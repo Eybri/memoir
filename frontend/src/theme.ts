@@ -4,15 +4,15 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#db2777', // Pink 600
-      light: '#f472b6',
-      dark: '#9d174d',
+      main: '#d97706', // Amber 600
+      light: '#fef08a', // Yellow 200
+      dark: '#b45309', // Amber 700
     },
     secondary: {
-      main: '#9333ea', // Purple 600
+      main: '#eab308', // Yellow 500
     },
     background: {
-      default: '#fff1f2', // Rose 50
+      default: '#fefce8', // Yellow 50
     },
   },
   typography: {
