@@ -9,7 +9,7 @@ import {
   Card,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Heart, Lock, Calendar, Star, ArrowRight, Image as ImageIcon } from 'lucide-react';
+import { Camera, Lock, Calendar, Star, ArrowRight, Image as ImageIcon } from 'lucide-react';
 
 import { useAuth } from '@/components/AuthProvider';
 import Dashboard from '@/components/Dashboard';
@@ -25,7 +25,7 @@ export default function Home() {
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
-          <Heart size={64} className="text-amber-500 fill-amber-500" />
+          <Camera size={64} className="text-amber-500" />
         </motion.div>
       </Box>
     );
@@ -43,7 +43,7 @@ export default function Home() {
           variant="h5" 
           className="font-display font-bold text-amber-600 flex items-center gap-2"
         >
-          <Heart fill="currentColor" size={24} /> Memoir
+          <Camera size={24} className="text-amber-600" /> Memoir
         </Typography>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Link href="/auth/login" style={{ textDecoration: 'none' }}>
@@ -245,7 +245,7 @@ export default function Home() {
             variant="h6" 
             className="font-display font-bold text-yellow-600 flex items-center gap-2 opacity-50"
           >
-            <Heart fill="currentColor" size={20} /> Memoir
+            <Camera size={20} className="text-yellow-600" /> Memoir
           </Typography>
           <Typography variant="body2" className="text-yellow-800/30 font-medium">
             © 2026 Memoir App. Built with Passion.

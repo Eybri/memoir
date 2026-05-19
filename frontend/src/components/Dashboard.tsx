@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   Search, 
-  Heart, 
+  Camera, 
   MessageCircle, 
   Sparkles, 
   Share2,
@@ -119,7 +119,7 @@ export default function Dashboard() {
       <nav className="p-6 sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
         <Container maxWidth="xl" className="flex justify-between items-center">
           <Typography variant="h5" className={`font-display font-bold flex items-center gap-2 ${isSurpriseMode ? 'text-yellow-100' : 'text-amber-600'}`}>
-            <Heart fill="currentColor" size={24} /> Memoir
+            <Camera size={24} /> Memoir
           </Typography>
 
           <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
