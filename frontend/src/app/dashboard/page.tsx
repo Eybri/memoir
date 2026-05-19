@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Container, 
@@ -9,24 +9,29 @@ import {
   Stack, 
   IconButton,
   TextField,
-  Dialog,
-  Grid
+  Dialog
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   Search, 
   Camera, 
-  MessageCircle, 
   Sparkles, 
-  Share2,
+  Trash2,
   Calendar,
   Image as ImageIcon,
-  Trash2
+  LogOut,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { fetchPhotos, addCaption, searchPhotos, uploadPhoto, deletePhoto } from '@/lib/api';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
+
+// Import subcomponents
+import DailyCanvas from './components/DailyCanvas';
+import MemoryGrid from './components/MemoryGrid';
+import SensoryCorner from './components/SensoryCorner';
 
 interface Photo {
   _id: string;
@@ -38,19 +43,20 @@ interface Photo {
 export default function DashboardPage() {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [newCaption, setNewCaption] = useState('');
-  const [isSurpriseMode, setIsSurpriseMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [nostalgiaMode, setNostalgiaMode] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/auth/login');
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user) {
@@ -112,13 +118,25 @@ export default function DashboardPage() {
       setNewCaption('');
       loadPhotos();
       // Update selected photo in modal
-      const updated = await fetchPhotos(); // Simple way to refresh
+      const updated = await fetchPhotos(); 
       const found = updated.find((p: any) => p._id === selectedPhoto._id);
       setSelectedPhoto(found);
     } catch (error) {
       console.error('Failed to add caption:', error);
     }
   };
+
+  // Determine welcome date details
+  const timeDifferenceText = React.useMemo(() => {
+    if (photos.length === 0) return 'Welcome to your vault.';
+    const dates = photos.map(p => new Date(p.takenAt).getTime());
+    const oldest = Math.min(...dates);
+    const diffYears = Math.round((Date.now() - oldest) / (1000 * 60 * 60 * 24 * 365.25));
+    if (diffYears >= 1) {
+      return `Welcome back. Here is where your story was ${diffYears} year${diffYears > 1 ? 's' : ''} ago today...`;
+    }
+    return `Welcome back. Let's add more chapters to your story...`;
+  }, [photos]);
 
   if (isLoading || !user) {
     return (
@@ -127,18 +145,26 @@ export default function DashboardPage() {
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
-          <Camera size={64} className="text-amber-500" />
+          <Camera size={64} className="text-amber-500 animate-pulse" />
         </motion.div>
       </Box>
     );
   }
 
+  // Base background theme
+  const bgThemeClass = nostalgiaMode 
+    ? 'bg-[#f4efe2] text-[#3c2f1f]' 
+    : 'romantic-gradient text-amber-950';
+
   return (
-    <Box className={`min-h-screen transition-all duration-700 ${isSurpriseMode ? 'bg-yellow-950' : 'romantic-gradient'}`}>
+    <Box className={`min-h-screen transition-all duration-700 pb-24 ${bgThemeClass}`}>
+      
       {/* Premium Header */}
-      <nav className="p-6 sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
+      <nav className={`p-6 sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-700 ${
+        nostalgiaMode ? 'bg-[#f4efe2]/80 border-[#dcd2be]' : 'bg-white/10 border-white/20'
+      }`}>
         <Container maxWidth="xl" className="flex justify-between items-center">
-          <Typography variant="h5" className={`font-display font-bold flex items-center gap-2 ${isSurpriseMode ? 'text-yellow-100' : 'text-amber-600'}`}>
+          <Typography variant="h5" className="font-display font-black flex items-center gap-2 text-amber-600 cursor-pointer" onClick={() => router.push('/')}>
             <Camera size={24} /> Memoir
           </Typography>
 
@@ -152,87 +178,70 @@ export default function DashboardPage() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '50px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    color: isSurpriseMode ? '#fff' : '#000',
+                    backgroundColor: nostalgiaMode ? 'rgba(60, 47, 31, 0.05)' : 'rgba(255, 255, 255, 0.2)',
+                    color: nostalgiaMode ? '#3c2f1f' : '#000',
                     '& fieldset': { border: 'none' },
                   }
                 }}
               />
               <IconButton type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Search size={18} className={isSurpriseMode ? 'text-yellow-200' : 'text-yellow-600'} />
+                <Search size={18} className="text-amber-600" />
               </IconButton>
             </form>
 
+            {/* 褪色 (Muted) Toggle */}
             <Button 
-              onClick={() => setIsSurpriseMode(!isSurpriseMode)}
+              onClick={() => setNostalgiaMode(!nostalgiaMode)}
               className={`rounded-full px-6 font-bold flex gap-2 transition-all ${
-                isSurpriseMode 
-                ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(217,119,6,0.5)]' 
-                : 'bg-white/50 text-amber-600 hover:bg-white'
+                nostalgiaMode 
+                ? 'bg-amber-800 text-yellow-50 shadow-md' 
+                : 'bg-white/50 text-amber-600 hover:bg-white border border-amber-200/20'
               }`}
             >
               <Sparkles size={18} />
-              {isSurpriseMode ? 'Surprise Mode ON' : 'Surprise Mode'}
+              {nostalgiaMode ? 'Nostalgia Active' : 'Nostalgia Toggle'}
             </Button>
 
-            <IconButton onClick={logout} className={isSurpriseMode ? 'text-yellow-200' : 'text-amber-600'}>
-              <Typography variant="body2" className="mr-2 font-bold">Logout</Typography>
+            <IconButton onClick={logout} className="text-amber-600 hover:text-amber-700 bg-white/20 p-2.5 rounded-full border border-amber-200/10">
+              <LogOut size={18} />
             </IconButton>
           </Stack>
         </Container>
       </nav>
 
-      <Container maxWidth="xl" className="py-12">
-        <Box className="mb-12">
-          <Typography variant="h3" className={`font-display font-bold mb-2 ${isSurpriseMode ? 'text-white' : 'text-amber-950'}`}>
-            Our Infinite Grid
+      {/* Main Content */}
+      <Container maxWidth="xl" className="py-12 space-y-12">
+        {/* Welcome Block */}
+        <Box className="space-y-2">
+          <Typography variant="h6" className="font-display text-amber-600/70 font-semibold tracking-wide uppercase text-xs sm:text-sm">
+            {timeDifferenceText}
           </Typography>
-          <Typography className={isSurpriseMode ? 'text-yellow-200' : 'text-amber-900/60'}>
-            Every moment we've shared, captured forever.
+          <Typography variant="h2" className="font-display font-black text-3xl sm:text-5xl leading-tight">
+            The Living Scrapbook
           </Typography>
         </Box>
 
-        {/* Infinite Grid */}
-        <Grid container spacing={3}>
-          {photos.length === 0 ? (
-             <Box className="w-full flex flex-col items-center justify-center py-40 text-yellow-500/50">
-               <ImageIcon size={100} strokeWidth={1} className="mb-6 opacity-20" />
-               <Typography variant="h5" className="font-display">Your vault is empty</Typography>
-               <Typography>Start adding memories together</Typography>
-               <Button variant="contained" className="mt-8 bg-amber-600 hover:bg-amber-700 rounded-full px-8 py-3 text-white" onClick={() => fileInputRef.current?.click()}>Add First Photo</Button>
-             </Box>
-          ) : (
-            photos.map((photo, index) => (
-              <Grid xs={12} sm={6} md={4} lg={3} key={photo._id}>
-                <motion.div
-                  layoutId={photo._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => setSelectedPhoto(photo)}
-                  className="group relative aspect-[4/5] rounded-[32px] overflow-hidden cursor-pointer shadow-xl hover:shadow-yellow-200 transition-all hover:scale-[1.02]"
-                >
-                  <img 
-                    src={photo.url} 
-                    alt="Memory" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-yellow-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                    {photo.captions.length > 0 && (
-                      <Typography className="text-white font-medium line-clamp-2 italic">
-                        "{photo.captions[0].text}"
-                      </Typography>
-                    )}
-                    <div className="flex items-center gap-2 mt-2 text-yellow-200 text-xs font-bold uppercase tracking-widest">
-                      <Calendar size={12} />
-                      {new Date(photo.takenAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                </motion.div>
-              </Grid>
-            ))
-          )}
-        </Grid>
+        {/* 1. Hero space - The Daily Canvas */}
+        <DailyCanvas photos={photos} nostalgiaMode={nostalgiaMode} />
+
+        {/* 2. Grid & Sidebar Container */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
+          {/* Main Grid */}
+          <div className="lg:col-span-8 space-y-8">
+            <MemoryGrid 
+              photos={photos} 
+              onSelectPhoto={setSelectedPhoto} 
+              nostalgiaMode={nostalgiaMode} 
+            />
+          </div>
+
+          {/* 3. Sensory Corner (Sidebar) */}
+          <div className="lg:col-span-4">
+            <Box className="sticky top-28">
+              <SensoryCorner photos={photos} nostalgiaMode={nostalgiaMode} />
+            </Box>
+          </div>
+        </div>
       </Container>
 
       {/* Photo Detail Dialog */}
@@ -241,59 +250,71 @@ export default function DashboardPage() {
           <Dialog 
             open={!!selectedPhoto} 
             onClose={() => setSelectedPhoto(null)}
-            maxWidth="sm"
+            maxWidth="md"
             fullWidth
             slotProps={{
               paper: {
-                sx: { borderRadius: '40px', overflow: 'hidden', border: 'none' }
+                sx: { 
+                  borderRadius: '36px', 
+                  overflow: 'hidden', 
+                  border: 'none',
+                  backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
+                  color: nostalgiaMode ? '#3c2f1f' : '#000000',
+                  boxShadow: '0 24px 64px -10px rgba(0, 0, 0, 0.15)'
+                }
               }
             }}
           >
-            <Box className="flex flex-col md:flex-row h-full max-h-[80vh]">
-              <Box className="md:w-1/2 bg-black flex items-center justify-center">
-                <img src={selectedPhoto.url} alt="Memory" className="max-w-full max-h-full object-contain" />
+            <Box className="flex flex-col md:flex-row h-full max-h-[85vh]">
+              {/* Media viewer */}
+              <Box className="md:w-1/2 bg-black flex items-center justify-center p-2 relative min-h-[300px] md:min-h-0">
+                <img src={selectedPhoto.url} alt="Scrapbook detail" className="max-w-full max-h-[75vh] object-contain rounded-xl" />
               </Box>
               
-              <Box className="md:w-1/2 p-8 flex flex-col h-full bg-white">
-                <div className="flex justify-between items-center mb-6">
-                  <Typography variant="h5" className="font-display font-bold text-amber-950">Memory Details</Typography>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton onClick={handleDeletePhoto} className="text-red-400 hover:text-red-600">
-                      <Trash2 size={20} />
-                    </IconButton>
-                    <IconButton onClick={() => setSelectedPhoto(null)}><Plus style={{ transform: 'rotate(45deg)' }} /></IconButton>
-                  </Stack>
-                </div>
-
-                <Box className="flex-grow overflow-y-auto space-y-6 mb-6 pr-2">
-                  <div className="flex items-center gap-2 text-amber-600 font-bold text-sm">
-                    <Calendar size={16} />
-                    {new Date(selectedPhoto.takenAt).toLocaleDateString()}
+              {/* Info panel */}
+              <Box className="md:w-1/2 p-8 flex flex-col justify-between h-full min-h-[400px] md:min-h-0">
+                <div className="space-y-6 flex-grow overflow-y-auto pr-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <Typography variant="h5" className="font-display font-black text-amber-950">Memory Ledger</Typography>
+                      <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs mt-1">
+                        <Calendar size={14} />
+                        {new Date(selectedPhoto.takenAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      </div>
+                    </div>
+                    <Stack direction="row" spacing={1}>
+                      <IconButton onClick={handleDeletePhoto} className="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-full transition-all">
+                        <Trash2 size={18} />
+                      </IconButton>
+                      <IconButton onClick={() => setSelectedPhoto(null)} className="bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 p-2.5 rounded-full font-black text-sm">
+                        ✕
+                      </IconButton>
+                    </Stack>
                   </div>
 
                   <Box className="space-y-4">
-                    <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-xs">Captions</Typography>
+                    <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">Captions Ledger</Typography>
                     {selectedPhoto.captions.length === 0 ? (
-                      <Typography className="text-amber-900/30 italic">No captions yet. Be the first to add one.</Typography>
+                      <Typography className="text-amber-900/30 italic text-sm">No captions recorded yet. Be the first to describe this memory.</Typography>
                     ) : (
                       selectedPhoto.captions.map((cap, i) => (
                         <motion.div 
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           key={i} 
-                          className="bg-yellow-50 p-4 rounded-2xl border-l-4 border-amber-500"
+                          className="bg-amber-500/5 p-4 rounded-2xl border-l-4 border-amber-500"
                         >
-                          <Typography className="text-amber-950 italic mb-1">"{cap.text}"</Typography>
-                          <Typography variant="caption" className="text-yellow-600 font-bold">
-                            {new Date(cap.createdAt).toLocaleDateString()}
+                          <Typography className="text-amber-950 italic mb-1 text-sm font-medium">"{cap.text}"</Typography>
+                          <Typography variant="caption" className="text-amber-600/60 font-bold text-[10px]">
+                            Recorded {new Date(cap.createdAt).toLocaleDateString()}
                           </Typography>
                         </motion.div>
                       ))
                     )}
                   </Box>
-                </Box>
+                </div>
 
-                <Stack spacing={2}>
+                <Stack spacing={2} className="pt-4 border-t border-amber-200/20">
                   <TextField
                     fullWidth
                     placeholder="Add a caption..."
@@ -304,15 +325,16 @@ export default function DashboardPage() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '20px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                        '& fieldset': { borderColor: 'yellow.100' },
+                        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                        '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                        '&.Mui-focused fieldset': { borderColor: '#d97706' },
                       }
                     }}
                   />
                   <Button 
                     fullWidth 
                     variant="contained" 
-                    className="bg-amber-600 hover:bg-amber-700 rounded-full py-3 font-bold text-white"
+                    className="bg-amber-600 hover:bg-amber-700 rounded-full py-3.5 font-bold text-white shadow-lg shadow-amber-600/10"
                     onClick={handleAddCaption}
                   >
                     Add Caption
@@ -324,38 +346,28 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Buttons */}
-      {!isSurpriseMode && (
-        <Box className="fixed bottom-10 right-10 flex flex-col gap-4">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleUpload}
-            className="hidden"
-            accept="image/*"
-          />
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Button 
-              variant="contained" 
-              className="w-16 h-16 rounded-full bg-white text-amber-600 shadow-2xl p-0 min-w-0"
-              title="Share Access"
-            >
-              <Share2 />
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Button 
-              variant="contained" 
-              disabled={isUploading}
-              onClick={() => fileInputRef.current?.click()}
-              className="w-20 h-20 rounded-full bg-amber-600 text-white shadow-2xl p-0 min-w-0"
-              title="Add Memory"
-            >
-              {isUploading ? <Sparkles className="animate-spin" /> : <Plus size={32} />}
-            </Button>
-          </motion.div>
-        </Box>
-      )}
+      {/* Floating Drag & Drop Action Trigger */}
+      <Box className="fixed bottom-10 right-10 flex flex-col gap-4">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleUpload}
+          className="hidden"
+          accept="image/*"
+        />
+        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+          <Button 
+            variant="contained" 
+            disabled={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl p-0 min-w-0 flex items-center justify-center"
+            title="Add Memory"
+          >
+            {isUploading ? <Sparkles className="animate-spin" /> : <Plus size={32} />}
+          </Button>
+        </motion.div>
+      </Box>
+
     </Box>
   );
 }
