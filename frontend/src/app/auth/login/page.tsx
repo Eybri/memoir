@@ -59,20 +59,20 @@ export default function LoginPage() {
           className="glass-card max-w-md w-full p-8 md:p-12 rounded-[40px] border-0 shadow-2xl relative overflow-hidden"
         >
           {/* Decorative Elements */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-pink-200/30 blur-3xl rounded-full" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-200/30 blur-3xl rounded-full" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-200/30 blur-3xl rounded-full" />
+          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-200/30 blur-3xl rounded-full" />
 
           <Box className="text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <Heart className="text-pink-600 fill-pink-600" size={32} />
-              <Typography variant="h4" className="font-display font-bold text-pink-950">
-                Someday
+              <Heart className="text-amber-600 fill-amber-600" size={32} />
+              <Typography variant="h4" className="font-display font-bold text-amber-950">
+                Memoir
               </Typography>
             </Link>
-            <Typography variant="h5" className="font-display font-bold text-pink-950 mb-2">
+            <Typography variant="h5" className="font-display font-bold text-amber-950 mb-2">
               Welcome Back
             </Typography>
-            <Typography className="text-pink-900/50 font-medium">
+            <Typography className="text-amber-900/50 font-medium">
               Continue your romantic journey
             </Typography>
             {error && (
@@ -95,7 +95,7 @@ export default function LoginPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Mail size={20} className="text-pink-400" />
+                      <Mail size={20} className="text-yellow-600" />
                     </InputAdornment>
                   ),
                 },
@@ -104,8 +104,8 @@ export default function LoginPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  '& fieldset': { borderColor: 'rgba(219, 39, 119, 0.1)' },
-                  '&:hover fieldset': { borderColor: 'rgba(219, 39, 119, 0.3)' },
+                  '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                  '&:hover fieldset': { borderColor: 'rgba(217, 119, 6, 0.3)' },
                 }
               }}
             />
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock size={20} className="text-pink-400" />
+                      <Lock size={20} className="text-yellow-600" />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -139,14 +139,14 @@ export default function LoginPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  '& fieldset': { borderColor: 'rgba(219, 39, 119, 0.1)' },
-                  '&:hover fieldset': { borderColor: 'rgba(219, 39, 119, 0.3)' },
+                  '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                  '&:hover fieldset': { borderColor: 'rgba(217, 119, 6, 0.3)' },
                 }
               }}
             />
 
             <Box className="flex justify-end">
-              <Button className="text-pink-600 font-bold text-sm hover:bg-transparent">
+              <Button className="text-amber-600 font-bold text-sm hover:bg-transparent">
                 Forgot password?
               </Button>
             </Box>
@@ -157,14 +157,14 @@ export default function LoginPage() {
               variant="contained"
               size="large"
               disabled={loading}
-              className="bg-pink-600 hover:bg-pink-700 rounded-full py-4 font-bold text-lg shadow-xl shadow-pink-100 transition-all hover:scale-[1.02]"
+              className="bg-amber-600 hover:bg-amber-700 rounded-full py-4 font-bold text-lg shadow-xl shadow-yellow-100 transition-all hover:scale-[1.02]"
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
 
-            <Typography className="text-center text-pink-900/60 font-medium pt-4">
+            <Typography className="text-center text-amber-900/60 font-medium pt-4">
               Don't have an account?{' '}
-              <Link href="/auth/signup" className="text-pink-600 font-bold hover:underline">
+              <Link href="/auth/signup" className="text-amber-600 font-bold hover:underline">
                 Create one
               </Link>
             </Typography>

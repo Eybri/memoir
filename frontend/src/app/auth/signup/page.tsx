@@ -58,21 +58,21 @@ export default function SignupPage() {
           className="glass-card max-w-lg w-full p-8 md:p-12 rounded-[48px] border-0 shadow-2xl relative overflow-hidden"
         >
           {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 p-8 text-pink-200">
+          <div className="absolute top-0 right-0 p-8 text-yellow-300">
             <Sparkles size={64} strokeWidth={1} />
           </div>
 
           <Box className="text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <Heart className="text-pink-600 fill-pink-600" size={32} />
-              <Typography variant="h4" className="font-display font-bold text-pink-950">
-                Someday
+              <Heart className="text-amber-600 fill-amber-600" size={32} />
+              <Typography variant="h4" className="font-display font-bold text-amber-950">
+                Memoir
               </Typography>
             </Link>
-            <Typography variant="h5" className="font-display font-bold text-pink-950 mb-2">
+            <Typography variant="h5" className="font-display font-bold text-amber-950 mb-2">
               Start Your Forever
             </Typography>
-            <Typography className="text-pink-900/50 font-medium">
+            <Typography className="text-amber-900/50 font-medium">
               Create a shared digital vault for your love
             </Typography>
             {error && (
@@ -95,7 +95,7 @@ export default function SignupPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <User size={20} className="text-pink-400" />
+                      <User size={20} className="text-yellow-600" />
                     </InputAdornment>
                   ),
                 },
@@ -104,8 +104,8 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  '& fieldset': { borderColor: 'rgba(219, 39, 119, 0.1)' },
-                  '&:hover fieldset': { borderColor: 'rgba(219, 39, 119, 0.3)' },
+                  '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                  '&:hover fieldset': { borderColor: 'rgba(217, 119, 6, 0.3)' },
                 }
               }}
             />
@@ -122,7 +122,7 @@ export default function SignupPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Mail size={20} className="text-pink-400" />
+                      <Mail size={20} className="text-yellow-600" />
                     </InputAdornment>
                   ),
                 },
@@ -131,8 +131,8 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  '& fieldset': { borderColor: 'rgba(219, 39, 119, 0.1)' },
-                  '&:hover fieldset': { borderColor: 'rgba(219, 39, 119, 0.3)' },
+                  '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                  '&:hover fieldset': { borderColor: 'rgba(217, 119, 6, 0.3)' },
                 }
               }}
             />
@@ -150,7 +150,7 @@ export default function SignupPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock size={20} className="text-pink-400" />
+                      <Lock size={20} className="text-yellow-600" />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -166,8 +166,8 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  '& fieldset': { borderColor: 'rgba(219, 39, 119, 0.1)' },
-                  '&:hover fieldset': { borderColor: 'rgba(219, 39, 119, 0.3)' },
+                  '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
+                  '&:hover fieldset': { borderColor: 'rgba(217, 119, 6, 0.3)' },
                 }
               }}
             />
@@ -177,13 +177,13 @@ export default function SignupPage() {
                 <Checkbox 
                   size="small" 
                   required
-                  sx={{ color: 'pink.400', '&.Mui-checked': { color: '#db2777' } }} 
+                  sx={{ color: 'yellow.600', '&.Mui-checked': { color: '#d97706' } }} 
                 />
               }
               label={
-                <Typography variant="body2" className="text-pink-900/60">
+                <Typography variant="body2" className="text-amber-900/60">
                   I agree to keep our secrets safe and follow the{' '}
-                  <Link href="#" className="text-pink-600 font-bold">Terms of Love</Link>
+                  <Link href="#" className="text-amber-600 font-bold">Terms of Love</Link>
                 </Typography>
               }
             />
@@ -194,14 +194,14 @@ export default function SignupPage() {
               variant="contained"
               size="large"
               disabled={loading}
-              className="bg-pink-600 hover:bg-pink-700 rounded-full py-4 font-bold text-lg shadow-xl shadow-pink-100 transition-all hover:scale-[1.02]"
+              className="bg-amber-600 hover:bg-amber-700 rounded-full py-4 font-bold text-lg shadow-xl shadow-yellow-100 transition-all hover:scale-[1.02]"
             >
               {loading ? 'Creating Vault...' : 'Create Vault'}
             </Button>
 
-            <Typography className="text-center text-pink-900/60 font-medium pt-4">
+            <Typography className="text-center text-amber-900/60 font-medium pt-4">
               Already have a vault?{' '}
-              <Link href="/auth/login" className="text-pink-600 font-bold hover:underline">
+              <Link href="/auth/login" className="text-amber-600 font-bold hover:underline">
                 Sign in
               </Link>
             </Typography>

@@ -15,7 +15,7 @@ const outfit = Outfit({
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Someday | Your Romantic Keepsake",
+  title: "Memoir | Your Romantic Keepsake",
   description: "A private vault for your most cherished memories and future promises.",
 };
 

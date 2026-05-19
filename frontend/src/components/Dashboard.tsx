@@ -114,12 +114,12 @@ export default function Dashboard() {
   };
 
   return (
-    <Box className={`min-h-screen transition-all duration-700 ${isSurpriseMode ? 'bg-pink-950' : 'romantic-gradient'}`}>
+    <Box className={`min-h-screen transition-all duration-700 ${isSurpriseMode ? 'bg-yellow-950' : 'romantic-gradient'}`}>
       {/* Premium Header */}
       <nav className="p-6 sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
         <Container maxWidth="xl" className="flex justify-between items-center">
-          <Typography variant="h5" className={`font-display font-bold flex items-center gap-2 ${isSurpriseMode ? 'text-pink-100' : 'text-pink-600'}`}>
-            <Heart fill="currentColor" size={24} /> Someday
+          <Typography variant="h5" className={`font-display font-bold flex items-center gap-2 ${isSurpriseMode ? 'text-yellow-100' : 'text-amber-600'}`}>
+            <Heart fill="currentColor" size={24} /> Memoir
           </Typography>
 
           <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
@@ -139,7 +139,7 @@ export default function Dashboard() {
                 }}
               />
               <IconButton type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Search size={18} className={isSurpriseMode ? 'text-pink-200' : 'text-pink-400'} />
+                <Search size={18} className={isSurpriseMode ? 'text-yellow-200' : 'text-yellow-600'} />
               </IconButton>
             </form>
 
@@ -147,15 +147,15 @@ export default function Dashboard() {
               onClick={() => setIsSurpriseMode(!isSurpriseMode)}
               className={`rounded-full px-6 font-bold flex gap-2 transition-all ${
                 isSurpriseMode 
-                ? 'bg-pink-500 text-white shadow-[0_0_20px_rgba(236,72,153,0.5)]' 
-                : 'bg-white/50 text-pink-600 hover:bg-white'
+                ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(217,119,6,0.5)]' 
+                : 'bg-white/50 text-amber-600 hover:bg-white'
               }`}
             >
               <Sparkles size={18} />
               {isSurpriseMode ? 'Surprise Mode ON' : 'Surprise Mode'}
             </Button>
 
-            <IconButton onClick={logout} className={isSurpriseMode ? 'text-pink-200' : 'text-pink-600'}>
+            <IconButton onClick={logout} className={isSurpriseMode ? 'text-yellow-200' : 'text-amber-600'}>
               <Typography variant="body2" className="mr-2 font-bold">Logout</Typography>
             </IconButton>
           </Stack>
@@ -164,10 +164,10 @@ export default function Dashboard() {
 
       <Container maxWidth="xl" className="py-12">
         <Box className="mb-12">
-          <Typography variant="h3" className={`font-display font-bold mb-2 ${isSurpriseMode ? 'text-white' : 'text-pink-950'}`}>
+          <Typography variant="h3" className={`font-display font-bold mb-2 ${isSurpriseMode ? 'text-white' : 'text-amber-950'}`}>
             Our Infinite Grid
           </Typography>
-          <Typography className={isSurpriseMode ? 'text-pink-200' : 'text-pink-900/60'}>
+          <Typography className={isSurpriseMode ? 'text-yellow-200' : 'text-amber-900/60'}>
             Every moment we've shared, captured forever.
           </Typography>
         </Box>
@@ -175,11 +175,11 @@ export default function Dashboard() {
         {/* Infinite Grid */}
         <Grid container spacing={3}>
           {photos.length === 0 ? (
-             <Box className="w-full flex flex-col items-center justify-center py-40 text-pink-300">
+             <Box className="w-full flex flex-col items-center justify-center py-40 text-yellow-500/50">
                <ImageIcon size={100} strokeWidth={1} className="mb-6 opacity-20" />
                <Typography variant="h5" className="font-display">Your vault is empty</Typography>
                <Typography>Start adding memories together</Typography>
-               <Button variant="contained" className="mt-8 bg-pink-500 rounded-full px-8 py-3">Add First Photo</Button>
+               <Button variant="contained" className="mt-8 bg-amber-600 hover:bg-amber-700 rounded-full px-8 py-3 text-white" onClick={() => fileInputRef.current?.click()}>Add First Photo</Button>
              </Box>
           ) : (
             photos.map((photo, index) => (
@@ -190,20 +190,20 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => setSelectedPhoto(photo)}
-                  className="group relative aspect-[4/5] rounded-[32px] overflow-hidden cursor-pointer shadow-xl hover:shadow-pink-200 transition-all hover:scale-[1.02]"
+                  className="group relative aspect-[4/5] rounded-[32px] overflow-hidden cursor-pointer shadow-xl hover:shadow-yellow-200 transition-all hover:scale-[1.02]"
                 >
                   <img 
                     src={photo.url} 
                     alt="Memory" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-pink-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                  <div className="absolute inset-0 bg-gradient-to-t from-yellow-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                     {photo.captions.length > 0 && (
                       <Typography className="text-white font-medium line-clamp-2 italic">
                         "{photo.captions[0].text}"
                       </Typography>
                     )}
-                    <div className="flex items-center gap-2 mt-2 text-pink-200 text-xs font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2 mt-2 text-yellow-200 text-xs font-bold uppercase tracking-widest">
                       <Calendar size={12} />
                       {new Date(photo.takenAt).toLocaleDateString()}
                     </div>
@@ -236,7 +236,7 @@ export default function Dashboard() {
               
               <Box className="md:w-1/2 p-8 flex flex-col h-full bg-white">
                 <div className="flex justify-between items-center mb-6">
-                  <Typography variant="h5" className="font-display font-bold text-pink-950">Memory Details</Typography>
+                  <Typography variant="h5" className="font-display font-bold text-amber-950">Memory Details</Typography>
                   <Stack direction="row" spacing={1}>
                     <IconButton onClick={handleDeletePhoto} className="text-red-400 hover:text-red-600">
                       <Trash2 size={20} />
@@ -246,25 +246,25 @@ export default function Dashboard() {
                 </div>
 
                 <Box className="flex-grow overflow-y-auto space-y-6 mb-6 pr-2">
-                  <div className="flex items-center gap-2 text-pink-500 font-bold text-sm">
+                  <div className="flex items-center gap-2 text-amber-600 font-bold text-sm">
                     <Calendar size={16} />
                     {new Date(selectedPhoto.takenAt).toLocaleDateString()}
                   </div>
 
                   <Box className="space-y-4">
-                    <Typography className="font-bold text-pink-900/40 uppercase tracking-widest text-xs">Captions</Typography>
+                    <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-xs">Captions</Typography>
                     {selectedPhoto.captions.length === 0 ? (
-                      <Typography className="text-pink-900/30 italic">No captions yet. Be the first to add one.</Typography>
+                      <Typography className="text-amber-900/30 italic">No captions yet. Be the first to add one.</Typography>
                     ) : (
                       selectedPhoto.captions.map((cap, i) => (
                         <motion.div 
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           key={i} 
-                          className="bg-pink-50 p-4 rounded-2xl border-l-4 border-pink-500"
+                          className="bg-yellow-50 p-4 rounded-2xl border-l-4 border-amber-500"
                         >
-                          <Typography className="text-pink-950 italic mb-1">"{cap.text}"</Typography>
-                          <Typography variant="caption" className="text-pink-400 font-bold">
+                          <Typography className="text-amber-950 italic mb-1">"{cap.text}"</Typography>
+                          <Typography variant="caption" className="text-yellow-600 font-bold">
                             {new Date(cap.createdAt).toLocaleDateString()}
                           </Typography>
                         </motion.div>
@@ -285,14 +285,14 @@ export default function Dashboard() {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '20px',
                         backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                        '& fieldset': { borderColor: 'pink.100' },
+                        '& fieldset': { borderColor: 'yellow.100' },
                       }
                     }}
                   />
                   <Button 
                     fullWidth 
                     variant="contained" 
-                    className="bg-pink-600 hover:bg-pink-700 rounded-full py-3 font-bold"
+                    className="bg-amber-600 hover:bg-amber-700 rounded-full py-3 font-bold text-white"
                     onClick={handleAddCaption}
                   >
                     Add Caption
@@ -317,7 +317,7 @@ export default function Dashboard() {
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Button 
               variant="contained" 
-              className="w-16 h-16 rounded-full bg-white text-pink-600 shadow-2xl p-0 min-w-0"
+              className="w-16 h-16 rounded-full bg-white text-amber-600 shadow-2xl p-0 min-w-0"
               title="Share Access"
             >
               <Share2 />
@@ -328,7 +328,7 @@ export default function Dashboard() {
               variant="contained" 
               disabled={isUploading}
               onClick={() => fileInputRef.current?.click()}
-              className="w-20 h-20 rounded-full bg-pink-600 text-white shadow-2xl p-0 min-w-0"
+              className="w-20 h-20 rounded-full bg-amber-600 text-white shadow-2xl p-0 min-w-0"
               title="Add Memory"
             >
               {isUploading ? <Sparkles className="animate-spin" /> : <Plus size={32} />}
