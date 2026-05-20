@@ -373,10 +373,10 @@ export default function AlbumDetailsPage() {
                       setEditedTitle(album.title);
                       setIsEditingTitle(true);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 text-white hover:bg-white/20 p-2 rounded-full"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white/10 text-white hover:bg-white/20 p-1.5 sm:p-2 rounded-full flex-shrink-0"
                     title="Rename Album"
                   >
-                    <Edit2 size={16} />
+                    <Edit2 size={14} className="sm:w-4 sm:h-4" />
                   </IconButton>
                 </div>
               )}
@@ -440,6 +440,7 @@ export default function AlbumDetailsPage() {
                   onSelectPhoto={setSelectedPhoto} 
                   nostalgiaMode={nostalgiaMode} 
                   onAddCaption={handleAddCaptionForId}
+                  disableStacking={true}
                 />
               </Box>
             </>
