@@ -152,7 +152,7 @@ export default function DashboardPage() {
 
   // Base background theme
   const bgThemeClass = nostalgiaMode 
-    ? 'bg-[#f4efe2] text-[#3c2f1f]' 
+    ? 'bg-[#f4efe2] text-[#3c2f1f] paper-grain' 
     : 'romantic-gradient text-amber-950';
 
   return (
