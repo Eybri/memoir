@@ -1,107 +1,105 @@
 'use client';
 
 import * as React from 'react';
-import { Box, Typography } from '@mui/material';
+import { 
+  Box, 
+  Typography, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Button, 
+  TextField 
+} from '@mui/material';
 import { motion } from 'framer-motion';
-import { Plus, Calendar, Sparkles } from 'lucide-react';
+import { Plus, Folder, Sparkles } from 'lucide-react';
+
+interface Album {
+  _id: string;
+  title: string;
+  coverPhotoUrl: string;
+}
 
 interface Photo {
   _id: string;
   url: string;
   captions: { text: string; authorId: string; createdAt: string }[];
   takenAt: string;
+  albumId?: string;
 }
 
 interface ReelBoardProps {
+  albums: Album[];
   photos: Photo[];
-  onAddClick: () => void;
-  onFilterByDate?: (month: number, year: number | null) => void;
+  activeAlbumId: string | null;
+  onSelectAlbum: (albumId: string | null) => void;
+  onCreateAlbum: (title: string, coverPhotoUrl?: string) => Promise<void>;
   nostalgiaMode: boolean;
 }
 
-interface ReelItem {
-  year: number;
-  label: string;
-  thumbnail: string;
-  photoCount: number;
-}
-
 export default function ReelBoard({ 
-  photos, 
-  onAddClick, 
-  onFilterByDate, 
+  albums,
+  photos,
+  activeAlbumId,
+  onSelectAlbum,
+  onCreateAlbum,
   nostalgiaMode 
 }: ReelBoardProps) {
-  
-  // Calculate "On This Day" logs dynamically based on the current month across past years
-  const reelItems = React.useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth(); // 0-11
-    const currentYear = now.getFullYear();
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const monthLabel = monthNames[currentMonth];
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [newTitle, setNewTitle] = React.useState('');
+  const [selectedCoverUrl, setSelectedCoverUrl] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    // Find photos from the current month in previous years
-    const historyMap: { [key: number]: Photo[] } = {};
-    photos.forEach(photo => {
-      const pDate = new Date(photo.takenAt);
-      const pMonth = pDate.getMonth();
-      const pYear = pDate.getFullYear();
+  const getAlbumPhotoCount = (albumId: string) => {
+    return photos.filter(p => p.albumId === albumId).length;
+  };
 
-      if (pMonth === currentMonth && pYear < currentYear) {
-        if (!historyMap[pYear]) historyMap[pYear] = [];
-        historyMap[pYear].push(photo);
-      }
-    });
+  const getAlbumCover = (album: Album) => {
+    if (album.coverPhotoUrl) return album.coverPhotoUrl;
+    
+    // Fallback to the first photo in this album
+    const albumPhotos = photos.filter(p => p.albumId === album._id);
+    if (albumPhotos.length > 0) return albumPhotos[0].url;
 
-    const items: ReelItem[] = Object.keys(historyMap)
-      .map(Number)
-      .sort((a, b) => b - a)
-      .map(year => ({
-        year,
-        label: `${monthLabel} ${year}`,
-        thumbnail: historyMap[year][0].url,
-        photoCount: historyMap[year].length
-      }));
+    // Default premium warm fallback cover
+    return 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=250';
+  };
 
-    // If we have no historic photos, populate with a couple of nostalgic placeholders to illustrate the layout
-    if (items.length === 0) {
-      const mockYears = [currentYear - 1, currentYear - 2, currentYear - 4];
-      mockYears.forEach((year, index) => {
-        // Find any photo to use as placeholder thumbnail, or use a beautiful warm placeholder pattern
-        const thumb = photos[index % photos.length]?.url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=150';
-        items.push({
-          year,
-          label: `${monthLabel} ${year}`,
-          thumbnail: thumb,
-          photoCount: 0
-        });
-      });
+  const handleCreate = async () => {
+    if (!newTitle.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await onCreateAlbum(newTitle.trim(), selectedCoverUrl || undefined);
+      setNewTitle('');
+      setSelectedCoverUrl('');
+      setIsCreateOpen(false);
+    } catch (error) {
+      console.error('Failed to create album:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    return items;
-  }, [photos]);
+  };
 
   return (
     <Box className="w-full space-y-3 select-none">
       {/* Title label */}
       <Box className="flex justify-between items-center px-1">
         <Typography className="font-display font-extrabold text-[11px] tracking-[0.15em] text-amber-600/70 uppercase flex items-center gap-1.5">
-          <Calendar size={12} className="text-amber-500" /> Section 1: The Reel Board
+          <Folder size={12} className="text-amber-500" /> Section 1: The Album Board
         </Typography>
         <Typography className="font-mono text-[9px] text-amber-900/30 uppercase">
-          On This Day Logs
+          Memory Collections
         </Typography>
       </Box>
 
       {/* Horizontal Scrollable Reel */}
       <div className="flex gap-5 overflow-x-auto pb-4 pt-1 px-1 scrollbar-hide mask-image-horizontal">
         
-        {/* First Bubble: Add to today's Scrap */}
+        {/* First Bubble: Create Album */}
         <motion.div 
           whileHover={{ scale: 1.03, y: -4 }}
           whileTap={{ scale: 0.97 }}
-          onClick={onAddClick}
+          onClick={() => setIsCreateOpen(true)}
           className="flex-shrink-0 cursor-pointer"
         >
           <Box className={`w-28 h-36 bg-white rounded-2xl shadow-md border-2 border-dashed flex flex-col justify-between p-3 transition-colors ${
@@ -117,65 +115,170 @@ export default function ReelBoard({
             
             <div className="text-center pt-2 border-t border-dashed border-amber-900/10">
               <Typography className="text-[10px] font-display font-black tracking-tight leading-tight text-amber-950">
-                + Add Today's
+                + Create
               </Typography>
               <Typography className="text-[8px] font-mono tracking-wider text-amber-600 font-bold uppercase">
-                Scrap
+                Album
               </Typography>
             </div>
           </Box>
         </motion.div>
 
-        {/* History Bubbles */}
-        {reelItems.map((item, idx) => (
-          <motion.div 
-            key={`${item.year}-${idx}`}
-            whileHover={{ scale: 1.03, y: -4, rotate: (idx % 2 === 0 ? 1.5 : -1.5) }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => onFilterByDate?.(new Date().getMonth(), item.year)}
-            className="flex-shrink-0 cursor-pointer"
-          >
-            <Box className="w-28 h-36 bg-white rounded-2xl shadow-md border border-amber-100 p-2 pb-3.5 flex flex-col justify-between relative overflow-hidden group">
-              {/* Thumbnail window */}
-              <div className="w-full h-24 rounded-lg overflow-hidden relative bg-amber-50">
-                <img 
-                  src={item.thumbnail} 
-                  alt={item.label}
-                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                    nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''
-                  }`}
-                />
-                
-                {/* Vintage overlay glow */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                
-                {/* Count indicator */}
-                {item.photoCount > 0 && (
+        {/* Albums List */}
+        {albums.map((album, idx) => {
+          const count = getAlbumPhotoCount(album._id);
+          const cover = getAlbumCover(album);
+          const isActive = activeAlbumId === album._id;
+
+          return (
+            <motion.div 
+              key={album._id}
+              whileHover={{ scale: 1.03, y: -4, rotate: (idx % 2 === 0 ? 1.5 : -1.5) }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => onSelectAlbum(isActive ? null : album._id)}
+              className="flex-shrink-0 cursor-pointer"
+            >
+              <Box className={`w-28 h-36 bg-white rounded-2xl shadow-md p-2 pb-3.5 flex flex-col justify-between relative overflow-hidden group border transition-all duration-300 ${
+                isActive 
+                  ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                  : 'border-amber-100 hover:border-amber-300'
+              }`}>
+                {/* Thumbnail window */}
+                <div className="w-full h-24 rounded-lg overflow-hidden relative bg-amber-50">
+                  <img 
+                    src={cover} 
+                    alt={album.title}
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                      nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''
+                    }`}
+                  />
+                  
+                  {/* Vintage overlay glow */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                  
+                  {/* Count indicator */}
                   <span className="absolute bottom-1.5 right-1.5 bg-amber-950/80 backdrop-blur-sm text-yellow-50 text-[7px] font-black tracking-widest px-1.5 py-0.5 rounded-full uppercase">
-                    {item.photoCount} Log{item.photoCount > 1 ? 's' : ''}
+                    {count} Log{count !== 1 ? 's' : ''}
                   </span>
+                </div>
+
+                {/* Polaroid-style signature text label */}
+                <div className="text-center pt-1.5 flex flex-col items-center justify-center">
+                  <Typography className={`font-display font-black italic text-[11px] leading-none truncate w-full px-1 ${
+                    nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'
+                  }`}>
+                    {album.title}
+                  </Typography>
+                  <Typography className="text-[7px] font-mono font-bold tracking-[0.1em] text-amber-500 uppercase mt-0.5">
+                    Collection
+                  </Typography>
+                </div>
+
+                {/* Active check-line */}
+                {isActive && (
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500" />
                 )}
-              </div>
-
-              {/* Polaroid-style signature text label */}
-              <div className="text-center pt-1.5 flex flex-col items-center justify-center">
-                <Typography className={`font-display font-black italic text-[11px] leading-none ${
-                  nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'
-                }`}>
-                  {item.label}
-                </Typography>
-                <Typography className="text-[7px] font-mono font-bold tracking-[0.1em] text-amber-500 uppercase mt-0.5">
-                  Archives
-                </Typography>
-              </div>
-
-              {/* Stamp aesthetic line */}
-              <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/20" />
-            </Box>
-          </motion.div>
-        ))}
-
+              </Box>
+            </motion.div>
+          );
+        })}
       </div>
+
+      {/* Create Album Dialog */}
+      <Dialog 
+        open={isCreateOpen} 
+        onClose={() => setIsCreateOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: { 
+              borderRadius: '24px', 
+              p: 2,
+              backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
+              color: nostalgiaMode ? '#3c2f1f' : '#000000',
+            }
+          }
+        }}
+      >
+        <DialogTitle className="font-display font-black text-amber-950 text-xl pb-1">
+          Create New Album
+        </DialogTitle>
+        
+        <DialogContent className="space-y-4 pt-2">
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Album Title"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            disabled={isSubmitting}
+            placeholder="e.g. Summer Memories"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.2)' },
+                '&.Mui-focused fieldset': { borderColor: '#d97706' },
+              },
+              '& .MuiInputLabel-root.Mui-focused': { color: '#d97706' }
+            }}
+          />
+
+          <Box className="space-y-2">
+            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+              Choose Cover Photo (Optional)
+            </Typography>
+            {photos.length === 0 ? (
+              <Typography className="text-xs text-amber-900/40 italic">
+                Upload photos to choose a cover.
+              </Typography>
+            ) : (
+              <div className="grid grid-cols-4 gap-2 max-h-[140px] overflow-y-auto p-1 border border-amber-950/10 rounded-xl bg-amber-500/5">
+                {photos.map((photo) => {
+                  const isSelected = selectedCoverUrl === photo.url;
+                  return (
+                    <div 
+                      key={photo._id}
+                      onClick={() => setSelectedCoverUrl(isSelected ? '' : photo.url)}
+                      className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all relative ${
+                        isSelected ? 'border-amber-500 scale-95 shadow' : 'border-transparent hover:border-amber-200'
+                      }`}
+                    >
+                      <img src={photo.url} alt="Cover option" className="w-full h-full object-cover" />
+                      {isSelected && (
+                        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                          <Sparkles size={16} className="text-white" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Box>
+        </DialogContent>
+
+        <DialogActions className="px-6 pb-2">
+          <Button 
+            onClick={() => setIsCreateOpen(false)}
+            disabled={isSubmitting}
+            className="text-amber-700 font-bold hover:bg-amber-500/5 rounded-full px-4"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCreate}
+            disabled={isSubmitting || !newTitle.trim()}
+            variant="contained"
+            className="bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-full px-5 shadow-md"
+          >
+            {isSubmitting ? 'Creating...' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -22,7 +22,18 @@ import {
   Moon,
   Sun
 } from 'lucide-react';
-import { fetchPhotos, addCaption, searchPhotos, uploadPhoto, deletePhoto } from '@/lib/api';
+import { 
+  fetchPhotos, 
+  addCaption, 
+  searchPhotos, 
+  uploadPhoto, 
+  deletePhoto,
+  fetchAlbums,
+  createAlbum,
+  deleteAlbum,
+  updateAlbum,
+  updatePhotoAlbum
+} from '@/lib/api';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 
@@ -33,11 +44,18 @@ import SensoryCorner from './components/SensoryCorner';
 import Header from '@/components/Header';
 import ReelBoard from './components/ReelBoard';
 
+interface Album {
+  _id: string;
+  title: string;
+  coverPhotoUrl: string;
+}
+
 interface Photo {
   _id: string;
   url: string;
   captions: { text: string; authorId: string; createdAt: string }[];
   takenAt: string;
+  albumId?: string;
 }
 
 export default function DashboardPage() {
@@ -45,6 +63,8 @@ export default function DashboardPage() {
   const router = useRouter();
   
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [activeAlbumId, setActiveAlbumId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [newCaption, setNewCaption] = useState('');
@@ -61,6 +81,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       loadPhotos();
+      loadAlbums();
     }
   }, [user]);
 
@@ -70,8 +91,12 @@ export default function DashboardPage() {
 
     setIsUploading(true);
     try {
-      await uploadPhoto(file);
+      const newPhoto = await uploadPhoto(file);
+      if (activeAlbumId) {
+        await updatePhotoAlbum(newPhoto._id, activeAlbumId);
+      }
       loadPhotos();
+      loadAlbums();
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -85,6 +110,67 @@ export default function DashboardPage() {
       setPhotos(data);
     } catch (error) {
       console.error('Failed to load photos:', error);
+    }
+  };
+
+  const loadAlbums = async () => {
+    try {
+      const data = await fetchAlbums();
+      setAlbums(data);
+    } catch (error) {
+      console.error('Failed to load albums:', error);
+    }
+  };
+
+  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string) => {
+    try {
+      await createAlbum(title, coverPhotoUrl);
+      loadAlbums();
+    } catch (error) {
+      console.error('Failed to create album:', error);
+    }
+  };
+
+  const handleDeleteAlbum = async () => {
+    if (!activeAlbumId) return;
+    const album = albums.find(a => a._id === activeAlbumId);
+    if (!album) return;
+    if (!confirm(`Are you sure you want to delete the album "${album.title}"? Your photos inside it will not be deleted.`)) return;
+    try {
+      await deleteAlbum(activeAlbumId);
+      setActiveAlbumId(null);
+      loadAlbums();
+      loadPhotos();
+    } catch (error) {
+      console.error('Failed to delete album:', error);
+    }
+  };
+
+  const handleUpdatePhotoAlbum = async (photoId: string, albumId: string | null) => {
+    try {
+      await updatePhotoAlbum(photoId, albumId);
+      loadPhotos();
+      loadAlbums();
+      
+      // Update selected photo in modal
+      if (selectedPhoto && selectedPhoto._id === photoId) {
+        setSelectedPhoto(prev => prev ? { ...prev, albumId: albumId || undefined } : null);
+      }
+    } catch (error) {
+      console.error('Failed to update photo album:', error);
+    }
+  };
+
+  const handleSetAsCover = async (photoUrl: string) => {
+    if (!activeAlbumId) return;
+    const album = albums.find(a => a._id === activeAlbumId);
+    if (!album) return;
+    try {
+      await updateAlbum(activeAlbumId, { coverPhotoUrl: photoUrl });
+      loadAlbums();
+      alert(`Set as cover photo for "${album.title}"!`);
+    } catch (error) {
+      console.error('Failed to update album cover:', error);
     }
   };
 
@@ -134,6 +220,11 @@ export default function DashboardPage() {
       console.error('Failed to add caption:', error);
     }
   };
+
+  const filteredPhotos = React.useMemo(() => {
+    if (!activeAlbumId) return photos;
+    return photos.filter(p => p.albumId === activeAlbumId);
+  }, [photos, activeAlbumId]);
 
   // Determine welcome date details
   const timeDifferenceText = React.useMemo(() => {
@@ -193,31 +284,69 @@ export default function DashboardPage() {
 
         {/* Section 1: The Reel Board */}
         <ReelBoard 
-          photos={photos} 
-          onAddClick={() => fileInputRef.current?.click()}
-          onFilterByDate={async (month, year) => {
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            const query = year ? `${monthNames[month]} ${year}` : monthNames[month];
-            setSearchQuery(query);
-            try {
-              const data = await searchPhotos(query);
-              setPhotos(data);
-            } catch (err) {
-              console.error(err);
-            }
-          }}
+          albums={albums}
+          photos={photos}
+          activeAlbumId={activeAlbumId}
+          onSelectAlbum={setActiveAlbumId}
+          onCreateAlbum={handleCreateAlbum}
           nostalgiaMode={nostalgiaMode} 
         />
 
+        {activeAlbumId && (() => {
+          const activeAlbum = albums.find(a => a._id === activeAlbumId);
+          if (!activeAlbum) return null;
+          return (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col sm:flex-row justify-between items-center bg-amber-500/10 border border-amber-500/20 rounded-3xl p-5 gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl overflow-hidden border border-amber-950/10 flex-shrink-0">
+                  <img 
+                    src={activeAlbum.coverPhotoUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100'} 
+                    alt={activeAlbum.title} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <Typography className="font-display font-black text-amber-950 text-base leading-tight">
+                    {activeAlbum.title}
+                  </Typography>
+                  <Typography className="text-amber-600 font-mono text-[9px] uppercase tracking-wider font-bold">
+                    Filtering dashboard by this album
+                  </Typography>
+                </div>
+              </div>
+              <Stack direction="row" spacing={1.5}>
+                <Button
+                  variant="outlined"
+                  onClick={handleDeleteAlbum}
+                  className="border-red-500/30 hover:border-red-600 text-red-600 hover:bg-red-50 text-xs px-4 py-2 rounded-full font-bold uppercase"
+                >
+                  Delete Album
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setActiveAlbumId(null)}
+                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-5 py-2 rounded-full font-bold uppercase shadow-sm"
+                >
+                  Clear Filter
+                </Button>
+              </Stack>
+            </motion.div>
+          );
+        })()}
+
         {/* 1. Hero space - The Daily Canvas */}
-        <DailyCanvas photos={photos} nostalgiaMode={nostalgiaMode} />
+        <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
 
         {/* 2. Grid & Sidebar Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
           {/* Main Grid */}
           <div className="lg:col-span-8 space-y-8">
             <MemoryGrid 
-              photos={photos} 
+              photos={filteredPhotos} 
               onSelectPhoto={setSelectedPhoto} 
               nostalgiaMode={nostalgiaMode} 
               onAddCaption={handleAddCaptionForId}
@@ -300,8 +429,38 @@ export default function DashboardPage() {
                         </motion.div>
                       ))
                     )}
-                  </Box>
-                </div>
+          </Box>
+
+          {/* Album Assignment Section */}
+          <Box className="space-y-2 pt-2 border-t border-amber-200/20">
+            <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">
+              Album Assignment
+            </Typography>
+            <div className="flex gap-2 items-center">
+              <select
+                value={selectedPhoto.albumId || ''}
+                onChange={(e) => handleUpdatePhotoAlbum(selectedPhoto._id, e.target.value || null)}
+                className="bg-amber-500/5 border border-amber-900/10 rounded-xl p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 flex-grow"
+              >
+                <option value="">No Album</option>
+                {albums.map((alb) => (
+                  <option key={alb._id} value={alb._id}>
+                    {alb.title}
+                  </option>
+                ))}
+              </select>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => handleSetAsCover(selectedPhoto.url)}
+                disabled={!selectedPhoto.albumId}
+                className="border-amber-600/30 text-amber-700 hover:bg-amber-500/5 text-[10px] py-2 rounded-xl font-bold uppercase"
+              >
+                Make Cover
+              </Button>
+            </div>
+          </Box>
+        </div>
 
                 <Stack spacing={2} className="pt-4 border-t border-amber-200/20">
                   <TextField

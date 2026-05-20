@@ -21,6 +21,9 @@ export class Photo extends Document {
 
   @Prop()
   takenAt: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'Album', default: null })
+  albumId?: Types.ObjectId | null;
 }
 
 export const PhotoSchema = SchemaFactory.createForClass(Photo);

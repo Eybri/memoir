@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   UseGuards,
@@ -65,6 +66,15 @@ export class PhotosController {
     @Body() body: { text: string },
   ) {
     return this.photosService.addCaption(photoId, req.user.sub, body.text);
+  }
+
+  @Patch(':id/album')
+  updateAlbum(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') photoId: string,
+    @Body() body: { albumId: string | null },
+  ) {
+    return this.photosService.updateAlbum(photoId, req.user.sub, body.albumId);
   }
 
   @Get('search')
