@@ -61,7 +61,7 @@ export default function PhotoDetailDialog({
           slotProps={{
             paper: {
               sx: { 
-                borderRadius: '36px', 
+                borderRadius: '16px', 
                 overflow: 'hidden', 
                 border: 'none',
                 backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',

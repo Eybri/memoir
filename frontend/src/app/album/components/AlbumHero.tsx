@@ -38,7 +38,7 @@ export default function AlbumHero({
 }: AlbumHeroProps) {
   return (
     <Box 
-      className="relative w-full h-[320px] sm:h-[400px] rounded-[36px] overflow-hidden shadow-2xl border border-amber-900/10 flex items-end p-8 sm:p-12"
+      className="relative w-full h-[320px] sm:h-[400px] rounded-2xl overflow-hidden shadow-2xl border border-amber-900/10 flex items-end p-8 sm:p-12"
     >
       {/* Cover Photo */}
       <img 

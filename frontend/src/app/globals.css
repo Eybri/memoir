@@ -59,7 +59,7 @@ body {
     radial-gradient(circle at 10% 20%, rgba(180, 83, 9, 0.015) 30%, transparent 60%),
     radial-gradient(circle at 90% 80%, rgba(180, 83, 9, 0.01) 20%, transparent 50%);
   background-size: 8px 8px, 100% 100%, 100% 100%;
-  border-radius: 36px;
+  border-radius: 20px;
   border: 10px solid #f4ebd9;
   box-shadow: 
     0 15px 30px rgba(60, 47, 31, 0.08),
@@ -74,5 +74,5 @@ body {
   inset: 4px;
   border: 1.5px dashed rgba(180, 83, 9, 0.2);
   pointer-events: none;
-  border-radius: 26px;
+  border-radius: 12px;
 }

@@ -299,7 +299,7 @@ export default function MemoryGrid({
                   /* base warm kraft gradient */
                   'linear-gradient(160deg, #f2e4cc 0%, #e8d5b0 30%, #f0e2c8 60%, #e6d2a8 100%)',
                 ].join(', '),
-                borderRadius: '40px',
+                borderRadius: '20px',
                 /* thick mat-board frame: outer dark edge + inner cream lip */
                 border: '14px solid #c9a96e',
                 outline: '4px solid #a0783a',
@@ -356,7 +356,7 @@ export default function MemoryGrid({
 
               <div
                 className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[210px]"
-                style={{ gap: '18px', gridAutoFlow: 'dense' }}
+                style={{ gap: '18px', gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
                   const photo = pile[0];
@@ -419,7 +419,7 @@ export default function MemoryGrid({
                         whileHover={{ scale: 1.04, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
                         style={{ transformStyle: 'preserve-3d', zIndex: 1, border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
-                        className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-[14px] sm:rounded-[22px] flex flex-col justify-between overflow-hidden"
+                        className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-xl flex flex-col justify-between overflow-hidden"
                       >
                         {/* Photo corner stickers */}
                         {[

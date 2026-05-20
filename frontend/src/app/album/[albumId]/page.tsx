@@ -31,7 +31,7 @@ import {
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
-import DailyCanvas from '../../dashboard/components/DailyCanvas';
+import AlbumFilmStrip from '../components/AlbumFilmStrip';
 import MemoryGrid from '../../dashboard/components/MemoryGrid';
 
 // Import modular components
@@ -320,8 +320,8 @@ export default function AlbumDetailsPage() {
         <Box className="space-y-12">
           {albumPhotos.length > 0 ? (
             <>
-              {/* Daily Canvas - Carousel Collage */}
-              <DailyCanvas photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
+              {/* Album Film Strip — scrolling reel + stats */}
+              <AlbumFilmStrip photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
 
               {/* Album Photos Grid */}
               <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
