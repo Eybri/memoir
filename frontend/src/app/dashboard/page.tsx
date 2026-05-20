@@ -14,13 +14,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
-  Search, 
   Camera, 
   Sparkles, 
   Trash2,
   Calendar,
   Image as ImageIcon,
-  LogOut,
   Moon,
   Sun
 } from 'lucide-react';
@@ -32,6 +30,7 @@ import { useRouter } from 'next/navigation';
 import DailyCanvas from './components/DailyCanvas';
 import MemoryGrid from './components/MemoryGrid';
 import SensoryCorner from './components/SensoryCorner';
+import Header from '@/components/Header';
 
 interface Photo {
   _id: string;
@@ -160,54 +159,15 @@ export default function DashboardPage() {
     <Box className={`min-h-screen transition-all duration-700 pb-24 ${bgThemeClass}`}>
       
       {/* Premium Header */}
-      <nav className={`p-6 sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-700 ${
-        nostalgiaMode ? 'bg-[#f4efe2]/80 border-[#dcd2be]' : 'bg-white/10 border-white/20'
-      }`}>
-        <Container maxWidth="xl" className="flex justify-between items-center">
-          <Typography variant="h5" className="font-display font-black flex items-center gap-2 text-amber-600 cursor-pointer" onClick={() => router.push('/')}>
-            <Camera size={24} /> Memoir
-          </Typography>
-
-          <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
-             <form onSubmit={handleSearch} className="relative hidden md:block">
-              <TextField
-                size="small"
-                placeholder="Search captions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '50px',
-                    backgroundColor: nostalgiaMode ? 'rgba(60, 47, 31, 0.05)' : 'rgba(255, 255, 255, 0.2)',
-                    color: nostalgiaMode ? '#3c2f1f' : '#000',
-                    '& fieldset': { border: 'none' },
-                  }
-                }}
-              />
-              <IconButton type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Search size={18} className="text-amber-600" />
-              </IconButton>
-            </form>
-
-            {/* 褪色 (Muted) Toggle */}
-            <Button 
-              onClick={() => setNostalgiaMode(!nostalgiaMode)}
-              className={`rounded-full px-6 font-bold flex gap-2 transition-all ${
-                nostalgiaMode 
-                ? 'bg-amber-800 text-yellow-50 shadow-md' 
-                : 'bg-white/50 text-amber-600 hover:bg-white border border-amber-200/20'
-              }`}
-            >
-              <Sparkles size={18} />
-              {nostalgiaMode ? 'Nostalgia Active' : 'Nostalgia Toggle'}
-            </Button>
-
-            <IconButton onClick={logout} className="text-amber-600 hover:text-amber-700 bg-white/20 p-2.5 rounded-full border border-amber-200/10">
-              <LogOut size={18} />
-            </IconButton>
-          </Stack>
-        </Container>
-      </nav>
+      <Header 
+        isDashboard={true}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+        nostalgiaMode={nostalgiaMode}
+        setNostalgiaMode={setNostalgiaMode}
+        logout={logout}
+      />
 
       {/* Main Content */}
       <Container maxWidth="xl" className="py-12 space-y-12">
