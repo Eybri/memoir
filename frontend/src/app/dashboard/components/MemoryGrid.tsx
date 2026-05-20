@@ -546,19 +546,18 @@ export default function MemoryGrid({
                 
                 // Compute rotation for layout tilts (based on pileIndex for natural spread look)
                 const baseTilt = (pileIndex % 3 === 0) ? -2.5 : (pileIndex % 3 === 1) ? 1.5 : -1;
-                const isFlipped = flippedCards[topPhoto._id] || false;
 
                 // RENDER SINGLE PHOTO CARD (1 item)
                 if (pile.length === 1) {
                   const photo = pile[0];
                   return (
-                    <div 
-                      key={photo._id} 
-                      className="break-inside-avoid mb-4 sm:mb-8 relative"
+                    <div
+                      key={photo._id}
+                      className="break-inside-avoid mb-4 sm:mb-8 relative group"
                       style={{ perspective: 1000 }}
                     >
-                      {/* Washi Tape overlay */}
-                      <div 
+                      {/* Washi Tape */}
+                      <div
                         className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-14 sm:w-20 h-4 sm:h-5 rotate-[-2deg] z-30 select-none pointer-events-none"
                         style={{
                           background: 'rgba(252, 211, 77, 0.4)',
@@ -569,121 +568,53 @@ export default function MemoryGrid({
                         }}
                       />
 
-                      {/* Pull-out Journal slider tab */}
-                      <button 
-                        onClick={() => toggleFlip(photo._id)}
-                        className={`absolute right-[-4px] top-[30px] sm:top-[40px] z-40 p-1.5 sm:p-2.5 rounded-r-xl border shadow-md flex items-center justify-center transition-all ${
-                          isFlipped 
-                            ? 'bg-amber-800 text-yellow-50 border-amber-900 right-[-8px]' 
-                            : 'bg-white hover:bg-amber-50 text-amber-850 hover:right-[-6px] border-amber-100'
-                        }`}
-                        title={isFlipped ? "View Photo" : "Write Journal Memo"}
-                      >
-                        {isFlipped ? <RotateCcw size={11} className="sm:w-3 sm:h-3" /> : <BookOpen size={11} className="sm:w-3 sm:h-3" />}
-                      </button>
-
-                      {/* 3D Card Structure */}
+                      {/* Polaroid Card */}
                       <motion.div
-                        animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 13 }}
-                        style={{ transformStyle: 'preserve-3d' }}
-                        className="w-full relative shadow-lg hover:shadow-yellow-200/50 transition-shadow duration-500 bg-white p-1 pb-1.5 sm:p-1.5 sm:pb-2.5 border border-yellow-100 rounded-[18px] sm:rounded-[28px]"
+                        animate={{ rotate: baseTilt }}
+                        whileHover={{ rotate: 0, scale: 1.04, zIndex: 20 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                        className="w-full relative bg-white p-1.5 pb-3 sm:pb-5 shadow-lg border border-amber-100/80 rounded-xl"
                       >
-                        {/* FRONT FACE */}
-                        <div 
-                          style={{ backfaceVisibility: 'hidden' }}
-                          className="w-full"
+                        {/* Photo + cinematic hover overlay */}
+                        <div
+                          className="aspect-[4/5] rounded-lg overflow-hidden relative cursor-pointer"
+                          onClick={() => onSelectPhoto(photo)}
                         >
-                          <div 
-                            className="aspect-[4/5] rounded-[14px] sm:rounded-[20px] overflow-hidden relative cursor-pointer"
-                            onClick={() => onSelectPhoto(photo)}
+                          <img
+                            src={photo.url}
+                            alt="Scrapbook Memory"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                          />
+                          {/* Cinematic dark sweep */}
+                          <div
+                            className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            style={{ background: 'linear-gradient(to top, rgba(15,8,2,0.85) 0%, rgba(15,8,2,0.25) 55%, transparent 100%)' }}
                           >
-                            <img 
-                              src={photo.url} 
-                              alt="Scrapbook Memory" 
-                              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                            />
-                          </div>
-                          
-                          {/* Polaroid margin info */}
-                          <Box className="pt-1 px-1 flex justify-between items-center select-none">
-                            <Typography className="text-amber-800/60 text-[8px] sm:text-xs font-bold font-mono">
-                              {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </Typography>
-                            <ChevronRight size={10} className="text-amber-600/40 flex-shrink-0" />
-                          </Box>
-                        </div>
-
-                        {/* BACK FACE (Ruled Journal Paper) */}
-                        <div 
-                          style={{ 
-                            backfaceVisibility: 'hidden', 
-                            transform: 'rotateY(180deg)',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                          }}
-                          className="bg-[#fefcf7] p-3 sm:p-5 rounded-[18px] sm:rounded-[28px] flex flex-col justify-between border-2 border-amber-900/10 shadow-inner"
-                        >
-                          {/* Ruled Notebook Paper Styling */}
-                          <div 
-                            className="flex-grow overflow-y-auto space-y-2 sm:space-y-4"
-                            style={{
-                              backgroundImage: 'linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%)',
-                              backgroundSize: '100% 20px sm:100% 24px',
-                              lineHeight: '20px sm:24px',
-                              paddingLeft: '16px sm:24px',
-                              borderLeft: '1.5px solid #f87171', // Red notebook margin line
-                            }}
-                          >
-                            <Typography className="font-mono text-[7px] sm:text-[9px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-1 mt-1">
-                              Memory Journal Back
-                            </Typography>
-                            
-                            {/* Past Memos */}
-                            <div className="space-y-2 pt-1 sm:pt-2">
-                              {photo.captions.length === 0 ? (
-                                <Typography className="text-slate-400 font-mono italic text-[9px] sm:text-xs leading-normal">
-                                  No stories recorded yet.
+                            <div className="space-y-1">
+                              <Typography className="text-amber-100 font-display font-black text-sm leading-tight drop-shadow">
+                                {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                              </Typography>
+                              {photo.captions.length > 0 && (
+                                <span className="inline-block bg-amber-500/25 backdrop-blur-sm text-amber-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border border-amber-400/20 uppercase tracking-wider">
+                                  {photo.captions.length} {photo.captions.length === 1 ? 'caption' : 'captions'}
+                                </span>
+                              )}
+                              {photo.captions[0] && (
+                                <Typography className="text-amber-200/75 font-mono italic text-[9px] leading-tight line-clamp-2">
+                                  &ldquo;{photo.captions[0].text}&rdquo;
                                 </Typography>
-                              ) : (
-                                photo.captions.map((cap, i) => (
-                                  <div key={i} className="leading-tight pb-0.5">
-                                    <Typography className="text-amber-950 font-mono text-[10px] sm:text-xs italic font-bold">
-                                      "{cap.text}"
-                                    </Typography>
-                                    <Typography className="text-[7px] sm:text-[8px] font-mono text-amber-800/40 uppercase">
-                                      {new Date(cap.createdAt).toLocaleDateString()}
-                                    </Typography>
-                                  </div>
-                                ))
                               )}
                             </div>
                           </div>
-
-                          {/* Quick Add Form */}
-                          <div className="pt-2 border-t border-amber-900/5 mt-1 sm:mt-2 space-y-1.5">
-                            <textarea 
-                              placeholder="Jot down details..."
-                              value={memos[photo._id] || ''}
-                              onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}
-                              className="w-full text-[10px] sm:text-xs p-1.5 sm:p-2.5 bg-amber-500/5 border border-amber-900/10 rounded-lg sm:rounded-xl focus:outline-none focus:border-amber-600 font-mono resize-none text-amber-950"
-                              rows={2}
-                            />
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              size="small"
-                              disabled={isSavingMemo[photo._id] || !memos[photo._id]?.trim()}
-                              onClick={() => handleSaveMemo(photo._id)}
-                              className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[8px] sm:text-[10px] uppercase py-1 sm:py-1.5 shadow"
-                            >
-                              {isSavingMemo[photo._id] ? 'Saving...' : 'Save'}
-                            </Button>
-                          </div>
                         </div>
+
+                        {/* Polaroid footer */}
+                        <Box className="pt-1.5 px-1 flex justify-between items-center select-none">
+                          <Typography className="text-amber-800/50 text-[8px] sm:text-xs font-bold font-mono tracking-wide">
+                            {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </Typography>
+                          <ChevronRight size={10} className="text-amber-600/30 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                        </Box>
                       </motion.div>
                     </div>
                   );
@@ -713,19 +644,6 @@ export default function MemoryGrid({
                         <div className="w-4 h-1 sm:w-5.5 sm:h-1.5 bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 rounded-full border border-amber-950/40 -mr-2 sm:-mr-2.5 shadow-sm" />
                       </div>
 
-                      {/* Pull-out Journal tab for stack top */}
-                      <button 
-                        onClick={() => toggleFlip(topPhoto._id)}
-                        className={`absolute right-[4px] top-[30px] sm:top-[40px] z-40 p-1.5 sm:p-2.5 rounded-r-xl border shadow-md flex items-center justify-center transition-all ${
-                          isFlipped 
-                            ? 'bg-amber-800 text-yellow-50 border-amber-900 right-[-8px]' 
-                            : 'bg-white hover:bg-amber-50 text-amber-850 hover:right-[-6px] border-amber-100'
-                        }`}
-                        title={isFlipped ? "View Album" : "Write Journal Memo"}
-                      >
-                        {isFlipped ? <RotateCcw size={11} className="sm:w-3 sm:h-3" /> : <BookOpen size={11} className="sm:w-3 sm:h-3" />}
-                      </button>
-
                       {/* Render stack album pages */}
                       {orderedPile.slice(0, 3).map((photo, i) => {
                         const isTopCard = i === 0;
@@ -736,65 +654,35 @@ export default function MemoryGrid({
                         let yOffset = 0;
                         let scale = 1;
 
+                        // Calculate fanning offsets
                         if (!isHovered) {
                           if (i === 1) { rotation = 0.5; xOffset = 2; yOffset = 2; scale = 0.99; }
                           else if (i === 2) { rotation = 1; xOffset = 4; yOffset = 4; scale = 0.98; }
                         } else {
-                          // Swing open pages to the right when hovered (book leaf look)
-                          if (i === 1) { rotation = 5; xOffset = 8; sm:xOffset = 14; yOffset = -2; scale = 0.99; }
-                          else if (i === 2) { rotation = 10; xOffset = 16; sm:xOffset = 28; yOffset = -4; scale = 0.98; }
+                          if (i === 1) { rotation = 5; xOffset = 14; yOffset = -2; scale = 0.99; }
+                          else if (i === 2) { rotation = 10; xOffset = 28; yOffset = -4; scale = 0.98; }
                         }
-
-                        // If top card is flipped, we center it and raise zIndex above the binder spine
-                        const topCardFlipped = isFlipped && isTopCard;
 
                         return (
                           <motion.div
                             key={photo._id}
-                            drag={isTopCard && !topCardFlipped ? "x" : false}
+                            drag={isTopCard ? "x" : false}
                             dragConstraints={{ left: 0, right: 0 }}
                             onDragEnd={(event, info) => {
-                              if (isTopCard && !topCardFlipped) {
-                                  const swipeThreshold = 120;
-                                  if (Math.abs(info.offset.x) > swipeThreshold) {
-                                    handleSwipe(pileId, pile);
-                                  }
+                              if (isTopCard) {
+                                if (Math.abs(info.offset.x) > 120) handleSwipe(pileId, pile);
                               }
                             }}
-                            animate={topCardFlipped ? {
-                              rotateY: 180,
-                              rotate: 0,
-                              x: 0,
-                              y: 0,
-                              scale: 1.02,
-                              zIndex: 25
-                            } : { 
-                              rotateY: 0,
-                              rotate: rotation,
-                              x: xOffset,
-                              y: yOffset,
-                              scale: scale,
-                              zIndex: 10 - i
-                            }}
+                            animate={{ rotate: rotation, x: xOffset, y: yOffset, scale, zIndex: 10 - i }}
                             transition={{ type: 'spring', stiffness: 110, damping: 14 }}
-                            style={{ 
-                              transformStyle: 'preserve-3d',
-                              transformOrigin: 'left center' 
-                            }}
-                            className="absolute left-5 sm:left-7 w-[80%] sm:w-[78%] h-[92%] top-[4%] bg-[#FAF8F4] p-1 pb-1.5 sm:p-1.5 sm:pb-2.5 rounded-r-[16px] sm:rounded-r-[22px] rounded-l-[4px] shadow-lg border border-amber-900/10 flex flex-col justify-between cursor-grab active:cursor-grabbing"
+                            style={{ transformOrigin: 'left center' }}
+                            className="absolute left-5 sm:left-7 w-[80%] sm:w-[78%] h-[92%] top-[4%] bg-[#FAF8F4] p-1 pb-1.5 sm:p-1.5 sm:pb-2.5 rounded-r-xl rounded-l-[4px] shadow-lg border border-amber-900/10 flex flex-col justify-between cursor-grab active:cursor-grabbing"
                           >
-                            {/* FRONT FACE */}
-                            <div 
-                              style={{ backfaceVisibility: 'hidden' }}
-                              className="w-full h-full flex flex-col justify-between min-h-0"
-                            >
-                              <div 
-                                className="w-full flex-grow rounded-[10px] sm:rounded-[14px] overflow-hidden relative min-h-0"
-                                onClick={() => {
-                                  if (isTopCard && !topCardFlipped) {
-                                    onSelectPhoto(photo);
-                                  }
-                                }}
+                            {/* FRONT FACE only */}
+                            <div className="w-full h-full flex flex-col justify-between min-h-0">
+                              <div
+                                className="w-full flex-grow rounded-lg overflow-hidden relative min-h-0 cursor-pointer"
+                                onClick={() => { if (isTopCard) onSelectPhoto(photo); }}
                               >
                                 <img 
                                   src={isTopCard ? topPhoto.url : photo.url} 
