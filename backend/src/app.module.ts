@@ -16,4 +16,4 @@ import { PhotosModule } from './photos/photos.module';
     PhotosModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Patch, Body, Param } from '@nestjs/common';
 import { LettersService } from './letters.service';
 
+import { Letter } from '../schemas/letter.schema';
+
 @Controller('letters')
 export class LettersController {
   constructor(private readonly lettersService: LettersService) {}
@@ -11,12 +13,12 @@ export class LettersController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: Partial<Letter>) {
     return this.lettersService.create(body);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: Partial<Letter>) {
     return this.lettersService.update(id, body);
   }
 }

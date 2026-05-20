@@ -16,10 +16,12 @@ export class ConfigService {
     return config;
   }
 
-  async update(data: any) {
+  async update(data: Partial<Config>) {
     let config = await this.configModel.findOne().exec();
     if (config) {
-      return this.configModel.findByIdAndUpdate(config._id, data, { new: true }).exec();
+      return this.configModel
+        .findByIdAndUpdate(config._id, data, { new: true })
+        .exec();
     } else {
       config = new this.configModel(data);
       return config.save();

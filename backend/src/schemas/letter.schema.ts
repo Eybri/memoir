@@ -6,7 +6,10 @@ export class Letter extends Document {
   @Prop()
   caption: string;
 
-  @Prop({ enum: ['text', 'voice', 'photo', 'video', 'audio'], default: 'photo' })
+  @Prop({
+    enum: ['text', 'voice', 'photo', 'video', 'audio'],
+    default: 'photo',
+  })
   type: string;
 
   @Prop({ required: true })

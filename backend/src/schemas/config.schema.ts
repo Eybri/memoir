@@ -9,9 +9,9 @@ export class Config extends Document {
   @Prop()
   revealDate: Date;
 
-  @Prop({ 
-    enum: ['one_big_reveal', 'timed_drip', 'geofenced'], 
-    default: 'one_big_reveal' 
+  @Prop({
+    enum: ['one_big_reveal', 'timed_drip', 'geofenced'],
+    default: 'one_big_reveal',
   })
   deliveryMode: string;
 

@@ -12,6 +12,6 @@ import { CloudinaryService } from './cloudinary.service';
     AuthModule,
   ],
   controllers: [PhotosController],
-  providers: [PhotosService, CloudinaryService]
+  providers: [PhotosService, CloudinaryService],
 })
 export class PhotosModule {}
