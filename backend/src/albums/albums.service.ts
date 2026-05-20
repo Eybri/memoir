@@ -3,12 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Album } from '../schemas/album.schema';
 import { Photo } from '../schemas/photo.schema';
+import { PhotosService } from '../photos/photos.service';
 
 @Injectable()
 export class AlbumsService {
   constructor(
     @InjectModel(Album.name) private albumModel: Model<Album>,
     @InjectModel(Photo.name) private photoModel: Model<Photo>,
+    private readonly photosService: PhotosService,
   ) {}
 
   async create(userId: string, title: string, coverPhotoUrl?: string) {
@@ -59,7 +61,7 @@ export class AlbumsService {
       throw new NotFoundException('Album not found');
     }
 
-    // Unassign photos that belonged to this album
+    // Unassign photos that belonged to this album (keep photos, just remove album link)
     await this.photoModel.updateMany(
       { albumId: new Types.ObjectId(albumId), userId: new Types.ObjectId(userId) },
       { $set: { albumId: null } }
@@ -67,4 +69,34 @@ export class AlbumsService {
 
     return this.albumModel.findByIdAndDelete(albumId);
   }
+
+  /**
+   * Deletes an album AND all its photos from both the database and Cloudinary.
+   * Use this when the user explicitly wants to destroy all memories inside the album.
+   */
+  async removeWithPhotos(userId: string, albumId: string) {
+    const album = await this.albumModel.findOne({
+      _id: new Types.ObjectId(albumId),
+      userId: new Types.ObjectId(userId),
+    });
+    if (!album) {
+      throw new NotFoundException('Album not found');
+    }
+
+    // Find all photos that belong to this album
+    const albumPhotos = await this.photoModel.find({
+      albumId: new Types.ObjectId(albumId),
+      userId: new Types.ObjectId(userId),
+    });
+
+    // Delete each photo from Cloudinary + database via PhotosService
+    await Promise.allSettled(
+      albumPhotos.map((photo) =>
+        this.photosService.remove(String(photo._id), userId),
+      ),
+    );
+
+    return this.albumModel.findByIdAndDelete(albumId);
+  }
 }
+

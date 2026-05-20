@@ -181,3 +181,12 @@ export async function updatePhotoAlbum(photoId: string, albumId: string | null) 
   return response.json();
 }
 
+export async function fetchAlbumById(albumId: string) {
+  const response = await fetch(`${API_URL}/albums/${albumId}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch album');
+  return response.json();
+}
+
+
