@@ -5,6 +5,7 @@ import { AlbumsService } from './albums.service';
 import { Album, AlbumSchema } from '../schemas/album.schema';
 import { Photo, PhotoSchema } from '../schemas/photo.schema';
 import { AuthModule } from '../auth/auth.module';
+import { PhotosModule } from '../photos/photos.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
       { name: Photo.name, schema: PhotoSchema },
     ]),
     AuthModule,
+    PhotosModule,
   ],
   controllers: [AlbumsController],
   providers: [AlbumsService],

@@ -284,94 +284,176 @@ export default function MemoryGrid({
           </Box>
 
           {disableStacking ? (
-            /* Collage Scrapbook Page Grid */
-            <Box className="relative bg-[#fcf9f2] border border-amber-900/15 rounded-[24px] sm:rounded-[36px] p-3 sm:p-6 shadow-inner overflow-hidden">
-              {/* Scrapbook page number indicator */}
-              <div className="absolute top-3 right-4 sm:top-4 sm:right-6 text-amber-950/20 font-serif italic text-[10px] sm:text-xs select-none">
-                Scrapbook Ledger Page {activeAlbumId ? 'I' : 'II'}
+            /* ── Collage Scrapbook Page Grid ── */
+            <Box
+              className="relative overflow-hidden"
+              sx={{
+                background: 'linear-gradient(135deg, #f5ede0 0%, #ede0cc 40%, #f5ede0 100%)',
+                borderRadius: '36px',
+                border: '10px solid #e8d5bc',
+                boxShadow: '0 20px 50px -10px rgba(60,40,15,0.18), inset 0 0 80px rgba(180,100,20,0.04)',
+                p: { xs: '20px', sm: '40px' },
+              }}
+            >
+              {/* Aged paper grain overlay */}
+              <div
+                className="absolute inset-0 pointer-events-none z-0 opacity-[0.04]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                  backgroundSize: '180px 180px',
+                }}
+              />
+
+              {/* Dashed inner stitch border */}
+              <div
+                className="absolute pointer-events-none z-0"
+                style={{
+                  inset: '10px',
+                  border: '1.5px dashed rgba(150, 90, 20, 0.22)',
+                  borderRadius: '26px',
+                }}
+              />
+
+              {/* Page label stamp */}
+              <div className="absolute top-5 right-7 z-10 opacity-30 select-none pointer-events-none">
+                <div
+                  className="font-serif italic text-amber-900 text-[10px] sm:text-xs border border-amber-900/40 px-2 py-0.5 rounded"
+                  style={{ transform: 'rotate(2deg)', letterSpacing: '0.05em' }}
+                >
+                  Scrapbook Ledger · {activeAlbumId ? 'Vol. I' : 'Vol. II'}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 auto-rows-[140px] sm:auto-rows-[200px]">
+              <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-8 auto-rows-[150px] sm:auto-rows-[210px]">
                 {chapter.piles.map((pile, pileIndex) => {
-                  const photo = pile[0]; // single photos because disableStacking is true
-                  const baseTilt = (pileIndex % 3 === 0) ? -1.5 : (pileIndex % 3 === 1) ? 1 : -0.5;
+                  const photo = pile[0];
+                  // More expressive organic tilts
+                  const tilts = [-3, 2, -1.5, 3.5, -2.5, 1, -4, 2.5];
+                  const baseTilt = tilts[pileIndex % tilts.length];
                   const isFlipped = flippedCards[photo._id] || false;
                   const collageClass = getCollageSpanClass(pileIndex);
-                  
+
+                  // Washi tape colors cycling through warm scrapbook tones
+                  const washiColors = [
+                    'rgba(252,211,77,0.55)',   // amber yellow
+                    'rgba(251,146,60,0.45)',   // orange
+                    'rgba(167,243,208,0.50)',  // mint
+                    'rgba(253,186,116,0.50)',  // peach
+                    'rgba(196,181,253,0.45)',  // lavender
+                    'rgba(253,224,71,0.50)',   // lemon
+                  ];
+                  const washiColor = washiColors[pileIndex % washiColors.length];
+                  const washiRotate = (pileIndex % 2 === 0) ? '-2deg' : '1.5deg';
+                  const washiLeft = (pileIndex % 3 === 0) ? '15%' : (pileIndex % 3 === 1) ? '30%' : '50%';
+
                   return (
-                    <div 
-                      key={photo._id} 
+                    <div
+                      key={photo._id}
                       className={`${collageClass} relative`}
                       style={{ perspective: 1000 }}
                     >
+                      {/* Washi tape strip */}
+                      <div
+                        className="absolute top-[-9px] z-30 select-none pointer-events-none"
+                        style={{
+                          left: washiLeft,
+                          transform: `translateX(-50%) rotate(${washiRotate})`,
+                          width: '52px',
+                          height: '16px',
+                          background: washiColor,
+                          boxShadow: '0 1px 4px rgba(0,0,0,0.10)',
+                          backdropFilter: 'blur(1px)',
+                          borderLeft: '1.5px dashed rgba(0,0,0,0.07)',
+                          borderRight: '1.5px dashed rgba(0,0,0,0.07)',
+                        }}
+                      />
+
                       {/* Pull-out Journal slider tab */}
-                      <button 
+                      <button
                         onClick={() => toggleFlip(photo._id)}
-                        className={`absolute right-[-4px] top-[20px] sm:top-[30px] z-40 p-1 sm:p-2 rounded-r-xl border shadow-md flex items-center justify-center transition-all ${
-                          isFlipped 
-                            ? 'bg-amber-800 text-yellow-50 border-amber-900 right-[-8px]' 
+                        className={`absolute right-[-4px] top-[22px] sm:top-[32px] z-40 p-1 sm:p-2 rounded-r-xl border shadow-md flex items-center justify-center transition-all ${
+                          isFlipped
+                            ? 'bg-amber-800 text-yellow-50 border-amber-900 right-[-8px]'
                             : 'bg-white hover:bg-amber-50 text-amber-850 hover:right-[-6px] border-amber-100'
                         }`}
-                        title={isFlipped ? "View Photo" : "Write Journal"}
+                        title={isFlipped ? 'View Photo' : 'Write Journal'}
                       >
                         {isFlipped ? <RotateCcw size={10} className="sm:w-3 sm:h-3" /> : <BookOpen size={10} className="sm:w-3 sm:h-3" />}
                       </button>
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 13 }}
-                        style={{ transformStyle: 'preserve-3d' }}
-                        className="w-full h-full relative shadow-md hover:shadow-xl transition-shadow duration-500 bg-white p-1 pb-1.5 sm:p-1.5 sm:pb-2 border border-yellow-50/50 rounded-[12px] sm:rounded-[20px] flex flex-col justify-between"
+                        whileHover={{ scale: 1.04, rotate: 0, zIndex: 20 }}
+                        transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+                        style={{ transformStyle: 'preserve-3d', zIndex: 1 }}
+                        className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-[14px] sm:rounded-[22px] flex flex-col justify-between overflow-hidden"
+                        sx={{ border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
                       >
+                        {/* Photo corner stickers */}
+                        {[
+                          { top: 4, left: 4, rotate: '-45deg' },
+                          { top: 4, right: 4, rotate: '45deg' },
+                          { bottom: 22, left: 4, rotate: '-135deg' },
+                          { bottom: 22, right: 4, rotate: '135deg' },
+                        ].map((pos, ci) => (
+                          <div
+                            key={ci}
+                            className="absolute z-20 pointer-events-none select-none"
+                            style={{
+                              width: 10,
+                              height: 10,
+                              ...pos,
+                              transform: `rotate(${pos.rotate})`,
+                              borderTop: '2px solid rgba(120,80,20,0.35)',
+                              borderLeft: '2px solid rgba(120,80,20,0.35)',
+                            }}
+                          />
+                        ))}
+
                         {/* FRONT FACE */}
-                        <div 
+                        <div
                           style={{ backfaceVisibility: 'hidden' }}
                           className="w-full h-full flex flex-col justify-between min-h-0"
                         >
-                          <div 
-                            className="w-full flex-grow rounded-[8px] sm:rounded-[14px] overflow-hidden relative cursor-pointer min-h-0"
+                          <div
+                            className="w-full flex-grow overflow-hidden relative cursor-pointer min-h-0"
                             onClick={() => onSelectPhoto(photo)}
                           >
-                            <img 
-                              src={photo.url} 
-                              alt="Scrapbook Collage Piece" 
+                            <img
+                              src={photo.url}
+                              alt="Scrapbook Collage Piece"
                               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                             />
                           </div>
-                          
-                          {/* Title info */}
-                          <Box className="pt-1 px-1 flex justify-between items-center select-none flex-shrink-0">
-                            <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] font-bold font-mono">
+
+                          {/* Polaroid-style date footer */}
+                          <Box className="px-2 py-1 flex justify-between items-center select-none flex-shrink-0 bg-white">
+                            <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] font-bold font-mono tracking-wide">
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
-                            <ChevronRight size={10} className="text-amber-600/40 flex-shrink-0" />
+                            <ChevronRight size={9} className="text-amber-600/30 flex-shrink-0" />
                           </Box>
                         </div>
 
                         {/* BACK FACE (Journal Paper) */}
-                        <div 
-                          style={{ 
-                            backfaceVisibility: 'hidden', 
+                        <div
+                          style={{
+                            backfaceVisibility: 'hidden',
                             transform: 'rotateY(180deg)',
                             position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
+                            top: 0, left: 0, right: 0, bottom: 0,
                           }}
-                          className="bg-[#fefcf7] p-2.5 sm:p-4 rounded-[12px] sm:rounded-[20px] flex flex-col justify-between border-2 border-amber-900/10 shadow-inner"
+                          className="bg-[#fefcf7] p-2.5 sm:p-4 rounded-[14px] sm:rounded-[22px] flex flex-col justify-between border-2 border-amber-900/10 shadow-inner"
                         >
-                          <div 
+                          <div
                             className="flex-grow overflow-y-auto space-y-1.5 sm:space-y-3"
                             style={{
-                              backgroundImage: 'linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%)',
-                              backgroundSize: '100% 16px sm:100% 20px',
-                              lineHeight: '16px sm:20px',
-                              paddingLeft: '12px sm:18px',
-                              borderLeft: '1px solid #f87171',
+                              backgroundImage: 'repeating-linear-gradient(transparent, transparent 19px, #cbd5e1 19px, #cbd5e1 20px)',
+                              paddingLeft: '14px',
+                              borderLeft: '1.5px solid #fca5a5',
                             }}
                           >
-                            <Typography className="font-mono text-[6px] sm:text-[8px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-0.5">
+                            <Typography className="font-mono text-[6px] sm:text-[8px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-0.5 bg-[#fefcf7]">
                               Journal
                             </Typography>
                             <div className="space-y-1.5 pt-1">
@@ -392,7 +474,7 @@ export default function MemoryGrid({
                           </div>
 
                           <div className="pt-1.5 border-t border-amber-900/5 mt-1 space-y-1">
-                            <textarea 
+                            <textarea
                               placeholder="Write..."
                               value={memos[photo._id] || ''}
                               onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}

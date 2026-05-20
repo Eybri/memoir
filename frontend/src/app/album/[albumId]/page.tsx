@@ -308,7 +308,7 @@ export default function AlbumDetailsPage() {
               <DailyCanvas photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
 
               {/* Album Photos Grid */}
-              <Box className="space-y-6">
+              <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
                 <Box className="border-b border-amber-200/30 pb-4">
                   <Typography variant="h4" className="font-display font-black text-amber-950">
                     Album Ledger
