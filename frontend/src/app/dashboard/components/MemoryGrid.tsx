@@ -13,15 +13,25 @@ import {
   Plus
 } from 'lucide-react';
 
+interface Album {
+  _id: string;
+  title: string;
+  coverPhotoUrl: string;
+  createdAt?: string;
+}
+
 interface Photo {
   _id: string;
   url: string;
   captions: { text: string; authorId: string; createdAt: string }[];
   takenAt: string;
+  albumId?: string;
 }
 
 interface MemoryGridProps {
   photos: Photo[];
+  albums?: Album[];
+  activeAlbumId?: string | null;
   onSelectPhoto: (photo: Photo) => void;
   nostalgiaMode: boolean;
   onAddCaption?: (photoId: string, text: string) => Promise<void>;
@@ -37,6 +47,8 @@ interface Chapter {
 
 export default function MemoryGrid({ 
   photos, 
+  albums = [],
+  activeAlbumId,
   onSelectPhoto, 
   nostalgiaMode,
   onAddCaption
@@ -49,20 +61,10 @@ export default function MemoryGrid({
     // Sort photos descending by takenAt
     const sorted = [...photos].sort((a, b) => new Date(b.takenAt).getTime() - new Date(a.takenAt).getTime());
 
-    // 1. Group into Seasons (Chapters)
+    // 1. Group into Albums (Chapters)
     const chapterMap: { [key: string]: Photo[] } = {};
     sorted.forEach(photo => {
-      const date = new Date(photo.takenAt);
-      const year = date.getFullYear();
-      const month = date.getMonth(); // 0-11
-      
-      let season = '';
-      if (month === 11 || month === 0 || month === 1) season = 'Cozy Winter';
-      else if (month >= 2 && month <= 4) season = 'Spring Blossoms';
-      else if (month >= 5 && month <= 7) season = 'Golden Summer';
-      else season = 'Golden Autumn';
-
-      const key = `${season} of ’${String(year).slice(-2)}`;
+      const key = photo.albumId || 'unassigned';
       if (!chapterMap[key]) {
         chapterMap[key] = [];
       }
@@ -71,7 +73,7 @@ export default function MemoryGrid({
 
     // 2. For each chapter, group photos taken within 3 days into "Piles" (stacks)
     const result: Chapter[] = [];
-    Object.entries(chapterMap).forEach(([title, pList]) => {
+    Object.entries(chapterMap).forEach(([albumId, pList]) => {
       const piles: Photo[][] = [];
       let currentPile: Photo[] = [];
 
@@ -95,23 +97,40 @@ export default function MemoryGrid({
         piles.push(currentPile);
       }
 
-      // Add a nice mock description for the chapter
-      let description = 'A collection of beautiful captured moments.';
-      if (title.includes('Summer')) description = 'Sunny walks, golden sunsets, and long warm evenings.';
-      else if (title.includes('Winter')) description = 'Cozy indoor memories, hot drinks, and frosty mornings.';
-      else if (title.includes('Spring')) description = 'Fresh blooms, clean air, and the start of something beautiful.';
-      else if (title.includes('Autumn')) description = 'Crisp orange leaves, soft sweaters, and cozy rainy afternoons.';
+      let title = 'Loose Memories';
+      let description = 'A collection of unassigned beautiful captured moments.';
+
+      if (albumId !== 'unassigned') {
+        const album = albums.find(a => a._id === albumId);
+        if (album) {
+          title = album.title;
+          const dateCreated = album.createdAt ? new Date(album.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown Date';
+          description = `Created on ${dateCreated}`;
+        } else {
+          title = 'Unknown Album';
+          description = 'Photos belonging to an unknown album.';
+        }
+      }
 
       result.push({
-        id: title,
+        id: albumId,
         title,
         description,
         piles
       });
     });
 
+    // Sort chapters: active album first, then unassigned, then rest by title.
+    result.sort((a, b) => {
+      if (a.id === activeAlbumId) return -1;
+      if (b.id === activeAlbumId) return 1;
+      if (a.id === 'unassigned') return 1;
+      if (b.id === 'unassigned') return -1;
+      return a.title.localeCompare(b.title);
+    });
+
     return result;
-  }, [photos]);
+  }, [photos, albums, activeAlbumId]);
 
   // Flip-book active index state map (pileId -> current photo index inside pile)
   const [hoveredPileId, setHoveredPileId] = React.useState<string | null>(null);

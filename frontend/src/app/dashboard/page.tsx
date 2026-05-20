@@ -347,6 +347,8 @@ export default function DashboardPage() {
           <div className="lg:col-span-8 space-y-8">
             <MemoryGrid 
               photos={filteredPhotos} 
+              albums={albums}
+              activeAlbumId={activeAlbumId}
               onSelectPhoto={setSelectedPhoto} 
               nostalgiaMode={nostalgiaMode} 
               onAddCaption={handleAddCaptionForId}
