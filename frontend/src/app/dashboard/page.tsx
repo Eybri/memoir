@@ -64,13 +64,25 @@ export default function DashboardPage() {
   
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [activeAlbumId, setActiveAlbumId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [newCaption, setNewCaption] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [nostalgiaMode, setNostalgiaMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync Nostalgia Mode with localStorage
+  useEffect(() => {
+    const savedMode = localStorage.getItem('nostalgiaMode');
+    if (savedMode === 'true') {
+      setNostalgiaMode(true);
+    }
+  }, []);
+
+  const handleToggleNostalgia = (mode: boolean) => {
+    setNostalgiaMode(mode);
+    localStorage.setItem('nostalgiaMode', String(mode));
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -91,10 +103,7 @@ export default function DashboardPage() {
 
     setIsUploading(true);
     try {
-      const newPhoto = await uploadPhoto(file);
-      if (activeAlbumId) {
-        await updatePhotoAlbum(newPhoto._id, activeAlbumId);
-      }
+      await uploadPhoto(file);
       loadPhotos();
       loadAlbums();
     } catch (error) {
@@ -131,21 +140,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDeleteAlbum = async () => {
-    if (!activeAlbumId) return;
-    const album = albums.find(a => a._id === activeAlbumId);
-    if (!album) return;
-    if (!confirm(`Are you sure you want to delete the album "${album.title}"? Your photos inside it will not be deleted.`)) return;
-    try {
-      await deleteAlbum(activeAlbumId);
-      setActiveAlbumId(null);
-      loadAlbums();
-      loadPhotos();
-    } catch (error) {
-      console.error('Failed to delete album:', error);
-    }
-  };
-
   const handleUpdatePhotoAlbum = async (photoId: string, albumId: string | null) => {
     try {
       await updatePhotoAlbum(photoId, albumId);
@@ -162,11 +156,11 @@ export default function DashboardPage() {
   };
 
   const handleSetAsCover = async (photoUrl: string) => {
-    if (!activeAlbumId) return;
-    const album = albums.find(a => a._id === activeAlbumId);
+    if (!selectedPhoto || !selectedPhoto.albumId) return;
+    const album = albums.find(a => a._id === selectedPhoto.albumId);
     if (!album) return;
     try {
-      await updateAlbum(activeAlbumId, { coverPhotoUrl: photoUrl });
+      await updateAlbum(selectedPhoto.albumId, { coverPhotoUrl: photoUrl });
       loadAlbums();
       alert(`Set as cover photo for "${album.title}"!`);
     } catch (error) {
@@ -221,10 +215,7 @@ export default function DashboardPage() {
     }
   };
 
-  const filteredPhotos = React.useMemo(() => {
-    if (!activeAlbumId) return photos;
-    return photos.filter(p => p.albumId === activeAlbumId);
-  }, [photos, activeAlbumId]);
+  const filteredPhotos = photos;
 
   // Determine welcome date details
   const timeDifferenceText = React.useMemo(() => {
@@ -266,7 +257,7 @@ export default function DashboardPage() {
         setSearchQuery={setSearchQuery}
         handleSearch={handleSearch}
         nostalgiaMode={nostalgiaMode}
-        setNostalgiaMode={setNostalgiaMode}
+        setNostalgiaMode={handleToggleNostalgia}
         logout={logout}
       />
 
@@ -286,57 +277,15 @@ export default function DashboardPage() {
         <ReelBoard 
           albums={albums}
           photos={photos}
-          activeAlbumId={activeAlbumId}
-          onSelectAlbum={setActiveAlbumId}
+          activeAlbumId={null}
+          onSelectAlbum={(albumId) => {
+            if (albumId) {
+              router.push(`/dashboard/album/${albumId}`);
+            }
+          }}
           onCreateAlbum={handleCreateAlbum}
           nostalgiaMode={nostalgiaMode} 
         />
-
-        {activeAlbumId && (() => {
-          const activeAlbum = albums.find(a => a._id === activeAlbumId);
-          if (!activeAlbum) return null;
-          return (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col sm:flex-row justify-between items-center bg-amber-500/10 border border-amber-500/20 rounded-3xl p-5 gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden border border-amber-950/10 flex-shrink-0">
-                  <img 
-                    src={activeAlbum.coverPhotoUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100'} 
-                    alt={activeAlbum.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <Typography className="font-display font-black text-amber-950 text-base leading-tight">
-                    {activeAlbum.title}
-                  </Typography>
-                  <Typography className="text-amber-600 font-mono text-[9px] uppercase tracking-wider font-bold">
-                    Filtering dashboard by this album
-                  </Typography>
-                </div>
-              </div>
-              <Stack direction="row" spacing={1.5}>
-                <Button
-                  variant="outlined"
-                  onClick={handleDeleteAlbum}
-                  className="border-red-500/30 hover:border-red-600 text-red-600 hover:bg-red-50 text-xs px-4 py-2 rounded-full font-bold uppercase"
-                >
-                  Delete Album
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => setActiveAlbumId(null)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-5 py-2 rounded-full font-bold uppercase shadow-sm"
-                >
-                  Clear Filter
-                </Button>
-              </Stack>
-            </motion.div>
-          );
-        })()}
 
         {/* 1. Hero space - The Daily Canvas */}
         <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
@@ -348,7 +297,7 @@ export default function DashboardPage() {
             <MemoryGrid 
               photos={filteredPhotos} 
               albums={albums}
-              activeAlbumId={activeAlbumId}
+              activeAlbumId={null}
               onSelectPhoto={setSelectedPhoto} 
               nostalgiaMode={nostalgiaMode} 
               onAddCaption={handleAddCaptionForId}
