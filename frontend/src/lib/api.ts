@@ -134,3 +134,50 @@ export async function searchPhotos(query: string) {
   return response.json();
 }
 
+export async function fetchAlbums() {
+  const response = await fetch(`${API_URL}/albums`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch albums');
+  return response.json();
+}
+
+export async function createAlbum(title: string, coverPhotoUrl?: string) {
+  const response = await fetch(`${API_URL}/albums`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ title, coverPhotoUrl }),
+  });
+  if (!response.ok) throw new Error('Failed to create album');
+  return response.json();
+}
+
+export async function updateAlbum(albumId: string, data: { title?: string; coverPhotoUrl?: string }) {
+  const response = await fetch(`${API_URL}/albums/${albumId}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update album');
+  return response.json();
+}
+
+export async function deleteAlbum(albumId: string) {
+  const response = await fetch(`${API_URL}/albums/${albumId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to delete album');
+  return response.json();
+}
+
+export async function updatePhotoAlbum(photoId: string, albumId: string | null) {
+  const response = await fetch(`${API_URL}/photos/${photoId}/album`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ albumId }),
+  });
+  if (!response.ok) throw new Error('Failed to update photo album');
+  return response.json();
+}
+

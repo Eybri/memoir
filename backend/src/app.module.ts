@@ -5,6 +5,7 @@ import { LettersModule } from './letters/letters.module';
 import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { PhotosModule } from './photos/photos.module';
+import { AlbumsModule } from './albums/albums.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PhotosModule } from './photos/photos.module';
     ConfigModule,
     AuthModule,
     PhotosModule,
+    AlbumsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

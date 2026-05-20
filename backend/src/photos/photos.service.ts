@@ -68,4 +68,18 @@ export class PhotosService {
       })
       .exec();
   }
+
+  async updateAlbum(photoId: string, userId: string, albumId: string | null) {
+    const photo = await this.photoModel.findOne({
+      _id: new Types.ObjectId(photoId),
+      userId: new Types.ObjectId(userId),
+    });
+
+    if (!photo) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    photo.albumId = albumId ? new Types.ObjectId(albumId) : null;
+    return photo.save();
+  }
 }

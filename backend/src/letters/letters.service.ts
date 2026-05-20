@@ -18,19 +18,25 @@ export class LettersService {
     if (!config) return letters;
 
     if (config.deliveryMode === 'timed_drip' && config.isShared) {
-      const weeksSinceShare = Math.floor((new Date().getTime() - new Date(config.sharedAt).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+      const weeksSinceShare =
+        Math.floor(
+          (new Date().getTime() - new Date(config.sharedAt).getTime()) /
+            (7 * 24 * 60 * 60 * 1000),
+        ) + 1;
       letters = letters.slice(0, weeksSinceShare);
     }
 
     return letters;
   }
 
-  async create(data: any) {
+  async create(data: Partial<Letter>) {
     const newLetter = new this.letterModel(data);
     return newLetter.save();
   }
 
-  async update(id: string, updates: any) {
-    return this.letterModel.findByIdAndUpdate(id, updates, { new: true }).exec();
+  async update(id: string, updates: Partial<Letter>) {
+    return this.letterModel
+      .findByIdAndUpdate(id, updates, { new: true })
+      .exec();
   }
 }

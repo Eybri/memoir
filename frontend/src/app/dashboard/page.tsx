@@ -14,17 +14,26 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
-  Search, 
   Camera, 
   Sparkles, 
   Trash2,
   Calendar,
   Image as ImageIcon,
-  LogOut,
   Moon,
   Sun
 } from 'lucide-react';
-import { fetchPhotos, addCaption, searchPhotos, uploadPhoto, deletePhoto } from '@/lib/api';
+import { 
+  fetchPhotos, 
+  addCaption, 
+  searchPhotos, 
+  uploadPhoto, 
+  deletePhoto,
+  fetchAlbums,
+  createAlbum,
+  deleteAlbum,
+  updateAlbum,
+  updatePhotoAlbum
+} from '@/lib/api';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 
@@ -32,12 +41,21 @@ import { useRouter } from 'next/navigation';
 import DailyCanvas from './components/DailyCanvas';
 import MemoryGrid from './components/MemoryGrid';
 import SensoryCorner from './components/SensoryCorner';
+import Header from '@/components/Header';
+import ReelBoard from './components/ReelBoard';
+
+interface Album {
+  _id: string;
+  title: string;
+  coverPhotoUrl: string;
+}
 
 interface Photo {
   _id: string;
   url: string;
   captions: { text: string; authorId: string; createdAt: string }[];
   takenAt: string;
+  albumId?: string;
 }
 
 export default function DashboardPage() {
@@ -45,6 +63,8 @@ export default function DashboardPage() {
   const router = useRouter();
   
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [activeAlbumId, setActiveAlbumId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [newCaption, setNewCaption] = useState('');
@@ -61,6 +81,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       loadPhotos();
+      loadAlbums();
     }
   }, [user]);
 
@@ -70,8 +91,12 @@ export default function DashboardPage() {
 
     setIsUploading(true);
     try {
-      await uploadPhoto(file);
+      const newPhoto = await uploadPhoto(file);
+      if (activeAlbumId) {
+        await updatePhotoAlbum(newPhoto._id, activeAlbumId);
+      }
       loadPhotos();
+      loadAlbums();
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -85,6 +110,67 @@ export default function DashboardPage() {
       setPhotos(data);
     } catch (error) {
       console.error('Failed to load photos:', error);
+    }
+  };
+
+  const loadAlbums = async () => {
+    try {
+      const data = await fetchAlbums();
+      setAlbums(data);
+    } catch (error) {
+      console.error('Failed to load albums:', error);
+    }
+  };
+
+  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string) => {
+    try {
+      await createAlbum(title, coverPhotoUrl);
+      loadAlbums();
+    } catch (error) {
+      console.error('Failed to create album:', error);
+    }
+  };
+
+  const handleDeleteAlbum = async () => {
+    if (!activeAlbumId) return;
+    const album = albums.find(a => a._id === activeAlbumId);
+    if (!album) return;
+    if (!confirm(`Are you sure you want to delete the album "${album.title}"? Your photos inside it will not be deleted.`)) return;
+    try {
+      await deleteAlbum(activeAlbumId);
+      setActiveAlbumId(null);
+      loadAlbums();
+      loadPhotos();
+    } catch (error) {
+      console.error('Failed to delete album:', error);
+    }
+  };
+
+  const handleUpdatePhotoAlbum = async (photoId: string, albumId: string | null) => {
+    try {
+      await updatePhotoAlbum(photoId, albumId);
+      loadPhotos();
+      loadAlbums();
+      
+      // Update selected photo in modal
+      if (selectedPhoto && selectedPhoto._id === photoId) {
+        setSelectedPhoto(prev => prev ? { ...prev, albumId: albumId || undefined } : null);
+      }
+    } catch (error) {
+      console.error('Failed to update photo album:', error);
+    }
+  };
+
+  const handleSetAsCover = async (photoUrl: string) => {
+    if (!activeAlbumId) return;
+    const album = albums.find(a => a._id === activeAlbumId);
+    if (!album) return;
+    try {
+      await updateAlbum(activeAlbumId, { coverPhotoUrl: photoUrl });
+      loadAlbums();
+      alert(`Set as cover photo for "${album.title}"!`);
+    } catch (error) {
+      console.error('Failed to update album cover:', error);
     }
   };
 
@@ -126,6 +212,20 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAddCaptionForId = async (photoId: string, text: string) => {
+    try {
+      await addCaption(photoId, text);
+      loadPhotos();
+    } catch (error) {
+      console.error('Failed to add caption:', error);
+    }
+  };
+
+  const filteredPhotos = React.useMemo(() => {
+    if (!activeAlbumId) return photos;
+    return photos.filter(p => p.albumId === activeAlbumId);
+  }, [photos, activeAlbumId]);
+
   // Determine welcome date details
   const timeDifferenceText = React.useMemo(() => {
     if (photos.length === 0) return 'Welcome to your vault.';
@@ -153,61 +253,22 @@ export default function DashboardPage() {
 
   // Base background theme
   const bgThemeClass = nostalgiaMode 
-    ? 'bg-[#f4efe2] text-[#3c2f1f]' 
+    ? 'bg-[#f4efe2] text-[#3c2f1f] paper-grain' 
     : 'romantic-gradient text-amber-950';
 
   return (
     <Box className={`min-h-screen transition-all duration-700 pb-24 ${bgThemeClass}`}>
       
       {/* Premium Header */}
-      <nav className={`p-6 sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-700 ${
-        nostalgiaMode ? 'bg-[#f4efe2]/80 border-[#dcd2be]' : 'bg-white/10 border-white/20'
-      }`}>
-        <Container maxWidth="xl" className="flex justify-between items-center">
-          <Typography variant="h5" className="font-display font-black flex items-center gap-2 text-amber-600 cursor-pointer" onClick={() => router.push('/')}>
-            <Camera size={24} /> Memoir
-          </Typography>
-
-          <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
-             <form onSubmit={handleSearch} className="relative hidden md:block">
-              <TextField
-                size="small"
-                placeholder="Search captions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '50px',
-                    backgroundColor: nostalgiaMode ? 'rgba(60, 47, 31, 0.05)' : 'rgba(255, 255, 255, 0.2)',
-                    color: nostalgiaMode ? '#3c2f1f' : '#000',
-                    '& fieldset': { border: 'none' },
-                  }
-                }}
-              />
-              <IconButton type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Search size={18} className="text-amber-600" />
-              </IconButton>
-            </form>
-
-            {/* 褪色 (Muted) Toggle */}
-            <Button 
-              onClick={() => setNostalgiaMode(!nostalgiaMode)}
-              className={`rounded-full px-6 font-bold flex gap-2 transition-all ${
-                nostalgiaMode 
-                ? 'bg-amber-800 text-yellow-50 shadow-md' 
-                : 'bg-white/50 text-amber-600 hover:bg-white border border-amber-200/20'
-              }`}
-            >
-              <Sparkles size={18} />
-              {nostalgiaMode ? 'Nostalgia Active' : 'Nostalgia Toggle'}
-            </Button>
-
-            <IconButton onClick={logout} className="text-amber-600 hover:text-amber-700 bg-white/20 p-2.5 rounded-full border border-amber-200/10">
-              <LogOut size={18} />
-            </IconButton>
-          </Stack>
-        </Container>
-      </nav>
+      <Header 
+        isDashboard={true}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+        nostalgiaMode={nostalgiaMode}
+        setNostalgiaMode={setNostalgiaMode}
+        logout={logout}
+      />
 
       {/* Main Content */}
       <Container maxWidth="xl" className="py-12 space-y-12">
@@ -221,17 +282,76 @@ export default function DashboardPage() {
           </Typography>
         </Box>
 
+        {/* Section 1: The Reel Board */}
+        <ReelBoard 
+          albums={albums}
+          photos={photos}
+          activeAlbumId={activeAlbumId}
+          onSelectAlbum={setActiveAlbumId}
+          onCreateAlbum={handleCreateAlbum}
+          nostalgiaMode={nostalgiaMode} 
+        />
+
+        {activeAlbumId && (() => {
+          const activeAlbum = albums.find(a => a._id === activeAlbumId);
+          if (!activeAlbum) return null;
+          return (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col sm:flex-row justify-between items-center bg-amber-500/10 border border-amber-500/20 rounded-3xl p-5 gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl overflow-hidden border border-amber-950/10 flex-shrink-0">
+                  <img 
+                    src={activeAlbum.coverPhotoUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100'} 
+                    alt={activeAlbum.title} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <Typography className="font-display font-black text-amber-950 text-base leading-tight">
+                    {activeAlbum.title}
+                  </Typography>
+                  <Typography className="text-amber-600 font-mono text-[9px] uppercase tracking-wider font-bold">
+                    Filtering dashboard by this album
+                  </Typography>
+                </div>
+              </div>
+              <Stack direction="row" spacing={1.5}>
+                <Button
+                  variant="outlined"
+                  onClick={handleDeleteAlbum}
+                  className="border-red-500/30 hover:border-red-600 text-red-600 hover:bg-red-50 text-xs px-4 py-2 rounded-full font-bold uppercase"
+                >
+                  Delete Album
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setActiveAlbumId(null)}
+                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-5 py-2 rounded-full font-bold uppercase shadow-sm"
+                >
+                  Clear Filter
+                </Button>
+              </Stack>
+            </motion.div>
+          );
+        })()}
+
         {/* 1. Hero space - The Daily Canvas */}
-        <DailyCanvas photos={photos} nostalgiaMode={nostalgiaMode} />
+        <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
 
         {/* 2. Grid & Sidebar Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
           {/* Main Grid */}
           <div className="lg:col-span-8 space-y-8">
             <MemoryGrid 
-              photos={photos} 
+              photos={filteredPhotos} 
+              albums={albums}
+              activeAlbumId={activeAlbumId}
               onSelectPhoto={setSelectedPhoto} 
               nostalgiaMode={nostalgiaMode} 
+              onAddCaption={handleAddCaptionForId}
             />
           </div>
 
@@ -311,8 +431,38 @@ export default function DashboardPage() {
                         </motion.div>
                       ))
                     )}
-                  </Box>
-                </div>
+          </Box>
+
+          {/* Album Assignment Section */}
+          <Box className="space-y-2 pt-2 border-t border-amber-200/20">
+            <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">
+              Album Assignment
+            </Typography>
+            <div className="flex gap-2 items-center">
+              <select
+                value={selectedPhoto.albumId || ''}
+                onChange={(e) => handleUpdatePhotoAlbum(selectedPhoto._id, e.target.value || null)}
+                className="bg-amber-500/5 border border-amber-900/10 rounded-xl p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 flex-grow"
+              >
+                <option value="">No Album</option>
+                {albums.map((alb) => (
+                  <option key={alb._id} value={alb._id}>
+                    {alb.title}
+                  </option>
+                ))}
+              </select>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => handleSetAsCover(selectedPhoto.url)}
+                disabled={!selectedPhoto.albumId}
+                className="border-amber-600/30 text-amber-700 hover:bg-amber-500/5 text-[10px] py-2 rounded-xl font-bold uppercase"
+              >
+                Make Cover
+              </Button>
+            </div>
+          </Box>
+        </div>
 
                 <Stack spacing={2} className="pt-4 border-t border-amber-200/20">
                   <TextField
@@ -355,15 +505,22 @@ export default function DashboardPage() {
           className="hidden"
           accept="image/*"
         />
-        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button 
             variant="contained" 
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl p-0 min-w-0 flex items-center justify-center"
-            title="Add Memory"
+            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-sm uppercase tracking-wider transition-all duration-300"
+            title="Quick Toss a Photo"
           >
-            {isUploading ? <Sparkles className="animate-spin" /> : <Plus size={32} />}
+            {isUploading ? (
+              <Sparkles className="animate-spin" size={18} />
+            ) : (
+              <>
+                <Plus size={18} strokeWidth={3} />
+                <span>Quick Toss</span>
+              </>
+            )}
           </Button>
         </motion.div>
       </Box>

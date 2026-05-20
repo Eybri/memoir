@@ -18,8 +18,14 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream((error, result) => {
-        if (error) return reject(error);
-        if (!result) return reject(new Error('Cloudinary upload failed: No result returned'));
+        if (error) {
+          return reject(new Error(error.message || 'Cloudinary upload failed'));
+        }
+        if (!result) {
+          return reject(
+            new Error('Cloudinary upload failed: No result returned'),
+          );
+        }
         resolve(result);
       });
 
@@ -29,8 +35,14 @@ export class CloudinaryService {
 
   async deleteImage(publicId: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.destroy(publicId, (error, result) => {
-        if (error) return reject(error);
+      void cloudinary.uploader.destroy(publicId, (error, result) => {
+        if (error) {
+          const message =
+            error && typeof error === 'object' && 'message' in error
+              ? String((error as Record<string, unknown>).message)
+              : 'Cloudinary deletion failed';
+          return reject(new Error(message));
+        }
         resolve(result);
       });
     });

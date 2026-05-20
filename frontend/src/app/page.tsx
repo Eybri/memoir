@@ -14,6 +14,7 @@ import { Camera, Lock, Calendar, Star, ArrowRight, Image as ImageIcon } from 'lu
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Header from '@/components/Header';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -41,28 +42,7 @@ export default function Home() {
   return (
     <Box className="romantic-gradient min-h-screen overflow-x-hidden">
       {/* Navigation */}
-      <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
-        <Typography 
-          variant="h5" 
-          className="font-display font-bold text-amber-600 flex items-center gap-2"
-        >
-          <Camera size={24} className="text-amber-600" /> Memoir
-        </Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Link href="/auth/login" style={{ textDecoration: 'none' }}>
-            <Button variant="text" className="text-amber-900 font-medium px-6 hover:bg-yellow-100/50 rounded-full">Login</Button>
-          </Link>
-          <Link href="/auth/signup" style={{ textDecoration: 'none' }}>
-            <Button 
-              variant="contained" 
-              disableElevation
-              className="bg-amber-600 hover:bg-amber-700 rounded-full px-8 py-2 font-bold transition-all hover:scale-105"
-            >
-              Sign Up
-            </Button>
-          </Link>
-        </Stack>
-      </nav>
+      <Header isDashboard={false} />
 
       {/* Hero Section */}
       <Container maxWidth="lg" className="pt-20 pb-32">
