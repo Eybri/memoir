@@ -288,21 +288,51 @@ export default function MemoryGrid({
             <Box
               className="relative overflow-hidden"
               sx={{
-                background: 'linear-gradient(135deg, #f5ede0 0%, #ede0cc 40%, #f5ede0 100%)',
-                borderRadius: '36px',
-                border: '10px solid #e8d5bc',
-                boxShadow: '0 20px 50px -10px rgba(60,40,15,0.18), inset 0 0 80px rgba(180,100,20,0.04)',
-                p: { xs: '20px', sm: '40px' },
+                /* Rich multi-layer kraft paper */
+                background: [
+                  /* aged stain blobs */
+                  'radial-gradient(ellipse 55% 35% at 8% 12%, rgba(160,90,20,0.07) 0%, transparent 70%)',
+                  'radial-gradient(ellipse 40% 50% at 93% 85%, rgba(140,70,10,0.06) 0%, transparent 70%)',
+                  'radial-gradient(ellipse 30% 25% at 50% 50%, rgba(180,110,30,0.03) 0%, transparent 70%)',
+                  /* horizontal paper fiber lines */
+                  'repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(160,110,50,0.055) 18px, rgba(160,110,50,0.055) 19px)',
+                  /* base warm kraft gradient */
+                  'linear-gradient(160deg, #f2e4cc 0%, #e8d5b0 30%, #f0e2c8 60%, #e6d2a8 100%)',
+                ].join(', '),
+                borderRadius: '40px',
+                /* thick mat-board frame: outer dark edge + inner cream lip */
+                border: '14px solid #c9a96e',
+                outline: '4px solid #a0783a',
+                outlineOffset: '-14px',
+                boxShadow: [
+                  '0 24px 60px -8px rgba(50,30,5,0.28)',
+                  '0 4px 12px rgba(50,30,5,0.10)',
+                  'inset 0 0 0 2px rgba(255,245,225,0.6)',
+                  'inset 0 2px 40px rgba(180,110,30,0.06)',
+                ].join(', '),
+                p: { xs: '20px', sm: '44px' },
               }}
             >
-              {/* Aged paper grain overlay */}
+              {/* Fine noise grain overlay for tactile paper feel */}
               <div
-                className="absolute inset-0 pointer-events-none z-0 opacity-[0.04]"
+                className="absolute inset-0 pointer-events-none z-0"
                 style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                  backgroundSize: '180px 180px',
+                  opacity: 0.07,
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                  backgroundSize: '160px 160px',
                 }}
               />
+
+              {/* Decorative corner flourishes */}
+              {[{top:14,left:14},{top:14,right:14},{bottom:14,left:14},{bottom:14,right:14}].map((pos,i)=>(
+                <div key={i} className="absolute z-10 pointer-events-none select-none" style={{ width:28, height:28, ...pos }}>
+                  <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{opacity:0.35}}>
+                    <path d="M2 14 Q2 2 14 2" stroke="#7a4f1e" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                    <path d="M2 14 Q2 26 14 26" stroke="#7a4f1e" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                    <circle cx="2" cy="14" r="1.5" fill="#7a4f1e"/>
+                  </svg>
+                </div>
+              ))}
 
               {/* Dashed inner stitch border */}
               <div
@@ -324,7 +354,10 @@ export default function MemoryGrid({
                 </div>
               </div>
 
-              <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-8 auto-rows-[150px] sm:auto-rows-[210px]">
+              <div
+                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[210px]"
+                style={{ gap: '18px', gridAutoFlow: 'dense' }}
+              >
                 {chapter.piles.map((pile, pileIndex) => {
                   const photo = pile[0];
                   // More expressive organic tilts
@@ -385,9 +418,8 @@ export default function MemoryGrid({
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
                         whileHover={{ scale: 1.04, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
-                        style={{ transformStyle: 'preserve-3d', zIndex: 1 }}
+                        style={{ transformStyle: 'preserve-3d', zIndex: 1, border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
                         className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-[14px] sm:rounded-[22px] flex flex-col justify-between overflow-hidden"
-                        sx={{ border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
                       >
                         {/* Photo corner stickers */}
                         {[

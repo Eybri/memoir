@@ -66,6 +66,7 @@ export default function AlbumDetailsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [nostalgiaMode, setNostalgiaMode] = useState(false);
   
   // Album UI states
@@ -122,19 +123,34 @@ export default function AlbumDetailsPage() {
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     setIsUploading(true);
-    try {
-      const newPhoto = await uploadPhoto(file);
-      await updatePhotoAlbum(newPhoto._id, albumId);
-      loadPageData();
-    } catch (error) {
-      console.error('Upload failed:', error);
-    } finally {
-      setIsUploading(false);
-    }
+    setUploadProgress({ done: 0, total: files.length });
+
+    // Upload all files concurrently, track individual completions
+    await Promise.allSettled(
+      files.map(async (file) => {
+        try {
+          const newPhoto = await uploadPhoto(file);
+          await updatePhotoAlbum(newPhoto._id, albumId);
+        } catch (error) {
+          console.error(`Upload failed for ${file.name}:`, error);
+        } finally {
+          setUploadProgress((prev) =>
+            prev ? { ...prev, done: prev.done + 1 } : null
+          );
+        }
+      })
+    );
+
+    // Reset input so the same files can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    setIsUploading(false);
+    setUploadProgress(null);
+    loadPageData();
   };
 
   const handleDeleteAlbum = async () => {
@@ -363,25 +379,42 @@ export default function AlbumDetailsPage() {
         onUpdatePhotoAlbum={handleUpdatePhotoAlbum}
       />
 
-      {/* Floating Drag & Drop Action Trigger */}
-      <Box className="fixed bottom-10 right-10 flex flex-col gap-4 z-30">
+      {/* Floating Multi-Upload Action Button */}
+      <Box className="fixed bottom-10 right-10 flex flex-col items-end gap-3 z-30">
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleUpload}
           className="hidden"
           accept="image/*"
+          multiple
         />
+
+        {/* Progress pill — appears above button while uploading */}
+        {uploadProgress && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-amber-950/90 backdrop-blur-md text-amber-100 font-mono font-bold text-xs px-4 py-2 rounded-full shadow-xl flex items-center gap-2"
+          >
+            <CircularProgress size={12} sx={{ color: '#fbbf24' }} />
+            <span>{uploadProgress.done} / {uploadProgress.total} uploaded</span>
+          </motion.div>
+        )}
+
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
             className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-sm uppercase tracking-wider transition-all duration-300"
-            title="Quick Toss a Photo"
+            title="Add memories — select multiple photos at once"
           >
             {isUploading ? (
-              <CircularProgress size={18} className="text-white" />
+              <span className="flex items-center gap-2">
+                <CircularProgress size={16} sx={{ color: '#fff' }} />
+                <span>Uploading...</span>
+              </span>
             ) : (
               <>
                 <Plus size={18} strokeWidth={3} />
