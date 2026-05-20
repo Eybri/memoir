@@ -97,28 +97,31 @@ export default function ReelBoard({
         
         {/* First Bubble: Create Album */}
         <motion.div 
-          whileHover={{ scale: 1.03, y: -4 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.96 }}
           onClick={() => setIsCreateOpen(true)}
-          className="flex-shrink-0 cursor-pointer"
+          className="flex-shrink-0 cursor-pointer pl-1 pt-2 pb-2"
         >
-          <Box className={`w-28 h-36 bg-white rounded-2xl shadow-md border-2 border-dashed flex flex-col justify-between p-3 transition-colors ${
+          <Box className={`w-40 h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${
             nostalgiaMode 
-              ? 'border-amber-900/25 bg-[#faf6eb] hover:bg-amber-900/5' 
-              : 'border-amber-600/20 bg-amber-500/5 hover:bg-amber-500/10'
+              ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40' 
+              : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
           }`}>
-            <div className="flex-grow flex items-center justify-center">
-              <div className={`p-3 rounded-full ${nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-amber-500/10 text-amber-700'}`}>
-                <Plus size={20} strokeWidth={3} />
+            <div className="absolute inset-0 bg-white/40 group-hover:bg-transparent transition-colors duration-500" />
+            <div className="flex-grow flex items-center justify-center relative z-10 aspect-square border border-dashed border-amber-900/10 rounded-sm">
+              <div className={`p-4 rounded-full shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-90 ${
+                nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-white text-amber-600'
+              }`}>
+                <Plus size={28} strokeWidth={2.5} />
               </div>
             </div>
             
-            <div className="text-center pt-2 border-t border-dashed border-amber-900/10">
-              <Typography className="text-[10px] font-display font-black tracking-tight leading-tight text-amber-950">
+            <div className="text-center mt-2 relative z-10 flex-shrink-0 h-12 flex flex-col justify-center">
+              <Typography className="text-[14px] font-display font-black tracking-tight leading-tight text-amber-950">
                 + Create
               </Typography>
-              <Typography className="text-[8px] font-mono tracking-wider text-amber-600 font-bold uppercase">
-                Album
+              <Typography className="text-[9px] font-mono tracking-[0.2em] text-amber-600/80 font-bold uppercase mt-1">
+                Collection
               </Typography>
             </div>
           </Box>
@@ -130,54 +133,72 @@ export default function ReelBoard({
           const cover = getAlbumCover(album);
           const isActive = activeAlbumId === album._id;
 
+          // Creative diff styles for a natural scrapbook feel
+          const tilts = ['-rotate-2 mt-1', 'rotate-1 mt-2', '-rotate-1 mt-0', 'rotate-2 mt-1'];
+          const hoverTilts = ['rotate-1', '-rotate-2', 'rotate-2', '-rotate-1'];
+          const tapeStyles = [
+            'top-[-6px] left-1/2 -translate-x-1/2 -rotate-2 w-14',
+            'top-[-8px] right-3 rotate-3 w-12',
+            'top-[-8px] left-3 -rotate-3 w-12',
+            'top-[-6px] left-1/2 -translate-x-1/2 rotate-2 w-16'
+          ];
+
+          const tiltClass = isActive ? '' : tilts[idx % tilts.length];
+          const hoverTiltClass = isActive ? '' : hoverTilts[idx % hoverTilts.length];
+          const tape = tapeStyles[idx % tapeStyles.length];
+
           return (
             <motion.div 
               key={album._id}
-              whileHover={{ scale: 1.03, y: -4, rotate: (idx % 2 === 0 ? 1.5 : -1.5) }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.04, y: -6 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onSelectAlbum(isActive ? null : album._id)}
-              className="flex-shrink-0 cursor-pointer"
+              className={`flex-shrink-0 cursor-pointer relative transition-transform duration-500 group pt-2 pb-2 ${tiltClass} group-hover:${hoverTiltClass}`}
             >
-              <Box className={`w-28 h-36 bg-white rounded-2xl shadow-md p-2 pb-3.5 flex flex-col justify-between relative overflow-hidden group border transition-all duration-300 ${
+              {/* Stack effect polaroids behind the main card */}
+              <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-right transition-all duration-500 ease-out group-hover:rotate-6 group-hover:translate-x-3 group-hover:-translate-y-1 ${isActive ? 'rotate-3 translate-x-1' : 'rotate-2 translate-x-0.5'}`} />
+              <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
+              
+              {/* Main Polaroid */}
+              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${
                 isActive 
-                  ? 'border-amber-500 ring-2 ring-amber-500/30' 
-                  : 'border-amber-100 hover:border-amber-300'
+                  ? 'border border-amber-400 shadow-[0_8px_30px_rgb(217,119,6,0.3)] ring-2 ring-amber-400/30 scale-105' 
+                  : 'border border-amber-900/10 shadow-md hover:border-amber-300 hover:shadow-xl'
               }`}>
-                {/* Thumbnail window */}
-                <div className="w-full h-24 rounded-lg overflow-hidden relative bg-amber-50">
+                {/* Washi Tape */}
+                {!isActive && (
+                  <div className={`absolute h-5 bg-white/60 backdrop-blur-md border border-amber-900/10 shadow-sm z-30 transition-opacity duration-300 group-hover:opacity-0 ${tape}`} style={{ clipPath: 'polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)' }} />
+                )}
+
+                {/* Photo window */}
+                <div className="relative w-full aspect-square flex-shrink-0 rounded-sm overflow-hidden bg-amber-50 shadow-inner border border-black/10">
                   <img 
                     src={cover} 
                     alt={album.title}
-                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                    className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
                       nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''
                     }`}
                   />
                   
-                  {/* Vintage overlay glow */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                  {/* Premium vignette / gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
                   
                   {/* Count indicator */}
-                  <span className="absolute bottom-1.5 right-1.5 bg-amber-950/80 backdrop-blur-sm text-yellow-50 text-[7px] font-black tracking-widest px-1.5 py-0.5 rounded-full uppercase">
+                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${
+                    isActive ? 'bg-amber-600/90' : 'bg-black/50'
+                  }`}>
                     {count} Log{count !== 1 ? 's' : ''}
                   </span>
                 </div>
 
                 {/* Polaroid-style signature text label */}
-                <div className="text-center pt-1.5 flex flex-col items-center justify-center">
-                  <Typography className={`font-display font-black italic text-[11px] leading-none truncate w-full px-1 ${
+                <div className="text-center mt-3 flex flex-col items-center justify-center flex-grow overflow-hidden">
+                  <Typography className={`font-display font-black italic text-[15px] leading-tight line-clamp-2 px-1 ${
                     nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'
                   }`}>
                     {album.title}
                   </Typography>
-                  <Typography className="text-[7px] font-mono font-bold tracking-[0.1em] text-amber-500 uppercase mt-0.5">
-                    Collection
-                  </Typography>
                 </div>
-
-                {/* Active check-line */}
-                {isActive && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500" />
-                )}
               </Box>
             </motion.div>
           );
