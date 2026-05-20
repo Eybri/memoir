@@ -31,6 +31,7 @@ import DailyCanvas from './components/DailyCanvas';
 import MemoryGrid from './components/MemoryGrid';
 import SensoryCorner from './components/SensoryCorner';
 import Header from '@/components/Header';
+import ReelBoard from './components/ReelBoard';
 
 interface Photo {
   _id: string;
@@ -125,6 +126,15 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAddCaptionForId = async (photoId: string, text: string) => {
+    try {
+      await addCaption(photoId, text);
+      loadPhotos();
+    } catch (error) {
+      console.error('Failed to add caption:', error);
+    }
+  };
+
   // Determine welcome date details
   const timeDifferenceText = React.useMemo(() => {
     if (photos.length === 0) return 'Welcome to your vault.';
@@ -181,6 +191,24 @@ export default function DashboardPage() {
           </Typography>
         </Box>
 
+        {/* Section 1: The Reel Board */}
+        <ReelBoard 
+          photos={photos} 
+          onAddClick={() => fileInputRef.current?.click()}
+          onFilterByDate={async (month, year) => {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const query = year ? `${monthNames[month]} ${year}` : monthNames[month];
+            setSearchQuery(query);
+            try {
+              const data = await searchPhotos(query);
+              setPhotos(data);
+            } catch (err) {
+              console.error(err);
+            }
+          }}
+          nostalgiaMode={nostalgiaMode} 
+        />
+
         {/* 1. Hero space - The Daily Canvas */}
         <DailyCanvas photos={photos} nostalgiaMode={nostalgiaMode} />
 
@@ -192,6 +220,7 @@ export default function DashboardPage() {
               photos={photos} 
               onSelectPhoto={setSelectedPhoto} 
               nostalgiaMode={nostalgiaMode} 
+              onAddCaption={handleAddCaptionForId}
             />
           </div>
 
@@ -315,15 +344,22 @@ export default function DashboardPage() {
           className="hidden"
           accept="image/*"
         />
-        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button 
             variant="contained" 
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl p-0 min-w-0 flex items-center justify-center"
-            title="Add Memory"
+            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-sm uppercase tracking-wider transition-all duration-300"
+            title="Quick Toss a Photo"
           >
-            {isUploading ? <Sparkles className="animate-spin" /> : <Plus size={32} />}
+            {isUploading ? (
+              <Sparkles className="animate-spin" size={18} />
+            ) : (
+              <>
+                <Plus size={18} strokeWidth={3} />
+                <span>Quick Toss</span>
+              </>
+            )}
           </Button>
         </motion.div>
       </Box>

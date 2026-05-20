@@ -15,10 +15,12 @@ import {
   Camera, 
   Search, 
   Sparkles, 
-  LogOut
+  LogOut,
+  Bell
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthProvider';
 
 interface HeaderProps {
   isDashboard?: boolean;
@@ -40,6 +42,12 @@ export default function Header({
   logout = () => {}
 }: HeaderProps) {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const initials = React.useMemo(() => {
+    if (!user || !user.name) return 'U';
+    return user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+  }, [user]);
 
   // Generate today's date formatted like a classic ink stamp
   const stampDateText = React.useMemo(() => {
@@ -182,6 +190,39 @@ export default function Header({
                 <span>{nostalgiaMode ? 'Sepia Muted' : 'Muted Toggle'}</span>
               </Button>
             </motion.div>
+
+            {/* Notifications Bell */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <IconButton 
+                className={`p-2.5 rounded-full border relative transition-all duration-500 ${
+                  nostalgiaMode 
+                    ? 'bg-[#3c2f1f]/5 border-[#3c2f1f]/10 text-amber-800 hover:bg-[#3c2f1f]/10' 
+                    : 'bg-white/20 border-white/20 text-amber-700 hover:bg-white/40'
+                }`}
+              >
+                <Bell size={16} />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-600 rounded-full" />
+              </IconButton>
+            </motion.div>
+
+            {/* Wax-Seal styled User Profile Avatar */}
+            {user && (
+              <motion.div 
+                whileHover={{ scale: 1.08, rotate: 3 }} 
+                title={`Logged in as ${user.name} (${user.email})`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-xs shadow border cursor-pointer select-none transition-all duration-500 ${
+                  nostalgiaMode 
+                    ? 'bg-red-800 border-red-950 text-yellow-50 shadow-[0_2px_8px_rgba(153,27,27,0.3)]' 
+                    : 'bg-amber-600 border-amber-700 text-white shadow-[0_2px_8px_rgba(217,119,6,0.3)]'
+                }`}
+                style={{
+                  clipPath: 'polygon(50% 0%, 93% 15%, 100% 55%, 85% 90%, 50% 100%, 15% 90%, 0% 55%, 7% 15%)',
+                }}
+              >
+                {initials}
+              </motion.div>
+            )}
 
             {/* Wax-Seal styled Logout Button */}
             <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
