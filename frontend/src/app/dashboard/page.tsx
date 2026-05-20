@@ -280,7 +280,7 @@ export default function DashboardPage() {
           activeAlbumId={null}
           onSelectAlbum={(albumId) => {
             if (albumId) {
-              router.push(`/dashboard/album/${albumId}`);
+              router.push(`/album/${albumId}`);
             }
           }}
           onCreateAlbum={handleCreateAlbum}
