@@ -10,7 +10,8 @@ import {
   Image as ImageIcon, 
   BookOpen, 
   RotateCcw,
-  Plus
+  Plus,
+  Mail
 } from 'lucide-react';
 
 interface Album {
@@ -450,6 +451,26 @@ export default function MemoryGrid({
                               alt="Scrapbook Collage Piece"
                               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                             />
+                            
+                            {/* Sophisticated Note Indicator */}
+                            {photo.captions.length > 0 && (
+                              <div
+                                className="absolute bottom-2 right-2 flex items-center justify-center rounded-sm bg-white/90 backdrop-blur-md border border-amber-900/10 pointer-events-none select-none z-10"
+                                style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1)',
+                                }}
+                                title={`${photo.captions.length} note(s)`}
+                              >
+                                <Mail size={12} className="text-amber-800/80" />
+                                {photo.captions.length > 1 && (
+                                  <span className="absolute -top-1.5 -right-1.5 bg-amber-700 text-yellow-50 text-[8px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full border border-white shadow-sm">
+                                    {photo.captions.length}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Polaroid bottom white strip with handwritten-style date */}
@@ -463,26 +484,6 @@ export default function MemoryGrid({
                             >
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
-
-                            {/* Note indicator — shown only when the photo has captions */}
-                            {photo.captions.length > 0 && (() => {
-                              const noteHints = ['♥', '✿', '★', '✦', '❧', '♪', '◈', '✾'];
-                              const hint = noteHints[pileIndex % noteHints.length];
-                              return (
-                                <span
-                                  title={`${photo.captions.length} note${photo.captions.length > 1 ? 's' : ''} inside`}
-                                  style={{
-                                    fontSize: '12px',
-                                    color: '#b45309',
-                                    opacity: 0.75,
-                                    lineHeight: 1,
-                                    animation: 'subtlePulse 2.4s ease-in-out infinite',
-                                  }}
-                                >
-                                  {hint}
-                                </span>
-                              );
-                            })()}
                           </div>
                         </div>
 
