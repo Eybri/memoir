@@ -1,15 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Button, 
-  TextField 
+import {
+  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Plus, Folder, Sparkles } from 'lucide-react';
@@ -37,13 +37,13 @@ interface ReelBoardProps {
   nostalgiaMode: boolean;
 }
 
-export default function ReelBoard({ 
+export default function ReelBoard({
   albums,
   photos,
   activeAlbumId,
   onSelectAlbum,
   onCreateAlbum,
-  nostalgiaMode 
+  nostalgiaMode
 }: ReelBoardProps) {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState('');
@@ -56,7 +56,7 @@ export default function ReelBoard({
 
   const getAlbumCover = (album: Album) => {
     if (album.coverPhotoUrl) return album.coverPhotoUrl;
-    
+
     // Fallback to the first photo in this album
     const albumPhotos = photos.filter(p => p.albumId === album._id);
     if (albumPhotos.length > 0) return albumPhotos[0].url;
@@ -94,28 +94,26 @@ export default function ReelBoard({
 
       {/* Horizontal Scrollable Reel */}
       <div className="flex gap-5 overflow-x-auto pb-4 pt-1 px-1 scrollbar-hide mask-image-horizontal">
-        
+
         {/* First Bubble: Create Album */}
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.96 }}
           onClick={() => setIsCreateOpen(true)}
           className="flex-shrink-0 cursor-pointer pl-1 pt-2 pb-2"
         >
-          <Box className={`w-40 h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${
-            nostalgiaMode 
-              ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40' 
+          <Box className={`w-40 h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
+              ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
               : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
-          }`}>
+            }`}>
             <div className="absolute inset-0 bg-white/40 group-hover:bg-transparent transition-colors duration-500" />
             <div className="flex-grow flex items-center justify-center relative z-10 aspect-square border border-dashed border-amber-900/10 rounded-sm">
-              <div className={`p-4 rounded-full shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-90 ${
-                nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-white text-amber-600'
-              }`}>
+              <div className={`p-4 rounded-full shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-90 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-white text-amber-600'
+                }`}>
                 <Plus size={28} strokeWidth={2.5} />
               </div>
             </div>
-            
+
             <div className="text-center mt-2 relative z-10 flex-shrink-0 h-12 flex flex-col justify-center">
               <Typography className="text-[14px] font-display font-black tracking-tight leading-tight text-amber-950">
                 + Create
@@ -148,7 +146,7 @@ export default function ReelBoard({
           const tape = tapeStyles[idx % tapeStyles.length];
 
           return (
-            <motion.div 
+            <motion.div
               key={album._id}
               whileHover={{ scale: 1.04, y: -6 }}
               whileTap={{ scale: 0.96 }}
@@ -158,13 +156,12 @@ export default function ReelBoard({
               {/* Stack effect polaroids behind the main card */}
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-right transition-all duration-500 ease-out group-hover:rotate-6 group-hover:translate-x-3 group-hover:-translate-y-1 ${isActive ? 'rotate-3 translate-x-1' : 'rotate-2 translate-x-0.5'}`} />
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
-              
+
               {/* Main Polaroid */}
-              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${
-                isActive 
-                  ? 'border border-amber-400 shadow-[0_8px_30px_rgb(217,119,6,0.3)] ring-2 ring-amber-400/30 scale-105' 
+              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+                  ? 'border border-amber-400 shadow-[0_8px_30px_rgb(217,119,6,0.3)] ring-2 ring-amber-400/30 scale-105'
                   : 'border border-amber-900/10 shadow-md hover:border-amber-300 hover:shadow-xl'
-              }`}>
+                }`}>
                 {/* Washi Tape */}
                 {!isActive && (
                   <div className={`absolute h-5 bg-white/60 backdrop-blur-md border border-amber-900/10 shadow-sm z-30 transition-opacity duration-300 group-hover:opacity-0 ${tape}`} style={{ clipPath: 'polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)' }} />
@@ -172,30 +169,27 @@ export default function ReelBoard({
 
                 {/* Photo window */}
                 <div className="relative w-full aspect-square flex-shrink-0 rounded-sm overflow-hidden bg-amber-50 shadow-inner border border-black/10">
-                  <img 
-                    src={cover} 
+                  <img
+                    src={cover}
                     alt={album.title}
-                    className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
-                      nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''
-                    }`}
+                    className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''
+                      }`}
                   />
-                  
+
                   {/* Premium vignette / gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
-                  
+
                   {/* Count indicator */}
-                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${
-                    isActive ? 'bg-amber-600/90' : 'bg-black/50'
-                  }`}>
+                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-amber-600/90' : 'bg-black/50'
+                    }`}>
                     {count} Log{count !== 1 ? 's' : ''}
                   </span>
                 </div>
 
                 {/* Polaroid-style signature text label */}
                 <div className="text-center mt-3 flex flex-col items-center justify-center flex-grow overflow-hidden">
-                  <Typography className={`font-display font-black italic text-[15px] leading-tight line-clamp-2 px-1 ${
-                    nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'
-                  }`}>
+                  <Typography className={`font-display font-black italic text-[15px] leading-tight line-clamp-2 px-1 ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'
+                    }`}>
                     {album.title}
                   </Typography>
                 </div>
@@ -206,15 +200,15 @@ export default function ReelBoard({
       </div>
 
       {/* Create Album Dialog */}
-      <Dialog 
-        open={isCreateOpen} 
+      <Dialog
+        open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         maxWidth="xs"
         fullWidth
         slotProps={{
           paper: {
-            sx: { 
-              borderRadius: '24px', 
+            sx: {
+              borderRadius: '24px',
               p: 2,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
               color: nostalgiaMode ? '#3c2f1f' : '#000000',
@@ -225,7 +219,7 @@ export default function ReelBoard({
         <DialogTitle className="font-display font-black text-amber-950 text-xl pb-1">
           Create New Album
         </DialogTitle>
-        
+
         <DialogContent className="space-y-4 pt-2">
           <TextField
             autoFocus
@@ -261,12 +255,11 @@ export default function ReelBoard({
                 {photos.map((photo) => {
                   const isSelected = selectedCoverUrl === photo.url;
                   return (
-                    <div 
+                    <div
                       key={photo._id}
                       onClick={() => setSelectedCoverUrl(isSelected ? '' : photo.url)}
-                      className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all relative ${
-                        isSelected ? 'border-amber-500 scale-95 shadow' : 'border-transparent hover:border-amber-200'
-                      }`}
+                      className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all relative ${isSelected ? 'border-amber-500 scale-95 shadow' : 'border-transparent hover:border-amber-200'
+                        }`}
                     >
                       <img src={photo.url} alt="Cover option" className="w-full h-full object-cover" />
                       {isSelected && (
@@ -283,14 +276,14 @@ export default function ReelBoard({
         </DialogContent>
 
         <DialogActions className="px-6 pb-2">
-          <Button 
+          <Button
             onClick={() => setIsCreateOpen(false)}
             disabled={isSubmitting}
             className="text-amber-700 font-bold hover:bg-amber-500/5 rounded-full px-4"
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleCreate}
             disabled={isSubmitting || !newTitle.trim()}
             variant="contained"
