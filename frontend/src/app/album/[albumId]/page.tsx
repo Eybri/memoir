@@ -352,15 +352,8 @@ export default function AlbumDetailsPage() {
               )}
 
               {viewMode === 'scrapbook' ? (
-                <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
-                  <Box className="border-b border-amber-200/30 pb-4">
-                    <Typography variant="h4" className="font-display font-black text-amber-950">
-                      Album Ledger
-                    </Typography>
-                    <Typography className="text-amber-900/50 text-sm mt-1">
-                      Your beautiful stories, organized inside this private space.
-                    </Typography>
-                  </Box>
+                <Box className="scrapbook-page-canvas p-2 sm:p-6 md:p-12 space-y-6 overflow-hidden">
+
 
                   <MemoryGrid
                     photos={albumPhotos}

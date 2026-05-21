@@ -301,16 +301,16 @@ export default function MemoryGrid({
                 ].join(', '),
                 borderRadius: '20px',
                 /* thick mat-board frame: outer dark edge + inner cream lip */
-                border: '14px solid #c9a96e',
-                outline: '4px solid #a0783a',
-                outlineOffset: '-14px',
+                border: { xs: '6px solid #c9a96e', sm: '14px solid #c9a96e' },
+                outline: { xs: '2px solid #a0783a', sm: '4px solid #a0783a' },
+                outlineOffset: { xs: '-6px', sm: '-14px' },
                 boxShadow: [
                   '0 24px 60px -8px rgba(50,30,5,0.28)',
                   '0 4px 12px rgba(50,30,5,0.10)',
                   'inset 0 0 0 2px rgba(255,245,225,0.6)',
                   'inset 0 2px 40px rgba(180,110,30,0.06)',
                 ].join(', '),
-                p: { xs: '20px', sm: '44px' },
+                p: { xs: '12px', sm: '24px', md: '44px' },
               }}
             >
               {/* Fine noise grain overlay for tactile paper feel */}
@@ -355,8 +355,8 @@ export default function MemoryGrid({
               </div>
 
               <div
-                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[210px]"
-                style={{ gap: '18px', gridAutoFlow: 'dense', borderRadius: '12px' }}
+                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
+                style={{ gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
                   const photo = pile[0];
