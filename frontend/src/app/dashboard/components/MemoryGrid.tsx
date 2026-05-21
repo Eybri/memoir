@@ -449,7 +449,7 @@ export default function MemoryGrid({
 
                           {/* Polaroid bottom white strip with handwritten-style date */}
                           <div
-                            className="absolute bottom-0 left-0 right-0 flex items-center justify-center select-none"
+                            className="absolute bottom-0 left-0 right-0 flex items-center justify-between select-none px-2"
                             style={{ height: '28px', background: '#ffffff' }}
                           >
                             <Typography
@@ -458,6 +458,26 @@ export default function MemoryGrid({
                             >
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
+
+                            {/* Note indicator — shown only when the photo has captions */}
+                            {photo.captions.length > 0 && (() => {
+                              const noteHints = ['♥', '✿', '★', '✦', '❧', '♪', '◈', '✾'];
+                              const hint = noteHints[pileIndex % noteHints.length];
+                              return (
+                                <span
+                                  title={`${photo.captions.length} note${photo.captions.length > 1 ? 's' : ''} inside`}
+                                  style={{
+                                    fontSize: '12px',
+                                    color: '#b45309',
+                                    opacity: 0.75,
+                                    lineHeight: 1,
+                                    animation: 'subtlePulse 2.4s ease-in-out infinite',
+                                  }}
+                                >
+                                  {hint}
+                                </span>
+                              );
+                            })()}
                           </div>
                         </div>
 

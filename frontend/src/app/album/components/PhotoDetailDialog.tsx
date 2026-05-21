@@ -248,14 +248,14 @@ export default function PhotoDetailDialog({
                   <div style={{ position: 'absolute', top: 0, bottom: 0, left: '44px', width: '1.5px', background: 'rgba(200,80,80,0.35)' }} />
 
                   <Box style={{ paddingLeft: '52px' }}>
-                    <Typography style={{ fontFamily: "'Courier New', monospace", fontSize: '10px', color: '#b45309', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                    <Typography style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: '13px', color: '#b45309', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '16px' }}>
                       Notes / Memories
                     </Typography>
 
                     {/* Existing captions */}
                     <Box style={{ marginBottom: '16px', maxHeight: '200px', overflowY: 'auto' }}>
                       {photo.captions.length === 0 ? (
-                        <Typography style={{ fontFamily: "'Courier New', monospace", fontSize: '12px', color: '#9ca3af', fontStyle: 'italic', lineHeight: '28px' }}>
+                        <Typography style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: '16px', color: '#9ca3af', fontStyle: 'italic', lineHeight: '28px' }}>
                           No notes written yet...
                         </Typography>
                       ) : (
@@ -263,8 +263,8 @@ export default function PhotoDetailDialog({
                           <Typography
                             key={i}
                             style={{
-                              fontFamily: "'Courier New', monospace",
-                              fontSize: '12px',
+                              fontFamily: 'var(--font-caveat), cursive',
+                              fontSize: '16px',
                               color: '#374151',
                               lineHeight: '28px',
                               fontStyle: 'italic',
@@ -291,8 +291,8 @@ export default function PhotoDetailDialog({
                             '& .MuiInput-underline:before': { borderBottomColor: 'rgba(180,120,40,0.3)' },
                             '& .MuiInput-underline:after': { borderBottomColor: '#b45309' },
                             '& textarea': {
-                              fontFamily: "'Courier New', monospace",
-                              fontSize: '12px',
+                              fontFamily: 'var(--font-caveat), cursive',
+                              fontSize: '16px',
                               color: '#374151',
                               fontStyle: 'italic',
                               lineHeight: '28px',

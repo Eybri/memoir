@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-display: var(--font-outfit);
+  --font-handwritten: var(--font-caveat);
 }
 
 body {
@@ -75,4 +76,13 @@ body {
   border: 1.5px dashed rgba(180, 83, 9, 0.2);
   pointer-events: none;
   border-radius: 12px;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+.font-handwritten {
+  font-family: var(--font-caveat), cursive;
 }
