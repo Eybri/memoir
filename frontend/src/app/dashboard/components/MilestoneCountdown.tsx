@@ -14,9 +14,12 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
   const [newTitle, setNewTitle] = useState('');
   const [newDate, setNewDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     loadMilestones();
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const loadMilestones = async () => {
@@ -54,29 +57,26 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
     }
   };
 
-  // Helper to calculate time difference in years and months
+  // Helper to calculate time difference in days, hours, minutes, and seconds
   const getTimeDifference = (dateString: string) => {
     const targetDate = new Date(dateString);
-    const now = new Date();
+    // If date is saved as YYYY-MM-DD, parsing it might give midnight UTC.
+    // We compare it to currentTime.
     
-    // Total months difference
-    let months = (targetDate.getFullYear() - now.getFullYear()) * 12;
-    months -= now.getMonth();
-    months += targetDate.getMonth();
+    const diffMs = targetDate.getTime() - currentTime.getTime();
+    const isPast = diffMs < 0;
+    const absDiff = Math.abs(diffMs);
     
-    // Adjust for days
-    if (now.getDate() > targetDate.getDate()) {
-      months -= 1;
-    }
-
-    const isPast = months < 0;
-    const absMonths = Math.abs(months);
-    const years = Math.floor(absMonths / 12);
-    const remainingMonths = absMonths % 12;
-
+    const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((absDiff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((absDiff / 1000 / 60) % 60);
+    const secs = Math.floor((absDiff / 1000) % 60);
+    
     return {
-      years,
-      months: remainingMonths,
+      days,
+      hours,
+      mins,
+      secs,
       isPast
     };
   };
@@ -97,7 +97,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
           onClick={() => setIsCreateOpen(true)}
           className="flex-shrink-0 cursor-pointer pl-1 pt-2 pb-2"
         >
-          <Box className={`w-36 h-[140px] rounded-2xl shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
+          <Box className={`w-36 h-[160px] rounded-2xl shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
               ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
               : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
             }`}>
@@ -136,7 +136,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
                   <Trash2 size={12} />
                 </IconButton>
                 
-                <Box className={`w-36 h-[140px] rounded-2xl shadow-md border flex flex-col p-4 transition-all duration-500 relative overflow-hidden ${nostalgiaMode
+                <Box className={`w-44 h-[160px] rounded-2xl shadow-md border flex flex-col p-4 transition-all duration-500 relative overflow-hidden ${nostalgiaMode
                     ? 'border-amber-900/10 bg-[#fdfcf8] hover:border-amber-900/20'
                     : 'border-amber-500/20 bg-white hover:border-amber-400 hover:shadow-lg'
                   }`}>
@@ -148,29 +148,28 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
                   </Typography>
 
                   <div className="flex-grow flex flex-col justify-end">
-                    <div className="flex items-end gap-1">
-                      {diff.years > 0 && (
-                        <div className="text-center">
-                          <Typography className="text-2xl font-display font-black leading-none text-amber-600">
-                            {diff.years}
-                          </Typography>
-                          <Typography className="text-[8px] font-mono uppercase text-amber-900/40 font-bold">
-                            Yrs
-                          </Typography>
-                        </div>
-                      )}
-                      <div className="text-center">
-                        <Typography className="text-2xl font-display font-black leading-none text-amber-600">
-                          {diff.months}
-                        </Typography>
-                        <Typography className="text-[8px] font-mono uppercase text-amber-900/40 font-bold">
-                          Mos
-                        </Typography>
+                    <Typography className="text-[8px] font-mono uppercase text-amber-600/70 mb-1.5 font-bold tracking-widest text-center">
+                      {diff.isPast ? 'Time Elapsed' : 'Time Remaining'}
+                    </Typography>
+                    
+                    <div className="flex gap-1 w-full justify-center">
+                      <div className={`flex-1 flex flex-col items-center justify-center rounded py-1.5 px-1 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 border border-[#3c2f1f]/10' : 'bg-amber-500/10 border border-amber-500/20'}`}>
+                        <Typography className={`text-sm font-display font-black leading-none ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-700'}`}>{diff.days}</Typography>
+                        <Typography className="text-[7px] font-mono uppercase text-amber-900/50 font-bold mt-0.5">Days</Typography>
+                      </div>
+                      <div className={`flex-1 flex flex-col items-center justify-center rounded py-1.5 px-1 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 border border-[#3c2f1f]/10' : 'bg-amber-500/10 border border-amber-500/20'}`}>
+                        <Typography className={`text-sm font-display font-black leading-none ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-700'}`}>{String(diff.hours).padStart(2, '0')}</Typography>
+                        <Typography className="text-[7px] font-mono uppercase text-amber-900/50 font-bold mt-0.5">Hrs</Typography>
+                      </div>
+                      <div className={`flex-1 flex flex-col items-center justify-center rounded py-1.5 px-1 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 border border-[#3c2f1f]/10' : 'bg-amber-500/10 border border-amber-500/20'}`}>
+                        <Typography className={`text-sm font-display font-black leading-none ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-700'}`}>{String(diff.mins).padStart(2, '0')}</Typography>
+                        <Typography className="text-[7px] font-mono uppercase text-amber-900/50 font-bold mt-0.5">Min</Typography>
+                      </div>
+                      <div className={`flex-1 flex flex-col items-center justify-center rounded py-1.5 px-1 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 border border-[#3c2f1f]/10' : 'bg-amber-500/10 border border-amber-500/20'}`}>
+                        <Typography className={`text-sm font-display font-black leading-none ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-700'}`}>{String(diff.secs).padStart(2, '0')}</Typography>
+                        <Typography className="text-[7px] font-mono uppercase text-amber-900/50 font-bold mt-0.5">Sec</Typography>
                       </div>
                     </div>
-                    <Typography className="text-[8px] font-mono uppercase text-amber-600/70 mt-1 font-bold">
-                      {diff.isPast ? 'Since' : 'To Go'}
-                    </Typography>
                   </div>
                 </Box>
               </motion.div>
