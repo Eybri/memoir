@@ -507,7 +507,7 @@ export default function MemoryGrid({
                           <div style={{ padding: '8px 8px 6px 36px', height: '100%', display: 'flex', flexDirection: 'column' }}>
                             <Typography
                               style={{
-                                fontFamily: 'var(--font-caveat)',
+                                fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
                                 fontSize: '9px',
                                 color: '#b45309',
                                 fontWeight: 700,
@@ -522,12 +522,12 @@ export default function MemoryGrid({
 
                             <div style={{ flexGrow: 1, overflowY: 'auto' }}>
                               {photo.captions.length === 0 ? (
-                                <Typography style={{ fontFamily: 'var(--font-caveat)', fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
+                                <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
                                   No notes yet...
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <Typography key={i} style={{ fontFamily: 'var(--font-caveat)', fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
+                                  <Typography key={i} style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
                                     — {cap.text}
                                   </Typography>
                                 ))
@@ -542,10 +542,10 @@ export default function MemoryGrid({
                                 rows={1}
                                 style={{
                                   width: '100%',
-                                  fontFamily: 'var(--font-caveat)',
+                                  fontFamily: 'sans-serif',
                                   fontSize: '12px',
                                   color: '#374151',
-                                  fontStyle: 'italic',
+                                  fontStyle: 'normal',
                                   background: 'transparent',
                                   border: 'none',
                                   outline: 'none',
@@ -562,7 +562,7 @@ export default function MemoryGrid({
                                 sx={{
                                   backgroundColor: '#b45309',
                                   '&:hover': { backgroundColor: '#92400e' },
-                                  fontFamily: 'var(--font-caveat)',
+                                  fontFamily: 'sans-serif',
                                   fontSize: '10px',
                                   py: 0,
                                   borderRadius: '4px',
