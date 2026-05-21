@@ -361,7 +361,7 @@ export default function MemoryGrid({
               </div>
 
               <div
-                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
+                className="relative z-10 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[90px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
                 style={{ gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
@@ -583,7 +583,7 @@ export default function MemoryGrid({
             </Box>
           ) : (
             /* Staggered Masonry Layout */
-            <div className="columns-2 sm:columns-2 xl:columns-3 gap-4 sm:gap-6">
+            <div className="columns-2 sm:columns-3 xl:columns-4 gap-4 sm:gap-6">
               {chapter.piles.map((pile, pileIndex) => {
                 const pileId = `${chapter.id}-pile-${pileIndex}`;
                 const isHovered = hoveredPileId === pileId;
@@ -680,7 +680,7 @@ export default function MemoryGrid({
                     onMouseLeave={stopFlipbook}
                   >
                     <div 
-                      className="relative w-full h-[280px] sm:h-[360px]"
+                      className="relative w-full h-[200px] sm:h-[360px]"
                       style={{ transform: `rotate(${baseTilt}deg)` }}
                     >
                       {/* Album Outer Cover Base */}

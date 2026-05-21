@@ -102,7 +102,7 @@ export default function ReelBoard({
           onClick={() => setIsCreateOpen(true)}
           className="flex-shrink-0 cursor-pointer pl-1 pt-2 pb-2"
         >
-          <Box className={`w-40 h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
+          <Box className={`w-28 h-[160px] sm:w-40 sm:h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
               ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
               : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
             }`}>
@@ -143,7 +143,7 @@ export default function ReelBoard({
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-right transition-all duration-500 ease-out group-hover:rotate-6 group-hover:translate-x-3 group-hover:-translate-y-1 ${isActive ? 'rotate-3 translate-x-1' : 'rotate-2 translate-x-0.5'}`} />
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
 
-              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+              <Box className={`relative z-10 w-28 h-[160px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
                   ? 'border border-rose-400 shadow-[0_8px_30px_rgb(244,63,94,0.3)] ring-2 ring-rose-400/30 scale-105'
                   : 'border border-rose-900/20 shadow-md hover:border-rose-400 hover:shadow-xl'
                 }`}>
@@ -207,7 +207,7 @@ export default function ReelBoard({
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
 
               {/* Main Polaroid */}
-              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+              <Box className={`relative z-10 w-28 h-[160px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
                   ? 'border border-amber-400 shadow-[0_8px_30px_rgb(217,119,6,0.3)] ring-2 ring-amber-400/30 scale-105'
                   : 'border border-amber-900/10 shadow-md hover:border-amber-300 hover:shadow-xl'
                 }`}>
