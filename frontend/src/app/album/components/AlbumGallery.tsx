@@ -32,7 +32,7 @@ export default function AlbumGallery({ photos, onSelectPhoto }: AlbumGalleryProp
   };
 
   return (
-    <Box className="bg-white/90 dark:bg-black/90 backdrop-blur-xl p-0.5 border-y border-amber-900/10 shadow-sm w-full relative">
+    <Box className="w-full relative">
       {/* Zoom Controls above images */}
       <Box className="flex justify-center sm:justify-end p-2 mb-1 w-full">
         <Box className="flex items-center bg-amber-900/5 border border-amber-900/10 rounded-full px-1 py-1">
@@ -56,11 +56,11 @@ export default function AlbumGallery({ photos, onSelectPhoto }: AlbumGalleryProp
         </Box>
       </Box>
 
-      <div className={`grid ${getGridCols()} gap-0.5 w-full`}>
+      <div className={`grid ${getGridCols()} w-full`}>
         {photos.map((photo) => (
           <div
             key={photo._id}
-            className="aspect-square relative cursor-pointer group bg-amber-100/50"
+            className="aspect-square relative cursor-pointer group bg-amber-100/50 border-[1px] border-black"
             onClick={() => onSelectPhoto(photo)}
           >
             <img

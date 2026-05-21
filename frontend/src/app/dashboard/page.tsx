@@ -43,6 +43,7 @@ import MemoryGrid from './components/MemoryGrid';
 import SensoryCorner from './components/SensoryCorner';
 import Header from '@/components/Header';
 import ReelBoard from './components/ReelBoard';
+import MilestoneCountdown from './components/MilestoneCountdown';
 
 interface Album {
   _id: string;
@@ -280,8 +281,9 @@ export default function DashboardPage() {
             <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
           </div>
 
-          {/* Right Column: Reel Board */}
-          <div className="lg:col-span-7 xl:col-span-8 overflow-hidden flex flex-col justify-center">
+          {/* Right Column: Reel Board and Milestones */}
+          <div className="lg:col-span-7 xl:col-span-8 overflow-hidden flex flex-col justify-center space-y-6">
+            <MilestoneCountdown nostalgiaMode={nostalgiaMode} />
             <ReelBoard 
               albums={albums}
               photos={photos}
