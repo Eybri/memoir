@@ -91,28 +91,6 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
       </Box>
 
       <div className="flex gap-4 overflow-x-auto pb-4 pt-1 px-1 scrollbar-hide mask-image-horizontal">
-        {/* Add Date Card */}
-        <motion.div
-          whileHover={{ scale: 1.02, y: -4 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => setIsCreateOpen(true)}
-          className="flex-shrink-0 cursor-pointer"
-        >
-          <Box className={`w-36 h-[180px] rounded-xl shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
-              ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
-              : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
-            }`}>
-            <div className="flex-grow flex items-center justify-center">
-              <div className={`p-3 rounded-full transition-transform duration-500 group-hover:scale-110 group-hover:rotate-90 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-white text-amber-600'}`}>
-                <Plus size={24} strokeWidth={2.5} />
-              </div>
-            </div>
-            <Typography className="text-[11px] font-display font-black tracking-wider text-center text-amber-950 uppercase mt-2">
-              Save Date
-            </Typography>
-          </Box>
-        </motion.div>
-
         {/* Milestone Cards */}
         <AnimatePresence>
           {milestones.map((milestone) => {
@@ -166,6 +144,28 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
             );
           })}
         </AnimatePresence>
+
+        {/* Add Date Card */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => setIsCreateOpen(true)}
+          className="flex-shrink-0 cursor-pointer"
+        >
+          <Box className={`w-36 h-[180px] rounded-xl shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
+              ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
+              : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
+            }`}>
+            <div className="flex-grow flex items-center justify-center">
+              <div className={`p-3 rounded-full transition-transform duration-500 group-hover:scale-110 group-hover:rotate-90 ${nostalgiaMode ? 'bg-[#3c2f1f]/5 text-amber-800' : 'bg-white text-amber-600'}`}>
+                <Plus size={24} strokeWidth={2.5} />
+              </div>
+            </div>
+            <Typography className="text-[11px] font-display font-black tracking-wider text-center text-amber-950 uppercase mt-2">
+              Save Date
+            </Typography>
+          </Box>
+        </motion.div>
       </div>
 
       <Dialog

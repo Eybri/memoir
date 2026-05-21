@@ -11,7 +11,8 @@ import {
   BookOpen, 
   RotateCcw,
   Plus,
-  Mail
+  Mail,
+  Check
 } from 'lucide-react';
 
 interface Album {
@@ -37,6 +38,10 @@ interface MemoryGridProps {
   nostalgiaMode: boolean;
   onAddCaption?: (photoId: string, text: string) => Promise<void>;
   disableStacking?: boolean;
+  isSelectionMode?: boolean;
+  selectedPhotoIds?: Set<string>;
+  onToggleSelection?: (photoId: string) => void;
+  onLongPress?: (photoId: string) => void;
 }
 
 const getCollageSpanClass = (index: number) => {
@@ -78,7 +83,11 @@ export default function MemoryGrid({
   onSelectPhoto, 
   nostalgiaMode,
   onAddCaption,
-  disableStacking = false
+  disableStacking = false,
+  isSelectionMode,
+  selectedPhotoIds,
+  onToggleSelection,
+  onLongPress
 }: MemoryGridProps) {
   
   // Chapter & Stacking calculation
@@ -179,6 +188,30 @@ export default function MemoryGrid({
   // Input states for writing back-side captions (photoId -> current text)
   const [memos, setMemos] = React.useState<{ [photoId: string]: string }>({});
   const [isSavingMemo, setIsSavingMemo] = React.useState<{ [photoId: string]: boolean }>({});
+
+  const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const justLongPressed = React.useRef(false);
+
+  const startLongPress = (photoId: string) => {
+    if (isSelectionMode) return;
+    justLongPressed.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      justLongPressed.current = true;
+      if (onLongPress) {
+        onLongPress(photoId);
+        if (window.navigator && window.navigator.vibrate) {
+          window.navigator.vibrate(50);
+        }
+      }
+    }, 500);
+  };
+
+  const endLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   // Interval hook for cycling photos in hovered piles (for frame-skipped preview)
   React.useEffect(() => {
@@ -442,16 +475,42 @@ export default function MemoryGrid({
                         >
                           {/* Photo fills the top of polaroid */}
                           <div
-                            className="w-full flex-grow overflow-hidden relative cursor-pointer"
+                            className={`w-full flex-grow overflow-hidden relative cursor-pointer ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'ring-4 ring-amber-500 ring-inset' : ''}`}
                             style={{ borderRadius: '1px' }}
-                            onClick={() => onSelectPhoto(photo)}
+                            onPointerDown={() => startLongPress(photo._id)}
+                            onPointerUp={endLongPress}
+                            onPointerLeave={endLongPress}
+                            onClick={() => {
+                              if (justLongPressed.current) {
+                                justLongPressed.current = false;
+                                return;
+                              }
+                              if (isSelectionMode && onToggleSelection) {
+                                onToggleSelection(photo._id);
+                              } else {
+                                onSelectPhoto(photo);
+                              }
+                            }}
                           >
                             <img
                               src={photo.url}
                               alt="Scrapbook Collage Piece"
-                              className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.01]"
+                              className={`w-full h-full object-cover transition-transform duration-300 hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                             />
                             
+                            {/* Selection Checkbox */}
+                            {isSelectionMode && selectedPhotoIds && (
+                              <div className="absolute top-2 left-2 z-50 transition-all duration-200">
+                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg ${
+                                  selectedPhotoIds.has(photo._id) 
+                                    ? 'bg-amber-500 border-amber-500 text-white' 
+                                    : 'bg-black/30 border-white/80 hover:bg-black/50'
+                                }`}>
+                                  {selectedPhotoIds.has(photo._id) && <Check size={14} strokeWidth={4} />}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Sophisticated Note Indicator */}
                             {photo.captions.length > 0 && (
                               <div
@@ -627,14 +686,40 @@ export default function MemoryGrid({
                       >
                         {/* Photo + cinematic hover overlay */}
                         <div
-                          className="aspect-[4/5] rounded-lg overflow-hidden relative cursor-pointer"
-                          onClick={() => onSelectPhoto(photo)}
+                          className={`aspect-[4/5] rounded-lg overflow-hidden relative cursor-pointer ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'ring-4 ring-amber-500 ring-inset' : ''}`}
+                          onPointerDown={() => startLongPress(photo._id)}
+                          onPointerUp={endLongPress}
+                          onPointerLeave={endLongPress}
+                          onClick={() => {
+                            if (justLongPressed.current) {
+                              justLongPressed.current = false;
+                              return;
+                            }
+                            if (isSelectionMode && onToggleSelection) {
+                              onToggleSelection(photo._id);
+                            } else {
+                              onSelectPhoto(photo);
+                            }
+                          }}
                         >
                           <img
                             src={photo.url}
                             alt="Scrapbook Memory"
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                            className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                           />
+                          
+                          {/* Selection Checkbox */}
+                          {isSelectionMode && selectedPhotoIds && (
+                            <div className="absolute top-2 left-2 z-50 transition-all duration-200">
+                              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg ${
+                                selectedPhotoIds.has(photo._id) 
+                                  ? 'bg-amber-500 border-amber-500 text-white' 
+                                  : 'bg-black/30 border-white/80 hover:bg-black/50'
+                              }`}>
+                                {selectedPhotoIds.has(photo._id) && <Check size={14} strokeWidth={4} />}
+                              </div>
+                            </div>
+                          )}
                           {/* Cinematic dark sweep */}
                           <div
                             className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"

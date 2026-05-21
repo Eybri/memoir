@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -14,6 +14,9 @@ export class User extends Document {
 
   @Prop({ type: [String], default: [] })
   vaultIds: string[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  friends: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

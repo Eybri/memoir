@@ -27,9 +27,9 @@ export class AlbumsController {
   @Post()
   create(
     @Request() req: AuthenticatedRequest,
-    @Body() body: { title: string; coverPhotoUrl?: string },
+    @Body() body: { title: string; coverPhotoUrl?: string; sharedWith?: string[] },
   ) {
-    return this.albumsService.create(req.user.sub, body.title, body.coverPhotoUrl);
+    return this.albumsService.create(req.user.sub, body.title, body.coverPhotoUrl, body.sharedWith);
   }
 
   @Get()
@@ -46,7 +46,7 @@ export class AlbumsController {
   update(
     @Request() req: AuthenticatedRequest,
     @Param('id') albumId: string,
-    @Body() body: { title?: string; coverPhotoUrl?: string },
+    @Body() body: { title?: string; coverPhotoUrl?: string; sharedWith?: string[] },
   ) {
     return this.albumsService.update(req.user.sub, albumId, body);
   }

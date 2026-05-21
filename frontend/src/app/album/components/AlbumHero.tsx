@@ -7,6 +7,8 @@ interface Album {
   title: string;
   coverPhotoUrl: string;
   createdAt?: string;
+  userId?: any;
+  sharedWith?: any[];
 }
 
 interface AlbumHeroProps {
@@ -21,6 +23,7 @@ interface AlbumHeroProps {
   handleRenameAlbum: () => void;
   handleDeleteAlbum: () => void;
   startSlideshow: () => void;
+  currentUser?: any;
 }
 
 export default function AlbumHero({
@@ -34,7 +37,8 @@ export default function AlbumHero({
   setIsEditingTitle,
   handleRenameAlbum,
   handleDeleteAlbum,
-  startSlideshow
+  startSlideshow,
+  currentUser
 }: AlbumHeroProps) {
   return (
     <Box 
@@ -104,10 +108,34 @@ export default function AlbumHero({
             <span>•</span>
             <span>{albumPhotosCount} Captured Moment{albumPhotosCount !== 1 ? 's' : ''}</span>
           </div>
+
+          {/* Shared Album Indicators */}
+          {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
+            <div className="flex items-center gap-2 pt-2">
+              <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Shared With:</span>
+              <div className="flex -space-x-1.5">
+                {album.sharedWith.map(sw => (
+                  <div key={sw._id} className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase" title={sw.name}>
+                    {sw.name.substring(0, 2)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {currentUser && album.userId && album.userId._id !== currentUser.id && (
+            <div className="flex items-center gap-2 pt-2">
+              <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded border border-white/10 flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold uppercase">
+                  {album.userId.name.substring(0, 2)}
+                </div>
+                <span className="text-white/90 text-xs font-bold tracking-wide">Shared by {album.userId.name}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
-        <Stack direction="row" spacing={2} className="flex-shrink-0">
+        <Stack direction="row" spacing={2} className="flex-shrink-0 flex-wrap justify-end">
           {albumPhotosCount > 0 && (
             <Button
               variant="contained"

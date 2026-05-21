@@ -12,12 +12,15 @@ import {
   TextField
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Plus, Folder, Sparkles } from 'lucide-react';
+import { Plus, Folder, Sparkles, Upload } from 'lucide-react';
+import { uploadPhoto, fetchFriends, UserBasic } from '@/lib/api';
 
 interface Album {
   _id: string;
   title: string;
   coverPhotoUrl: string;
+  userId?: UserBasic;
+  sharedWith?: UserBasic[];
 }
 
 interface Photo {
@@ -33,8 +36,9 @@ interface ReelBoardProps {
   photos: Photo[];
   activeAlbumId: string | null;
   onSelectAlbum: (albumId: string | null) => void;
-  onCreateAlbum: (title: string, coverPhotoUrl?: string) => Promise<void>;
+  onCreateAlbum: (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => Promise<void>;
   nostalgiaMode: boolean;
+  currentUser?: any;
 }
 
 export default function ReelBoard({
@@ -43,12 +47,42 @@ export default function ReelBoard({
   activeAlbumId,
   onSelectAlbum,
   onCreateAlbum,
-  nostalgiaMode
+  nostalgiaMode,
+  currentUser
 }: ReelBoardProps) {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState('');
   const [selectedCoverUrl, setSelectedCoverUrl] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [friends, setFriends] = React.useState<UserBasic[]>([]);
+  const [selectedFriends, setSelectedFriends] = React.useState<string[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (isCreateOpen) {
+      fetchFriends().then(setFriends).catch(console.error);
+    } else {
+      setNewTitle('');
+      setSelectedCoverUrl('');
+      setSelectedFriends([]);
+    }
+  }, [isCreateOpen]);
+
+  const handleUploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const newPhoto = await uploadPhoto(file);
+      setSelectedCoverUrl(newPhoto.url);
+    } catch (error) {
+      console.error('Failed to upload cover:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const getAlbumPhotoCount = (albumId: string) => {
     return photos.filter(p => p.albumId === albumId).length;
@@ -69,9 +103,7 @@ export default function ReelBoard({
     if (!newTitle.trim()) return;
     setIsSubmitting(true);
     try {
-      await onCreateAlbum(newTitle.trim(), selectedCoverUrl || undefined);
-      setNewTitle('');
-      setSelectedCoverUrl('');
+      await onCreateAlbum(newTitle.trim(), selectedCoverUrl || undefined, selectedFriends);
       setIsCreateOpen(false);
     } catch (error) {
       console.error('Failed to create album:', error);
@@ -102,7 +134,7 @@ export default function ReelBoard({
           onClick={() => setIsCreateOpen(true)}
           className="flex-shrink-0 cursor-pointer pl-1 pt-2 pb-2"
         >
-          <Box className={`w-28 h-[160px] sm:w-40 sm:h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
+          <Box className={`w-36 h-[180px] sm:w-40 sm:h-[216px] rounded-md shadow-sm border-2 border-dashed flex flex-col p-3 transition-all duration-500 group relative overflow-hidden backdrop-blur-sm ${nostalgiaMode
               ? 'border-amber-900/25 bg-[#faf6eb]/80 hover:bg-amber-900/10 hover:border-amber-900/40'
               : 'border-amber-400/40 bg-gradient-to-br from-amber-50/50 to-amber-100/30 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-500/20'
             }`}>
@@ -114,11 +146,11 @@ export default function ReelBoard({
               </div>
             </div>
 
-            <div className="text-center mt-2 relative z-10 flex-shrink-0 h-12 flex flex-col justify-center">
-              <Typography className="text-[14px] font-display font-black tracking-tight leading-tight text-amber-950">
+            <div className="text-center mt-2 relative z-10 flex-shrink-0 h-12 flex flex-col justify-center w-full overflow-hidden px-1">
+              <Typography className="text-[14px] font-display font-black tracking-tight leading-tight text-amber-950 truncate w-full">
                 + Create
               </Typography>
-              <Typography className="text-[9px] font-mono tracking-[0.2em] text-amber-600/80 font-bold uppercase mt-1">
+              <Typography className="text-[9px] font-mono tracking-widest sm:tracking-[0.2em] text-amber-600/80 font-bold uppercase mt-1 truncate w-full">
                 Collection
               </Typography>
             </div>
@@ -143,7 +175,7 @@ export default function ReelBoard({
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-right transition-all duration-500 ease-out group-hover:rotate-6 group-hover:translate-x-3 group-hover:-translate-y-1 ${isActive ? 'rotate-3 translate-x-1' : 'rotate-2 translate-x-0.5'}`} />
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
 
-              <Box className={`relative z-10 w-28 h-[160px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+              <Box className={`relative z-10 w-36 h-[180px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
                   ? 'border border-rose-400 shadow-[0_8px_30px_rgb(244,63,94,0.3)] ring-2 ring-rose-400/30 scale-105'
                   : 'border border-rose-900/20 shadow-md hover:border-rose-400 hover:shadow-xl'
                 }`}>
@@ -207,7 +239,7 @@ export default function ReelBoard({
               <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
 
               {/* Main Polaroid */}
-              <Box className={`relative z-10 w-28 h-[160px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+              <Box className={`relative z-10 w-36 h-[180px] sm:w-40 sm:h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
                   ? 'border border-amber-400 shadow-[0_8px_30px_rgb(217,119,6,0.3)] ring-2 ring-amber-400/30 scale-105'
                   : 'border border-amber-900/10 shadow-md hover:border-amber-300 hover:shadow-xl'
                 }`}>
@@ -227,6 +259,25 @@ export default function ReelBoard({
 
                   {/* Premium vignette / gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
+
+                  {/* Shared Indicators */}
+                  {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
+                    <div className="absolute top-2 right-2 flex -space-x-1.5" title="Shared with friends">
+                      {album.sharedWith.map(sw => (
+                        <div key={sw._id} className="w-5 h-5 rounded-full bg-amber-600 border border-white text-[8px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase">
+                          {sw.name.substring(0, 2)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {currentUser && album.userId && album.userId._id !== currentUser.id && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/20" title={`Shared by ${album.userId.name}`}>
+                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[7px] text-white font-bold uppercase">
+                        {album.userId.name.substring(0, 2)}
+                      </div>
+                      <span className="text-[8px] text-white font-bold uppercase tracking-wider pr-0.5">Shared</span>
+                    </div>
+                  )}
 
                   {/* Count indicator */}
                   <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-amber-600/90' : 'bg-black/50'
@@ -292,9 +343,36 @@ export default function ReelBoard({
           />
 
           <Box className="space-y-2">
-            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
-              Choose Cover Photo (Optional)
-            </Typography>
+            <div className="flex justify-between items-center">
+              <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+                Choose Cover Photo (Optional)
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+                startIcon={isUploading ? <Sparkles className="animate-spin" size={14} /> : <Upload size={14} />}
+                className="text-[9px] border-amber-500/30 text-amber-700 hover:bg-amber-500/10 rounded-lg py-1 px-2 font-bold"
+              >
+                {isUploading ? 'Uploading...' : 'Upload Cover'}
+              </Button>
+              <input type="file" ref={fileInputRef} onChange={handleUploadCover} className="hidden" accept="image/*" />
+            </div>
+
+            {selectedCoverUrl && !photos.find(p => p.url === selectedCoverUrl) && (
+              <div className="flex items-center gap-3 mb-2 p-2 bg-amber-500/10 rounded-xl">
+                <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-amber-500 relative flex-shrink-0 shadow-sm">
+                  <img src={selectedCoverUrl} alt="Custom cover" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                    <Sparkles size={12} className="text-white" />
+                  </div>
+                </div>
+                <Typography className="text-[10px] text-amber-900/80 font-bold italic leading-tight">
+                  Custom cover uploaded and selected!
+                </Typography>
+              </div>
+            )}
             {photos.length === 0 ? (
               <Typography className="text-xs text-amber-900/40 italic">
                 Upload photos to choose a cover.
@@ -316,6 +394,33 @@ export default function ReelBoard({
                           <Sparkles size={16} className="text-white" />
                         </div>
                       )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Box>
+
+          <Box className="space-y-2">
+            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+              Share with Friends (Optional)
+            </Typography>
+            {friends.length === 0 ? (
+              <Typography className="text-xs text-amber-900/40 italic">
+                Add friends from your profile to share albums.
+              </Typography>
+            ) : (
+              <div className="max-h-[100px] overflow-y-auto space-y-1 p-1 border border-amber-950/10 rounded-xl bg-amber-500/5">
+                {friends.map(f => {
+                  const isShared = selectedFriends.includes(f._id);
+                  return (
+                    <div 
+                      key={f._id} 
+                      onClick={() => setSelectedFriends(prev => isShared ? prev.filter(id => id !== f._id) : [...prev, f._id])}
+                      className={`flex justify-between items-center p-2 rounded-lg cursor-pointer transition-all border ${isShared ? 'bg-amber-500/20 border-amber-300 shadow-sm' : 'hover:bg-amber-50 border-transparent'}`}
+                    >
+                      <Typography className="text-xs font-bold text-amber-950">{f.name}</Typography>
+                      {isShared && <Sparkles size={14} className="text-amber-600" />}
                     </div>
                   );
                 })}

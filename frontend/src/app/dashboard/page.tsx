@@ -9,7 +9,9 @@ import {
   Stack, 
   IconButton,
   TextField,
-  Dialog
+  Dialog,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -44,6 +46,8 @@ import SensoryCorner from './components/SensoryCorner';
 import Header from '@/components/Header';
 import ReelBoard from './components/ReelBoard';
 import MilestoneCountdown from './components/MilestoneCountdown';
+import PhotoDetailDialog from '../album/components/PhotoDetailDialog';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface Album {
   _id: string;
@@ -70,6 +74,8 @@ export default function DashboardPage() {
   const [newCaption, setNewCaption] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [nostalgiaMode, setNostalgiaMode] = useState(false);
+  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
+  const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync Nostalgia Mode with localStorage
@@ -132,9 +138,9 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string) => {
+  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => {
     try {
-      await createAlbum(title, coverPhotoUrl);
+      await createAlbum(title, coverPhotoUrl, sharedWith);
       loadAlbums();
     } catch (error) {
       console.error('Failed to create album:', error);
@@ -163,7 +169,7 @@ export default function DashboardPage() {
     try {
       await updateAlbum(selectedPhoto.albumId, { coverPhotoUrl: photoUrl });
       loadAlbums();
-      alert(`Set as cover photo for "${album.title}"!`);
+      setSnackbar({ open: true, message: `Set as cover photo for "${album.title}"!`, severity: 'success' });
     } catch (error) {
       console.error('Failed to update album cover:', error);
     }
@@ -171,11 +177,11 @@ export default function DashboardPage() {
 
   const handleDeletePhoto = async () => {
     if (!selectedPhoto) return;
-    if (!confirm('Are you sure you want to delete this memory forever?')) return;
-
+    
     try {
       await deletePhoto(selectedPhoto._id);
       setSelectedPhoto(null);
+      setConfirmDeletePhoto(false);
       loadPhotos();
     } catch (error) {
       console.error('Delete failed:', error);
@@ -202,15 +208,6 @@ export default function DashboardPage() {
       const updated = await fetchPhotos(); 
       const found = updated.find((p: any) => p._id === selectedPhoto._id);
       setSelectedPhoto(found);
-    } catch (error) {
-      console.error('Failed to add caption:', error);
-    }
-  };
-
-  const handleAddCaptionForId = async (photoId: string, text: string) => {
-    try {
-      await addCaption(photoId, text);
-      loadPhotos();
     } catch (error) {
       console.error('Failed to add caption:', error);
     }
@@ -295,11 +292,11 @@ export default function DashboardPage() {
               }}
               onCreateAlbum={handleCreateAlbum}
               nostalgiaMode={nostalgiaMode} 
+              currentUser={user}
             />
           </div>
         </div>
 
-        {/* Lower Dashboard content removed by request */}
       </Container>
 
       {/* Photo Detail Dialog */}
@@ -341,7 +338,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <Stack direction="row" spacing={1}>
-                      <IconButton onClick={handleDeletePhoto} className="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-full transition-all">
+                      <IconButton onClick={() => setConfirmDeletePhoto(true)} className="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-full transition-all">
                         <Trash2 size={18} />
                       </IconButton>
                       <IconButton onClick={() => setSelectedPhoto(null)} className="bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 p-2.5 rounded-full font-black text-sm">
@@ -462,6 +459,30 @@ export default function DashboardPage() {
           </Button>
         </motion.div>
       </Box>
+      <ConfirmDialog
+        open={confirmDeletePhoto}
+        title="Delete Memory"
+        message="Are you sure you want to delete this memory forever?"
+        confirmText="Delete"
+        onConfirm={handleDeletePhoto}
+        onCancel={() => setConfirmDeletePhoto(false)}
+      />
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: '12px' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
     </Box>
   );

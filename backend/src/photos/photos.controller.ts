@@ -59,6 +59,11 @@ export class PhotosController {
     return this.photosService.remove(photoId, req.user.sub);
   }
 
+  @Post('bulk-delete')
+  bulkRemove(@Request() req: AuthenticatedRequest, @Body() body: { photoIds: string[] }) {
+    return this.photosService.bulkRemove(body.photoIds, req.user.sub);
+  }
+
   @Post(':id/caption')
   addCaption(
     @Request() req: AuthenticatedRequest,

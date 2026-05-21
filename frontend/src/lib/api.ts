@@ -116,6 +116,16 @@ export async function deletePhoto(photoId: string) {
   return response.json();
 }
 
+export async function bulkDeletePhotos(photoIds: string[]) {
+  const response = await fetch(`${API_URL}/photos/bulk-delete`, {
+    method: 'POST',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ photoIds }),
+  });
+  if (!response.ok) throw new Error('Failed to bulk delete photos');
+  return response.json();
+}
+
 export async function addCaption(photoId: string, text: string) {
   const response = await fetch(`${API_URL}/photos/${photoId}/caption`, {
     method: 'POST',
@@ -142,17 +152,17 @@ export async function fetchAlbums() {
   return response.json();
 }
 
-export async function createAlbum(title: string, coverPhotoUrl?: string) {
+export async function createAlbum(title: string, coverPhotoUrl?: string, sharedWith?: string[]) {
   const response = await fetch(`${API_URL}/albums`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ title, coverPhotoUrl }),
+    body: JSON.stringify({ title, coverPhotoUrl, sharedWith }),
   });
   if (!response.ok) throw new Error('Failed to create album');
   return response.json();
 }
 
-export async function updateAlbum(albumId: string, data: { title?: string; coverPhotoUrl?: string }) {
+export async function updateAlbum(albumId: string, data: { title?: string; coverPhotoUrl?: string, sharedWith?: string[] }) {
   const response = await fetch(`${API_URL}/albums/${albumId}`, {
     method: 'PATCH',
     headers: getAuthHeaders(),
@@ -222,5 +232,83 @@ export async function deleteMilestone(milestoneId: string) {
     headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error('Failed to delete milestone');
+  return response.json();
+}
+
+// Friends API
+export interface UserBasic {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export async function searchUsers(email: string): Promise<UserBasic[]> {
+  const response = await fetch(`${API_URL}/users/search?email=${encodeURIComponent(email)}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to search users');
+  return response.json();
+}
+
+export async function fetchFriends(): Promise<UserBasic[]> {
+  const response = await fetch(`${API_URL}/users/friends`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch friends');
+  return response.json();
+}
+
+export async function sendFriendRequest(receiverId: string) {
+  const response = await fetch(`${API_URL}/users/friend-requests/${receiverId}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Failed to send request');
+  }
+  return response.json();
+}
+
+export async function fetchPendingRequests() {
+  const response = await fetch(`${API_URL}/users/friend-requests/pending`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch pending requests');
+  return response.json();
+}
+
+export async function fetchSentRequests() {
+  const response = await fetch(`${API_URL}/users/friend-requests/sent`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch sent requests');
+  return response.json();
+}
+
+export async function acceptFriendRequest(requestId: string) {
+  const response = await fetch(`${API_URL}/users/friend-requests/${requestId}/accept`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to accept request');
+  return response.json();
+}
+
+export async function rejectFriendRequest(requestId: string) {
+  const response = await fetch(`${API_URL}/users/friend-requests/${requestId}/reject`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to reject request');
+  return response.json();
+}
+
+export async function removeFriend(friendId: string): Promise<UserBasic[]> {
+  const response = await fetch(`${API_URL}/users/friends/${friendId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to remove friend');
   return response.json();
 }
