@@ -12,7 +12,8 @@ import {
   TextField
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Plus, Folder, Sparkles } from 'lucide-react';
+import { Plus, Folder, Sparkles, Upload } from 'lucide-react';
+import { uploadPhoto } from '@/lib/api';
 
 interface Album {
   _id: string;
@@ -49,6 +50,23 @@ export default function ReelBoard({
   const [newTitle, setNewTitle] = React.useState('');
   const [selectedCoverUrl, setSelectedCoverUrl] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleUploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const newPhoto = await uploadPhoto(file);
+      setSelectedCoverUrl(newPhoto.url);
+    } catch (error) {
+      console.error('Failed to upload cover:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const getAlbumPhotoCount = (albumId: string) => {
     return photos.filter(p => p.albumId === albumId).length;
@@ -292,9 +310,36 @@ export default function ReelBoard({
           />
 
           <Box className="space-y-2">
-            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
-              Choose Cover Photo (Optional)
-            </Typography>
+            <div className="flex justify-between items-center">
+              <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+                Choose Cover Photo (Optional)
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+                startIcon={isUploading ? <Sparkles className="animate-spin" size={14} /> : <Upload size={14} />}
+                className="text-[9px] border-amber-500/30 text-amber-700 hover:bg-amber-500/10 rounded-lg py-1 px-2 font-bold"
+              >
+                {isUploading ? 'Uploading...' : 'Upload Cover'}
+              </Button>
+              <input type="file" ref={fileInputRef} onChange={handleUploadCover} className="hidden" accept="image/*" />
+            </div>
+
+            {selectedCoverUrl && !photos.find(p => p.url === selectedCoverUrl) && (
+              <div className="flex items-center gap-3 mb-2 p-2 bg-amber-500/10 rounded-xl">
+                <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-amber-500 relative flex-shrink-0 shadow-sm">
+                  <img src={selectedCoverUrl} alt="Custom cover" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                    <Sparkles size={12} className="text-white" />
+                  </div>
+                </div>
+                <Typography className="text-[10px] text-amber-900/80 font-bold italic leading-tight">
+                  Custom cover uploaded and selected!
+                </Typography>
+              </div>
+            )}
             {photos.length === 0 ? (
               <Typography className="text-xs text-amber-900/40 italic">
                 Upload photos to choose a cover.
