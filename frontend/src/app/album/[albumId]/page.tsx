@@ -16,7 +16,9 @@ import {
   ArrowLeft,
   Image as ImageIcon,
   LayoutGrid,
-  LayoutTemplate
+  LayoutTemplate,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react';
 import { 
   fetchPhotos, 
@@ -77,8 +79,20 @@ export default function AlbumDetailsPage() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
+  const [galleryZoom, setGalleryZoom] = useState(3);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getGridCols = () => {
+    switch(galleryZoom) {
+      case 1: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'; // largest
+      case 2: return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+      case 3: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'; // normal
+      case 4: return 'grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10';
+      case 5: return 'grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-16'; // smallest (zoomed out)
+      default: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6';
+    }
+  };
 
   // Sync Nostalgia Mode with localStorage
   useEffect(() => {
@@ -303,13 +317,37 @@ export default function AlbumDetailsPage() {
             Dashboard
           </Button>
 
-          <Button
-            startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
-            onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
-            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
-          >
-            {viewMode === 'scrapbook' ? 'Gallery View' : 'Scrapbook View'}
-          </Button>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            {viewMode === 'gallery' && (
+              <Box className="flex items-center bg-white/50 backdrop-blur border border-amber-900/10 rounded-full mr-2">
+                <Button
+                  onClick={() => setGalleryZoom(z => Math.max(1, z - 1))}
+                  disabled={galleryZoom === 1}
+                  className="min-w-0 p-2 text-amber-800 rounded-l-full"
+                >
+                  <ZoomIn size={16} />
+                </Button>
+                <Box className="px-2 text-xs font-mono font-bold text-amber-900/50">
+                  {galleryZoom}
+                </Box>
+                <Button
+                  onClick={() => setGalleryZoom(z => Math.min(5, z + 1))}
+                  disabled={galleryZoom === 5}
+                  className="min-w-0 p-2 text-amber-800 rounded-r-full"
+                >
+                  <ZoomOut size={16} />
+                </Button>
+              </Box>
+            )}
+
+            <Button
+              startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
+              onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
+              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
+            >
+              {viewMode === 'scrapbook' ? 'Gallery View' : 'Scrapbook View'}
+            </Button>
+          </Stack>
         </Stack>
 
         {/* Cinematic Album Hero Cover */}
@@ -357,8 +395,8 @@ export default function AlbumDetailsPage() {
                   />
                 </Box>
               ) : (
-                <Box className="bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-2xl p-1 sm:p-2 border border-amber-900/10 shadow-sm">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-[2px] sm:gap-1">
+                <Box className="bg-white/90 dark:bg-black/90 backdrop-blur-xl p-0.5 border-y border-amber-900/10 shadow-sm w-full">
+                  <div className={`grid ${getGridCols()} gap-0.5 w-full`}>
                     {albumPhotos.map((photo) => (
                       <div 
                         key={photo._id} 
@@ -368,7 +406,7 @@ export default function AlbumDetailsPage() {
                         <img 
                           src={photo.url} 
                           alt="Gallery Photo" 
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                       </div>
