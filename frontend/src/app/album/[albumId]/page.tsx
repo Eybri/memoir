@@ -14,7 +14,9 @@ import {
   Plus, 
   Camera, 
   ArrowLeft,
-  Image as ImageIcon
+  Image as ImageIcon,
+  LayoutGrid,
+  LayoutTemplate
 } from 'lucide-react';
 import { 
   fetchPhotos, 
@@ -74,6 +76,7 @@ export default function AlbumDetailsPage() {
   const [editedTitle, setEditedTitle] = useState('');
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -299,6 +302,14 @@ export default function AlbumDetailsPage() {
           >
             Dashboard
           </Button>
+
+          <Button
+            startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
+            onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
+            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
+          >
+            {viewMode === 'scrapbook' ? 'Gallery View' : 'Scrapbook View'}
+          </Button>
         </Stack>
 
         {/* Cinematic Album Hero Cover */}
@@ -320,30 +331,51 @@ export default function AlbumDetailsPage() {
         <Box className="space-y-12">
           {albumPhotos.length > 0 ? (
             <>
-              {/* Album Film Strip — scrolling reel + stats */}
-              <AlbumFilmStrip photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
+              {viewMode === 'scrapbook' && (
+                <AlbumFilmStrip photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
+              )}
 
-              {/* Album Photos Grid */}
-              <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
-                <Box className="border-b border-amber-200/30 pb-4">
-                  <Typography variant="h4" className="font-display font-black text-amber-950">
-                    Album Ledger
-                  </Typography>
-                  <Typography className="text-amber-900/50 text-sm mt-1">
-                    Your beautiful stories, organized inside this private space.
-                  </Typography>
+              {viewMode === 'scrapbook' ? (
+                <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
+                  <Box className="border-b border-amber-200/30 pb-4">
+                    <Typography variant="h4" className="font-display font-black text-amber-950">
+                      Album Ledger
+                    </Typography>
+                    <Typography className="text-amber-900/50 text-sm mt-1">
+                      Your beautiful stories, organized inside this private space.
+                    </Typography>
+                  </Box>
+                  
+                  <MemoryGrid 
+                    photos={albumPhotos} 
+                    albums={albums}
+                    activeAlbumId={albumId}
+                    onSelectPhoto={setSelectedPhoto} 
+                    nostalgiaMode={nostalgiaMode} 
+                    onAddCaption={handleAddCaptionForId}
+                    disableStacking={true}
+                  />
                 </Box>
-                
-                <MemoryGrid 
-                  photos={albumPhotos} 
-                  albums={albums}
-                  activeAlbumId={albumId}
-                  onSelectPhoto={setSelectedPhoto} 
-                  nostalgiaMode={nostalgiaMode} 
-                  onAddCaption={handleAddCaptionForId}
-                  disableStacking={true}
-                />
-              </Box>
+              ) : (
+                <Box className="bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-2xl p-1 sm:p-2 border border-amber-900/10 shadow-sm">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-[2px] sm:gap-1">
+                    {albumPhotos.map((photo) => (
+                      <div 
+                        key={photo._id} 
+                        className="aspect-square relative cursor-pointer group bg-amber-100/50"
+                        onClick={() => setSelectedPhoto(photo)}
+                      >
+                        <img 
+                          src={photo.url} 
+                          alt="Gallery Photo" 
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                      </div>
+                    ))}
+                  </div>
+                </Box>
+              )}
             </>
           ) : (
             <Box className="w-full flex flex-col items-center justify-center py-32 text-center border-2 border-dashed border-amber-900/10 rounded-[36px] bg-amber-500/5 p-8">
