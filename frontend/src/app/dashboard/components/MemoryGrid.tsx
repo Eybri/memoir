@@ -416,39 +416,28 @@ export default function MemoryGrid({
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        whileHover={{ scale: 1.04, rotate: 0, zIndex: 20 }}
+                        whileHover={{ scale: 1.06, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
-                        style={{ transformStyle: 'preserve-3d', zIndex: 1, border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
-                        className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-xl flex flex-col justify-between overflow-hidden"
+                        style={{
+                          transformStyle: 'preserve-3d',
+                          zIndex: 1,
+                          /* Polaroid frame: thin on 3 sides, thick on bottom */
+                          padding: '6px 6px 28px 6px',
+                          background: '#ffffff',
+                          boxShadow: '0 8px 32px -4px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10)',
+                          borderRadius: '2px',
+                        }}
+                        className="w-full h-full relative"
                       >
-                        {/* Photo corner stickers */}
-                        {[
-                          { top: 4, left: 4, rotate: '-45deg' },
-                          { top: 4, right: 4, rotate: '45deg' },
-                          { bottom: 22, left: 4, rotate: '-135deg' },
-                          { bottom: 22, right: 4, rotate: '135deg' },
-                        ].map((pos, ci) => (
-                          <div
-                            key={ci}
-                            className="absolute z-20 pointer-events-none select-none"
-                            style={{
-                              width: 10,
-                              height: 10,
-                              ...pos,
-                              transform: `rotate(${pos.rotate})`,
-                              borderTop: '2px solid rgba(120,80,20,0.35)',
-                              borderLeft: '2px solid rgba(120,80,20,0.35)',
-                            }}
-                          />
-                        ))}
-
                         {/* FRONT FACE */}
                         <div
                           style={{ backfaceVisibility: 'hidden' }}
-                          className="w-full h-full flex flex-col justify-between min-h-0"
+                          className="w-full h-full flex flex-col"
                         >
+                          {/* Photo fills the top of polaroid */}
                           <div
-                            className="w-full flex-grow overflow-hidden relative cursor-pointer min-h-0"
+                            className="w-full flex-grow overflow-hidden relative cursor-pointer"
+                            style={{ borderRadius: '1px' }}
                             onClick={() => onSelectPhoto(photo)}
                           >
                             <img
@@ -458,13 +447,18 @@ export default function MemoryGrid({
                             />
                           </div>
 
-                          {/* Polaroid-style date footer */}
-                          <Box className="px-2 py-1 flex justify-between items-center select-none flex-shrink-0 bg-white">
-                            <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] font-bold font-mono tracking-wide">
+                          {/* Polaroid bottom white strip with handwritten-style date */}
+                          <div
+                            className="absolute bottom-0 left-0 right-0 flex items-center justify-center select-none"
+                            style={{ height: '28px', background: '#ffffff' }}
+                          >
+                            <Typography
+                              className="text-gray-500 font-mono tracking-wider"
+                              style={{ fontSize: '9px', letterSpacing: '0.08em' }}
+                            >
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
-                            <ChevronRight size={9} className="text-amber-600/30 flex-shrink-0" />
-                          </Box>
+                          </div>
                         </div>
 
                         {/* BACK FACE (Journal Paper) */}
