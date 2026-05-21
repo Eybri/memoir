@@ -6,6 +6,7 @@ import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { PhotosModule } from './photos/photos.module';
 import { AlbumsModule } from './albums/albums.module';
+import { MilestonesModule } from './milestones/milestones.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AlbumsModule } from './albums/albums.module';
     AuthModule,
     PhotosModule,
     AlbumsModule,
+    MilestonesModule,
   ],
 })
 export class AppModule {}

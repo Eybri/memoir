@@ -189,4 +189,38 @@ export async function fetchAlbumById(albumId: string) {
   return response.json();
 }
 
+// Milestones API
+export interface Milestone {
+  _id: string;
+  userId: string;
+  title: string;
+  date: string;
+  createdAt: string;
+}
 
+export async function fetchMilestones(): Promise<Milestone[]> {
+  const response = await fetch(`${API_URL}/milestones`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch milestones');
+  return response.json();
+}
+
+export async function createMilestone(title: string, date: string): Promise<Milestone> {
+  const response = await fetch(`${API_URL}/milestones`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ title, date }),
+  });
+  if (!response.ok) throw new Error('Failed to create milestone');
+  return response.json();
+}
+
+export async function deleteMilestone(milestoneId: string) {
+  const response = await fetch(`${API_URL}/milestones/${milestoneId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to delete milestone');
+  return response.json();
+}

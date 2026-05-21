@@ -43,6 +43,7 @@ import MemoryGrid from './components/MemoryGrid';
 import SensoryCorner from './components/SensoryCorner';
 import Header from '@/components/Header';
 import ReelBoard from './components/ReelBoard';
+import MilestoneCountdown from './components/MilestoneCountdown';
 
 interface Album {
   _id: string;
@@ -273,44 +274,32 @@ export default function DashboardPage() {
           </Typography>
         </Box>
 
-        {/* Section 1: The Reel Board */}
-        <ReelBoard 
-          albums={albums}
-          photos={photos}
-          activeAlbumId={null}
-          onSelectAlbum={(albumId) => {
-            if (albumId) {
-              router.push(`/album/${albumId}`);
-            }
-          }}
-          onCreateAlbum={handleCreateAlbum}
-          nostalgiaMode={nostalgiaMode} 
-        />
+        {/* Top Section: Daily Canvas & Reel Board side-by-side */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          {/* Left Column: Daily Canvas */}
+          <div className="lg:col-span-5 xl:col-span-4 h-full">
+            <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
+          </div>
 
-        {/* 1. Hero space - The Daily Canvas */}
-        <DailyCanvas photos={filteredPhotos} nostalgiaMode={nostalgiaMode} />
-
-        {/* 2. Grid & Sidebar Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
-          {/* Main Grid */}
-          <div className="lg:col-span-8 space-y-8">
-            <MemoryGrid 
-              photos={filteredPhotos} 
+          {/* Right Column: Reel Board and Milestones */}
+          <div className="lg:col-span-7 xl:col-span-8 overflow-hidden flex flex-col justify-center space-y-6">
+            <MilestoneCountdown nostalgiaMode={nostalgiaMode} />
+            <ReelBoard 
               albums={albums}
+              photos={photos}
               activeAlbumId={null}
-              onSelectPhoto={setSelectedPhoto} 
+              onSelectAlbum={(albumId) => {
+                if (albumId) {
+                  router.push(`/album/${albumId}`);
+                }
+              }}
+              onCreateAlbum={handleCreateAlbum}
               nostalgiaMode={nostalgiaMode} 
-              onAddCaption={handleAddCaptionForId}
             />
           </div>
-
-          {/* 3. Sensory Corner (Sidebar) */}
-          <div className="lg:col-span-4">
-            <Box className="sticky top-28">
-              <SensoryCorner photos={photos} nostalgiaMode={nostalgiaMode} />
-            </Box>
-          </div>
         </div>
+
+        {/* Lower Dashboard content removed by request */}
       </Container>
 
       {/* Photo Detail Dialog */}

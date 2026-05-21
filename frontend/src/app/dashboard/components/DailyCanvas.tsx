@@ -54,26 +54,26 @@ export default function DailyCanvas({ photos, nostalgiaMode }: DailyCanvasProps)
   }
 
   return (
-    <Box className="relative w-full rounded-[40px] overflow-hidden shadow-xl border border-white/20 glass-card p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
+    <Box className="relative w-full h-full rounded-[40px] overflow-hidden shadow-xl border border-white/20 glass-card p-6 flex flex-col gap-6 items-center justify-center">
       {/* Background ambient lighting */}
       <div className={`absolute inset-0 transition-colors duration-700 ${nostalgiaMode ? 'bg-[#f4efe2]/40' : 'bg-gradient-to-br from-yellow-100/20 to-amber-100/20'}`} />
       
-      {/* Left text */}
-      <div className="w-full md:w-1/3 relative z-10 space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold uppercase tracking-wider">
+      {/* Top text */}
+      <div className="w-full relative z-10 space-y-3 text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold uppercase tracking-wider mx-auto">
           <Calendar size={14} /> The Daily Canvas
         </div>
-        <Typography variant="h3" className="font-display font-black text-amber-950 leading-tight">
+        <Typography variant="h3" className="font-display font-black text-amber-950 leading-tight text-2xl sm:text-3xl">
           Nostalgia <br />
           <span className="text-gradient">Unlocked</span>
         </Typography>
-        <Typography className="text-amber-900/60 font-medium">
+        <Typography className="text-amber-900/60 font-medium text-sm">
           Here is a snippet of where your story was during this time of the year in the past.
         </Typography>
       </div>
 
-      {/* Right Collage Layer (Living Photo Effect) */}
-      <div className="w-full md:w-2/3 h-[280px] relative flex items-center justify-center z-10 mt-4 md:mt-0">
+      {/* Bottom Collage Layer (Living Photo Effect) */}
+      <div className="w-full h-[220px] sm:h-[260px] relative flex items-center justify-center z-10 mt-2">
         {canvasPhotos.map((photo, index) => {
           // Unique rotations/translations for the layered collage look
           const positions = [
@@ -100,7 +100,7 @@ export default function DailyCanvas({ photos, nostalgiaMode }: DailyCanvasProps)
                 rotate: { repeat: Infinity, duration: 8 + index * 3, ease: "easeInOut" }
               }}
               style={{ zIndex: pos.z }}
-              className="absolute w-[200px] sm:w-[240px] aspect-[4/3] bg-white p-3 pb-8 rounded-2xl shadow-2xl border border-yellow-50 flex flex-col justify-between"
+              className="absolute w-[180px] sm:w-[220px] aspect-[4/3] bg-white p-3 pb-8 rounded-2xl shadow-2xl border border-yellow-50 flex flex-col justify-between"
             >
               <Box className="w-full h-full bg-slate-100 rounded-lg overflow-hidden relative">
                 <img 

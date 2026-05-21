@@ -10,7 +10,8 @@ import {
   Image as ImageIcon, 
   BookOpen, 
   RotateCcw,
-  Plus
+  Plus,
+  Mail
 } from 'lucide-react';
 
 interface Album {
@@ -90,6 +91,11 @@ export default function MemoryGrid({
     // 1. Group into Albums (Chapters)
     const chapterMap: { [key: string]: Photo[] } = {};
     sorted.forEach(photo => {
+      // If no active album is selected (e.g. on Dashboard), only show unassigned photos (Loose Memories)
+      if (!activeAlbumId && photo.albumId) {
+        return;
+      }
+      
       const key = photo.albumId || 'unassigned';
       if (!chapterMap[key]) {
         chapterMap[key] = [];
@@ -355,7 +361,7 @@ export default function MemoryGrid({
               </div>
 
               <div
-                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
+                className="relative z-10 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[90px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
                 style={{ gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
@@ -416,7 +422,7 @@ export default function MemoryGrid({
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        whileHover={{ scale: 1.06, rotate: 0, zIndex: 20 }}
+                        whileHover={{ scale: 1.01, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
                         style={{
                           transformStyle: 'preserve-3d',
@@ -443,8 +449,28 @@ export default function MemoryGrid({
                             <img
                               src={photo.url}
                               alt="Scrapbook Collage Piece"
-                              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                              className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.01]"
                             />
+                            
+                            {/* Sophisticated Note Indicator */}
+                            {photo.captions.length > 0 && (
+                              <div
+                                className="absolute bottom-2 right-2 flex items-center justify-center rounded-sm bg-white/90 backdrop-blur-md border border-amber-900/10 pointer-events-none select-none z-10"
+                                style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1)',
+                                }}
+                                title={`${photo.captions.length} note(s)`}
+                              >
+                                <Mail size={12} className="text-amber-800/80" />
+                                {photo.captions.length > 1 && (
+                                  <span className="absolute -top-1.5 -right-1.5 bg-amber-700 text-yellow-50 text-[8px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full border border-white shadow-sm">
+                                    {photo.captions.length}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Polaroid bottom white strip with handwritten-style date */}
@@ -458,26 +484,6 @@ export default function MemoryGrid({
                             >
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
-
-                            {/* Note indicator — shown only when the photo has captions */}
-                            {photo.captions.length > 0 && (() => {
-                              const noteHints = ['♥', '✿', '★', '✦', '❧', '♪', '◈', '✾'];
-                              const hint = noteHints[pileIndex % noteHints.length];
-                              return (
-                                <span
-                                  title={`${photo.captions.length} note${photo.captions.length > 1 ? 's' : ''} inside`}
-                                  style={{
-                                    fontSize: '12px',
-                                    color: '#b45309',
-                                    opacity: 0.75,
-                                    lineHeight: 1,
-                                    animation: 'subtlePulse 2.4s ease-in-out infinite',
-                                  }}
-                                >
-                                  {hint}
-                                </span>
-                              );
-                            })()}
                           </div>
                         </div>
 
@@ -501,7 +507,7 @@ export default function MemoryGrid({
                           <div style={{ padding: '8px 8px 6px 36px', height: '100%', display: 'flex', flexDirection: 'column' }}>
                             <Typography
                               style={{
-                                fontFamily: 'var(--font-caveat)',
+                                fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
                                 fontSize: '9px',
                                 color: '#b45309',
                                 fontWeight: 700,
@@ -516,12 +522,12 @@ export default function MemoryGrid({
 
                             <div style={{ flexGrow: 1, overflowY: 'auto' }}>
                               {photo.captions.length === 0 ? (
-                                <Typography style={{ fontFamily: 'var(--font-caveat)', fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
+                                <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
                                   No notes yet...
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <Typography key={i} style={{ fontFamily: 'var(--font-caveat)', fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
+                                  <Typography key={i} style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
                                     — {cap.text}
                                   </Typography>
                                 ))
@@ -536,10 +542,10 @@ export default function MemoryGrid({
                                 rows={1}
                                 style={{
                                   width: '100%',
-                                  fontFamily: 'var(--font-caveat)',
+                                  fontFamily: 'sans-serif',
                                   fontSize: '12px',
                                   color: '#374151',
-                                  fontStyle: 'italic',
+                                  fontStyle: 'normal',
                                   background: 'transparent',
                                   border: 'none',
                                   outline: 'none',
@@ -556,7 +562,7 @@ export default function MemoryGrid({
                                 sx={{
                                   backgroundColor: '#b45309',
                                   '&:hover': { backgroundColor: '#92400e' },
-                                  fontFamily: 'var(--font-caveat)',
+                                  fontFamily: 'sans-serif',
                                   fontSize: '10px',
                                   py: 0,
                                   borderRadius: '4px',
@@ -577,7 +583,7 @@ export default function MemoryGrid({
             </Box>
           ) : (
             /* Staggered Masonry Layout */
-            <div className="columns-2 sm:columns-2 xl:columns-3 gap-4 sm:gap-6">
+            <div className="columns-2 sm:columns-3 xl:columns-4 gap-4 sm:gap-6">
               {chapter.piles.map((pile, pileIndex) => {
                 const pileId = `${chapter.id}-pile-${pileIndex}`;
                 const isHovered = hoveredPileId === pileId;
@@ -615,7 +621,7 @@ export default function MemoryGrid({
                       {/* Polaroid Card */}
                       <motion.div
                         animate={{ rotate: baseTilt }}
-                        whileHover={{ rotate: 0, scale: 1.04, zIndex: 20 }}
+                        whileHover={{ rotate: 0, scale: 1.01, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 18 }}
                         className="w-full relative bg-white p-1.5 pb-3 sm:pb-5 shadow-lg border border-amber-100/80 rounded-xl"
                       >
@@ -627,7 +633,7 @@ export default function MemoryGrid({
                           <img
                             src={photo.url}
                             alt="Scrapbook Memory"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
                           />
                           {/* Cinematic dark sweep */}
                           <div
@@ -674,7 +680,7 @@ export default function MemoryGrid({
                     onMouseLeave={stopFlipbook}
                   >
                     <div 
-                      className="relative w-full h-[280px] sm:h-[360px]"
+                      className="relative w-full h-[200px] sm:h-[360px]"
                       style={{ transform: `rotate(${baseTilt}deg)` }}
                     >
                       {/* Album Outer Cover Base */}

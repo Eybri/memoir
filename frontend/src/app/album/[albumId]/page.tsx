@@ -14,11 +14,8 @@ import {
   Plus,
   Camera,
   ArrowLeft,
-  Image as ImageIcon,
   LayoutGrid,
-  LayoutTemplate,
-  ZoomIn,
-  ZoomOut
+  LayoutTemplate
 } from 'lucide-react';
 import {
   fetchPhotos,
@@ -42,6 +39,9 @@ import MemoryGrid from '../../dashboard/components/MemoryGrid';
 import AlbumHero from '../components/AlbumHero';
 import SlideshowDialog from '../components/SlideshowDialog';
 import PhotoDetailDialog from '../components/PhotoDetailDialog';
+import AlbumGallery from '../components/AlbumGallery';
+import FloatingUploadButton from '../components/FloatingUploadButton';
+import EmptyAlbumState from '../components/EmptyAlbumState';
 
 interface Album {
   _id: string;
@@ -83,16 +83,7 @@ export default function AlbumDetailsPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getGridCols = () => {
-    switch (galleryZoom) {
-      case 1: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'; // largest
-      case 2: return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
-      case 3: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'; // normal
-      case 4: return 'grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10';
-      case 5: return 'grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-16'; // smallest (zoomed out)
-      default: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6';
-    }
-  };
+
 
   // Sync Nostalgia Mode with localStorage
   useEffect(() => {
@@ -122,9 +113,18 @@ export default function AlbumDetailsPage() {
   const loadPageData = async () => {
     setIsPageLoading(true);
     try {
-      const albumData = await fetchAlbumById(albumId);
-      setAlbum(albumData);
-      setEditedTitle(albumData.title);
+      if (albumId === 'unassigned') {
+        setAlbum({
+          _id: 'unassigned',
+          title: 'Public Images',
+          coverPhotoUrl: '',
+        });
+        setEditedTitle('Public Images');
+      } else {
+        const albumData = await fetchAlbumById(albumId);
+        setAlbum(albumData);
+        setEditedTitle(albumData.title);
+      }
 
       const allPhotos = await fetchPhotos();
       setPhotos(allPhotos);
@@ -243,7 +243,7 @@ export default function AlbumDetailsPage() {
     }
   };
 
-  const handleAddCaptionForId = async (photoId: string, text: string) => {
+  const handleAddCaptionForId = React.useCallback(async (photoId: string, text: string) => {
     try {
       await addCaption(photoId, text);
       const updated = await fetchPhotos();
@@ -251,7 +251,7 @@ export default function AlbumDetailsPage() {
     } catch (error) {
       console.error('Failed to add caption:', error);
     }
-  };
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,6 +265,9 @@ export default function AlbumDetailsPage() {
 
   // Filter photos to only those belonging to this album
   const albumPhotos = React.useMemo(() => {
+    if (albumId === 'unassigned') {
+      return photos.filter(p => !p.albumId);
+    }
     return photos.filter(p => p.albumId === albumId);
   }, [photos, albumId]);
 
@@ -366,66 +369,14 @@ export default function AlbumDetailsPage() {
                   />
                 </Box>
               ) : (
-                <Box className="bg-white/90 dark:bg-black/90 backdrop-blur-xl p-0.5 border-y border-amber-900/10 shadow-sm w-full relative">
-                  {/* Zoom Controls above images */}
-                  <Box className="flex justify-center sm:justify-end p-2 mb-1 w-full">
-                    <Box className="flex items-center bg-amber-900/5 border border-amber-900/10 rounded-full px-1 py-1">
-                      <Button
-                        onClick={() => setGalleryZoom(z => Math.max(1, z - 1))}
-                        disabled={galleryZoom === 1}
-                        className="min-w-0 p-2 text-amber-900 rounded-full hover:bg-amber-900/10 disabled:opacity-30"
-                      >
-                        <ZoomIn size={18} />
-                      </Button>
-                      <Box className="px-4 text-xs font-mono font-bold text-amber-900/70">
-                        {galleryZoom}
-                      </Box>
-                      <Button
-                        onClick={() => setGalleryZoom(z => Math.min(5, z + 1))}
-                        disabled={galleryZoom === 5}
-                        className="min-w-0 p-2 text-amber-900 rounded-full hover:bg-amber-900/10 disabled:opacity-30"
-                      >
-                        <ZoomOut size={18} />
-                      </Button>
-                    </Box>
-                  </Box>
-
-                  <div className={`grid ${getGridCols()} gap-0.5 w-full`}>
-                    {albumPhotos.map((photo) => (
-                      <div
-                        key={photo._id}
-                        className="aspect-square relative cursor-pointer group bg-amber-100/50"
-                        onClick={() => setSelectedPhoto(photo)}
-                      >
-                        <img
-                          src={photo.url}
-                          alt="Gallery Photo"
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                      </div>
-                    ))}
-                  </div>
-                </Box>
+                <AlbumGallery 
+                  photos={albumPhotos} 
+                  onSelectPhoto={setSelectedPhoto} 
+                />
               )}
             </>
           ) : (
-            <Box className="w-full flex flex-col items-center justify-center py-32 text-center border-2 border-dashed border-amber-900/10 rounded-[36px] bg-amber-500/5 p-8">
-              <ImageIcon size={72} strokeWidth={1} className="text-amber-600/30 mb-4 animate-bounce" />
-              <Typography variant="h5" className="font-display font-black text-amber-950">
-                This album is currently empty
-              </Typography>
-              <Typography className="text-amber-900/60 max-w-sm mt-2 text-sm leading-relaxed">
-                Toss photos inside this scrapbook or upload memories using the button below to start your collection.
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-6 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-6 py-2.5 font-bold text-sm uppercase tracking-wider shadow"
-              >
-                Add first memory
-              </Button>
-            </Box>
+            <EmptyAlbumState onAddMemoryClick={() => fileInputRef.current?.click()} />
           )}
         </Box>
       </Container>
@@ -443,51 +394,12 @@ export default function AlbumDetailsPage() {
         onUpdatePhotoAlbum={handleUpdatePhotoAlbum}
       />
 
-      {/* Floating Multi-Upload Action Button */}
-      <Box className="fixed bottom-10 right-10 flex flex-col items-end gap-3 z-30">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleUpload}
-          className="hidden"
-          accept="image/*"
-          multiple
-        />
-
-        {/* Progress pill — appears above button while uploading */}
-        {uploadProgress && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-amber-950/90 backdrop-blur-md text-amber-100 font-mono font-bold text-xs px-4 py-2 rounded-full shadow-xl flex items-center gap-2"
-          >
-            <CircularProgress size={12} sx={{ color: '#fbbf24' }} />
-            <span>{uploadProgress.done} / {uploadProgress.total} uploaded</span>
-          </motion.div>
-        )}
-
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            variant="contained"
-            disabled={isUploading}
-            onClick={() => fileInputRef.current?.click()}
-            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-sm uppercase tracking-wider transition-all duration-300"
-            title="Add memories — select multiple photos at once"
-          >
-            {isUploading ? (
-              <span className="flex items-center gap-2">
-                <CircularProgress size={16} sx={{ color: '#fff' }} />
-                <span>Uploading...</span>
-              </span>
-            ) : (
-              <>
-                <Plus size={18} strokeWidth={3} />
-                <span>Add Memory</span>
-              </>
-            )}
-          </Button>
-        </motion.div>
-      </Box>
+      <FloatingUploadButton
+        fileInputRef={fileInputRef}
+        onUpload={handleUpload}
+        isUploading={isUploading}
+        uploadProgress={uploadProgress}
+      />
 
       {/* Slideshow Dialog */}
       <SlideshowDialog
