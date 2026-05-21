@@ -24,14 +24,19 @@ export class PhotosService {
   }
 
   async findAll(userId: string) {
-    const sharedAlbums = await this.albumModel.find({ sharedWith: new Types.ObjectId(userId) });
-    const sharedAlbumIds = sharedAlbums.map(a => a._id);
+    const accessibleAlbums = await this.albumModel.find({
+      $or: [
+        { userId: new Types.ObjectId(userId) },
+        { sharedWith: new Types.ObjectId(userId) }
+      ]
+    });
+    const accessibleAlbumIds = accessibleAlbums.map(a => a._id);
 
     return this.photoModel
       .find({
         $or: [
           { userId: new Types.ObjectId(userId) },
-          { albumId: { $in: sharedAlbumIds } }
+          { albumId: { $in: accessibleAlbumIds } }
         ]
       })
       .sort({ takenAt: -1 })

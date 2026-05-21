@@ -21,13 +21,14 @@ import {
   Sparkles, 
   LogOut,
   Bell,
-  UserPlus,
   UserMinus
 } from 'lucide-react';
+import { Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { searchUsers, fetchFriends, sendFriendRequest, removeFriend, fetchPendingRequests, fetchSentRequests, acceptFriendRequest, rejectFriendRequest, UserBasic } from '@/lib/api';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface HeaderProps {
   isDashboard?: boolean;
@@ -58,6 +59,8 @@ export default function Header({
   const [hasSearched, setHasSearched] = React.useState(false);
   const [pendingRequests, setPendingRequests] = React.useState<any[]>([]);
   const [sentRequests, setSentRequests] = React.useState<any[]>([]);
+  const [friendToRemove, setFriendToRemove] = React.useState<{id: string, name: string} | null>(null);
+  const [snackbar, setSnackbar] = React.useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
 
   React.useEffect(() => {
     if (isProfileOpen && user) {
@@ -98,9 +101,9 @@ export default function Header({
       setSearchResult([]);
       setSearchEmail('');
       loadFriends();
-      alert('Friend request sent!');
+      setSnackbar({ open: true, message: 'Friend request sent!', severity: 'success' });
     } catch(e: any) { 
-      alert(e.message || 'Failed to send request');
+      setSnackbar({ open: true, message: e.message || 'Failed to send request', severity: 'error' });
       console.error(e); 
     }
   }
@@ -119,9 +122,10 @@ export default function Header({
     } catch(e) { console.error(e) }
   }
 
-  const handleRemoveFriend = async (id: string) => {
+  const handleRemoveFriend = async () => {
+    if (!friendToRemove) return;
     try {
-      const f = await removeFriend(id);
+      const f = await removeFriend(friendToRemove.id);
       setFriends(f);
     } catch(e) { console.error(e) }
   }
@@ -403,93 +407,106 @@ export default function Header({
                 </Button>
               </div>
 
-              {/* Search Results */}
-              {hasSearched && searchResult.length === 0 && (
-                <div className="bg-amber-50 rounded-lg p-3 mb-3 border border-amber-200 text-center">
-                  <Typography className="text-xs text-amber-900/60 italic">No user found with that email.</Typography>
-                </div>
-              )}
-              {searchResult.length > 0 && (
-                <div className="bg-amber-50 rounded-lg p-2 mb-3 border border-amber-200">
-                  <Typography className="text-xs font-bold text-amber-900 mb-2">Search Result:</Typography>
-                  {searchResult.map(res => {
-                    const isFriend = friends.some(f => f._id === res._id);
-                    return (
-                      <div key={res._id} className="flex justify-between items-center py-1">
-                        <div>
-                          <Typography className="text-sm font-bold text-amber-950">{res.name}</Typography>
-                          <Typography className="text-[10px] text-amber-700">{res.email}</Typography>
-                        </div>
-                        {!isFriend && (
-                          <Button 
-                            size="small" 
-                            variant="outlined"
-                            onClick={() => handleSendRequest(res._id)} 
-                            className="text-[9px] py-0.5 px-2 border-amber-600 text-amber-700 rounded-md font-bold"
-                          >
-                            Send Request
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Pending Requests */}
-              {pendingRequests.length > 0 && (
-                <div className="bg-blue-50/50 rounded-lg p-2 mb-3 border border-blue-200">
-                  <Typography className="text-xs font-bold text-blue-900 mb-2">Friend Requests:</Typography>
-                  {pendingRequests.map(req => (
-                    <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-blue-100 shadow-sm mb-1">
-                      <div>
-                        <Typography className="text-sm font-bold text-blue-950">{req.senderId?.name || 'Unknown'}</Typography>
-                        <Typography className="text-[10px] text-blue-700">{req.senderId?.email || 'unknown@example.com'}</Typography>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button size="small" variant="contained" className="bg-blue-600 hover:bg-blue-700 text-white min-w-0 px-2 py-0.5 text-[9px] rounded font-bold shadow-none" onClick={() => handleAcceptRequest(req._id)}>Accept</Button>
-                        <Button size="small" variant="outlined" className="border-red-200 text-red-600 min-w-0 px-2 py-0.5 text-[9px] rounded font-bold hover:bg-red-50" onClick={() => handleRejectRequest(req._id)}>Reject</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Sent Requests */}
-              {sentRequests.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-2 mb-3 border border-gray-200">
-                  <Typography className="text-xs font-bold text-gray-700 mb-2">Sent Requests:</Typography>
-                  {sentRequests.map(req => (
-                    <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-gray-100 shadow-sm mb-1">
-                      <div>
-                        <Typography className="text-sm font-bold text-gray-800">{req.receiverId?.name || 'Unknown'}</Typography>
-                        <Typography className="text-[10px] text-gray-500">{req.receiverId?.email || 'unknown@example.com'}</Typography>
-                      </div>
-                      <Typography className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest">Pending</Typography>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Friends List */}
-              <div className="max-h-[120px] overflow-y-auto space-y-2">
-                {friends.length === 0 ? (
-                  <Typography className="text-xs text-amber-900/40 italic">No friends added yet.</Typography>
-                ) : (
-                  friends.map(f => (
-                    <div key={f._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-                      <div>
-                        <Typography className="text-xs font-bold text-gray-900">{f.name}</Typography>
-                        <Typography className="text-[9px] text-gray-500">{f.email}</Typography>
-                      </div>
-                      <IconButton size="small" onClick={() => handleRemoveFriend(f._id)} className="text-red-400 hover:text-red-600">
-                        <UserMinus size={14} />
-                      </IconButton>
-                    </div>
-                  ))
+              {/* Search Results & Lists Scroll Container */}
+              <div className="max-h-[35vh] overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-amber-900/10">
+                {/* Search Results */}
+                {hasSearched && searchResult.length === 0 && (
+                  <div className="bg-amber-50 rounded-lg p-3 border border-amber-200 text-center">
+                    <Typography className="text-xs text-amber-900/60 italic">No user found with that email.</Typography>
+                  </div>
                 )}
+                {searchResult.length > 0 && (
+                  <div className="bg-amber-50 rounded-lg p-2 border border-amber-200">
+                    <Typography className="text-xs font-bold text-amber-900 mb-2">Search Result:</Typography>
+                    {searchResult.map(res => {
+                      const isFriend = friends.some(f => f._id === res._id);
+                      return (
+                        <div key={res._id} className="flex justify-between items-center py-1">
+                          <div>
+                            <Typography className="text-sm font-bold text-amber-950">{res.name}</Typography>
+                            <Typography className="text-[10px] text-amber-700">{res.email}</Typography>
+                          </div>
+                          {!isFriend && (
+                            <Button 
+                              size="small" 
+                              variant="outlined"
+                              onClick={() => handleSendRequest(res._id)} 
+                              className="text-[9px] py-0.5 px-2 border-amber-600 text-amber-700 rounded-md font-bold"
+                            >
+                              Send Request
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Pending Requests */}
+                {pendingRequests.length > 0 && (
+                  <div className="bg-blue-50/50 rounded-lg p-2 border border-blue-200">
+                    <Typography className="text-xs font-bold text-blue-900 mb-2">Friend Requests:</Typography>
+                    {pendingRequests.map(req => (
+                      <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-blue-100 shadow-sm mb-1">
+                        <div>
+                          <Typography className="text-sm font-bold text-blue-950">{req.senderId?.name || 'Unknown'}</Typography>
+                          <Typography className="text-[10px] text-blue-700">{req.senderId?.email || 'unknown@example.com'}</Typography>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="small" variant="contained" className="bg-blue-600 hover:bg-blue-700 text-white min-w-0 px-2 py-0.5 text-[9px] rounded font-bold shadow-none" onClick={() => handleAcceptRequest(req._id)}>Accept</Button>
+                          <Button size="small" variant="outlined" className="border-red-200 text-red-600 min-w-0 px-2 py-0.5 text-[9px] rounded font-bold hover:bg-red-50" onClick={() => handleRejectRequest(req._id)}>Reject</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Sent Requests */}
+                {sentRequests.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                    <Typography className="text-xs font-bold text-gray-700 mb-2">Sent Requests:</Typography>
+                    {sentRequests.map(req => (
+                      <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-gray-100 shadow-sm mb-1">
+                        <div>
+                          <Typography className="text-sm font-bold text-gray-800">{req.receiverId?.name || 'Unknown'}</Typography>
+                          <Typography className="text-[10px] text-gray-500">{req.receiverId?.email || 'unknown@example.com'}</Typography>
+                        </div>
+                        <Typography className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest">Pending</Typography>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Friends List */}
+                <div className="space-y-2 pt-1">
+                  {friends.length === 0 ? (
+                    <Typography className="text-xs text-amber-900/40 italic">No friends added yet.</Typography>
+                  ) : (
+                    friends.map(f => (
+                      <div key={f._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+                        <div>
+                          <Typography className="text-xs font-bold text-gray-900">{f.name}</Typography>
+                          <Typography className="text-[9px] text-gray-500">{f.email}</Typography>
+                        </div>
+                        <IconButton size="small" onClick={() => setFriendToRemove({id: f._id, name: f.name})} className="text-red-400 hover:text-red-600">
+                          <UserMinus size={14} />
+                        </IconButton>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Friend Removal Confirmation */}
+            <ConfirmDialog
+              open={!!friendToRemove}
+              title="Remove Friend"
+              message={`Are you sure you want to remove ${friendToRemove?.name} from your friends list? You will no longer have access to each other's shared albums.`}
+              confirmText="Remove Friend"
+              onConfirm={handleRemoveFriend}
+              onCancel={() => setFriendToRemove(null)}
+            />
 
             <div className="w-full border-t border-amber-900/10 mt-4 pt-4 flex justify-center">
               <Button 
@@ -506,6 +523,24 @@ export default function Header({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Global Snackbar for Header Notifications */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: '12px' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
     </nav>
   );
 }

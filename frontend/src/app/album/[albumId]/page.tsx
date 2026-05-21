@@ -7,7 +7,9 @@ import {
   Typography,
   Button,
   Stack,
-  CircularProgress
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import {
@@ -42,6 +44,7 @@ import PhotoDetailDialog from '../components/PhotoDetailDialog';
 import AlbumGallery from '../components/AlbumGallery';
 import FloatingUploadButton from '../components/FloatingUploadButton';
 import EmptyAlbumState from '../components/EmptyAlbumState';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface Album {
   _id: string;
@@ -80,6 +83,9 @@ export default function AlbumDetailsPage() {
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
   const [galleryZoom, setGalleryZoom] = useState(3);
+  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
+  const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(false);
+  const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -172,9 +178,9 @@ export default function AlbumDetailsPage() {
 
   const handleDeleteAlbum = async () => {
     if (!album) return;
-    if (!confirm(`Are you sure you want to delete the album "${album.title}"? Your photos inside it will not be deleted.`)) return;
     try {
       await deleteAlbum(albumId);
+      setConfirmDeleteAlbum(false);
       router.push('/dashboard');
     } catch (error) {
       console.error('Failed to delete album:', error);
@@ -197,7 +203,7 @@ export default function AlbumDetailsPage() {
     try {
       const updated = await updateAlbum(albumId, { coverPhotoUrl: photoUrl });
       setAlbum(updated);
-      alert(`Cover photo updated!`);
+      setSnackbar({ open: true, message: 'Cover photo updated!', severity: 'success' });
     } catch (error) {
       console.error('Failed to update album cover:', error);
     }
@@ -219,11 +225,11 @@ export default function AlbumDetailsPage() {
 
   const handleDeletePhoto = async () => {
     if (!selectedPhoto) return;
-    if (!confirm('Are you sure you want to delete this memory forever?')) return;
 
     try {
       await deletePhoto(selectedPhoto._id);
       setSelectedPhoto(null);
+      setConfirmDeletePhoto(false);
       loadPageData();
     } catch (error) {
       console.error('Delete failed:', error);
@@ -342,8 +348,9 @@ export default function AlbumDetailsPage() {
           setEditedTitle={setEditedTitle}
           setIsEditingTitle={setIsEditingTitle}
           handleRenameAlbum={handleRenameAlbum}
-          handleDeleteAlbum={handleDeleteAlbum}
+          handleDeleteAlbum={() => setConfirmDeleteAlbum(true)}
           startSlideshow={() => setIsSlideshowOpen(true)}
+          currentUser={user}
         />
 
         {/* Main Content Area */}
@@ -388,10 +395,28 @@ export default function AlbumDetailsPage() {
         onClose={() => setSelectedPhoto(null)}
         albums={albums}
         nostalgiaMode={nostalgiaMode}
-        onDeletePhoto={handleDeletePhoto}
+        onDeletePhoto={() => setConfirmDeletePhoto(true)}
         onAddCaption={handleAddCaption}
         onSetAsCover={handleSetAsCover}
         onUpdatePhotoAlbum={handleUpdatePhotoAlbum}
+      />
+
+      <ConfirmDialog
+        open={confirmDeletePhoto}
+        title="Delete Memory"
+        message="Are you sure you want to delete this memory forever?"
+        confirmText="Delete"
+        onConfirm={handleDeletePhoto}
+        onCancel={() => setConfirmDeletePhoto(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteAlbum}
+        title="Delete Collection"
+        message={`Are you sure you want to delete "${album.title}"? Photos inside it will not be deleted, they will just be unassigned.`}
+        confirmText="Delete Album"
+        onConfirm={handleDeleteAlbum}
+        onCancel={() => setConfirmDeleteAlbum(false)}
       />
 
       <FloatingUploadButton
@@ -408,6 +433,22 @@ export default function AlbumDetailsPage() {
         photos={albumPhotos}
         albumTitle={album.title}
       />
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: '12px' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
     </Box>
   );

@@ -31,6 +31,8 @@ export class AlbumsService {
           { sharedWith: new Types.ObjectId(userId) }
         ]
       })
+      .populate('userId', '_id name email')
+      .populate('sharedWith', '_id name email')
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -42,7 +44,9 @@ export class AlbumsService {
         { userId: new Types.ObjectId(userId) },
         { sharedWith: new Types.ObjectId(userId) }
       ]
-    });
+    })
+    .populate('userId', '_id name email')
+    .populate('sharedWith', '_id name email');
     if (!album) {
       throw new NotFoundException('Album not found');
     }

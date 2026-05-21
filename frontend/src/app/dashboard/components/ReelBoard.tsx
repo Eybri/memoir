@@ -19,6 +19,8 @@ interface Album {
   _id: string;
   title: string;
   coverPhotoUrl: string;
+  userId?: UserBasic;
+  sharedWith?: UserBasic[];
 }
 
 interface Photo {
@@ -36,6 +38,7 @@ interface ReelBoardProps {
   onSelectAlbum: (albumId: string | null) => void;
   onCreateAlbum: (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => Promise<void>;
   nostalgiaMode: boolean;
+  currentUser?: UserBasic;
 }
 
 export default function ReelBoard({
@@ -44,7 +47,8 @@ export default function ReelBoard({
   activeAlbumId,
   onSelectAlbum,
   onCreateAlbum,
-  nostalgiaMode
+  nostalgiaMode,
+  currentUser
 }: ReelBoardProps) {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState('');
@@ -255,6 +259,25 @@ export default function ReelBoard({
 
                   {/* Premium vignette / gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
+
+                  {/* Shared Indicators */}
+                  {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
+                    <div className="absolute top-2 right-2 flex -space-x-1.5" title="Shared with friends">
+                      {album.sharedWith.map(sw => (
+                        <div key={sw._id} className="w-5 h-5 rounded-full bg-amber-600 border border-white text-[8px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase">
+                          {sw.name.substring(0, 2)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {currentUser && album.userId && album.userId._id !== currentUser.id && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/20" title={`Shared by ${album.userId.name}`}>
+                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[7px] text-white font-bold uppercase">
+                        {album.userId.name.substring(0, 2)}
+                      </div>
+                      <span className="text-[8px] text-white font-bold uppercase tracking-wider pr-0.5">Shared</span>
+                    </div>
+                  )}
 
                   {/* Count indicator */}
                   <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-amber-600/90' : 'bg-black/50'
