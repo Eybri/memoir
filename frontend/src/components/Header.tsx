@@ -8,7 +8,11 @@ import {
   Button, 
   Stack, 
   IconButton,
-  TextField
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Avatar
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { 
@@ -43,6 +47,7 @@ export default function Header({
 }: HeaderProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
 
   const initials = React.useMemo(() => {
     if (!user || !user.name) return 'U';
@@ -184,19 +189,18 @@ export default function Header({
               </IconButton>
             </motion.div>
 
-            {/* Wax-Seal styled User Profile Avatar */}
+            {/* Circular Profile Avatar */}
             {user && (
               <motion.div 
-                whileHover={{ scale: 1.08, rotate: 3 }} 
+                whileHover={{ scale: 1.08 }} 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsProfileOpen(true)}
                 title={`Logged in as ${user.name} (${user.email})`}
-                className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-xs shadow border cursor-pointer select-none transition-all duration-500 ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-xs shadow-md border-2 cursor-pointer select-none transition-all duration-300 ${
                   nostalgiaMode 
-                    ? 'bg-red-800 border-red-950 text-yellow-50 shadow-[0_2px_8px_rgba(153,27,27,0.3)]' 
-                    : 'bg-amber-600 border-amber-700 text-white shadow-[0_2px_8px_rgba(217,119,6,0.3)]'
+                    ? 'bg-[#3c2f1f] border-[#3c2f1f]/20 text-[#fdfcf8] hover:shadow-[0_4px_12px_rgba(60,47,31,0.2)]' 
+                    : 'bg-gradient-to-br from-amber-500 to-amber-700 border-white text-white hover:shadow-[0_4px_12px_rgba(217,119,6,0.3)]'
                 }`}
-                style={{
-                  clipPath: 'polygon(50% 0%, 93% 15%, 100% 55%, 85% 90%, 50% 100%, 15% 90%, 0% 55%, 7% 15%)',
-                }}
               >
                 {initials}
               </motion.div>
@@ -242,6 +246,70 @@ export default function Header({
           </Stack>
         )}
       </Container>
+
+      {/* User Profile Modal */}
+      {user && (
+        <Dialog
+          open={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          slotProps={{
+            paper: {
+              sx: {
+                borderRadius: '24px',
+                p: 2,
+                backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
+                color: nostalgiaMode ? '#3c2f1f' : '#000000',
+              }
+            }
+          }}
+        >
+          <DialogTitle className="flex justify-between items-center pb-2">
+            <Typography className="font-display font-black text-amber-950 text-xl">
+              Profile Details
+            </Typography>
+            <IconButton onClick={() => setIsProfileOpen(false)} className="text-amber-700 hover:bg-amber-500/10">
+              ✕
+            </IconButton>
+          </DialogTitle>
+          <DialogContent className="flex flex-col items-center justify-center py-6 text-center space-y-4">
+            <Avatar 
+              sx={{ 
+                width: 80, 
+                height: 80, 
+                bgcolor: nostalgiaMode ? '#3c2f1f' : '#d97706',
+                fontSize: '32px',
+                fontFamily: 'var(--font-display)',
+                fontWeight: 900
+              }}
+              className="shadow-xl"
+            >
+              {initials}
+            </Avatar>
+            <div>
+              <Typography className="font-display font-black text-2xl text-amber-950">
+                {user.name}
+              </Typography>
+              <Typography className="font-mono text-sm tracking-wider text-amber-700/70 uppercase font-bold mt-1">
+                {user.email}
+              </Typography>
+            </div>
+            <div className="w-full border-t border-amber-900/10 mt-6 pt-6 flex justify-center">
+              <Button 
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  logout();
+                }} 
+                startIcon={<LogOut size={16} />}
+                className="bg-red-50 hover:bg-red-100 text-red-600 rounded-full px-6 py-2 font-bold transition-all"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </nav>
   );
 }
