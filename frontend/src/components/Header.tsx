@@ -167,29 +167,7 @@ export default function Header({
               </IconButton>
             </form>
 
-            {/* Premium 褪色 (Muted) Nostalgia Toggle */}
-            <motion.div whileTap={{ scale: 0.95 }}>
-              <Button 
-                onClick={() => setNostalgiaMode(!nostalgiaMode)}
-                className={`rounded-full px-5 py-2 text-xs font-black tracking-wider uppercase transition-all duration-500 shadow-sm flex items-center gap-2 border ${
-                  nostalgiaMode 
-                    ? 'bg-amber-800 hover:bg-amber-900 text-yellow-50 border-amber-900 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]' 
-                    : 'bg-white/40 hover:bg-white/70 text-amber-800 border-amber-200/50 hover:border-amber-300'
-                }`}
-              >
-                {/* Dial indicator with glow */}
-                <motion.div 
-                  animate={nostalgiaMode ? { rotate: 180 } : { rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
-                  className={`p-0.5 rounded-full flex items-center justify-center ${
-                    nostalgiaMode ? 'bg-amber-700/50 shadow-inner' : 'bg-transparent'
-                  }`}
-                >
-                  <Sparkles size={14} className={nostalgiaMode ? 'text-yellow-200 animate-pulse' : 'text-amber-700'} />
-                </motion.div>
-                <span>{nostalgiaMode ? 'Sepia Muted' : 'Muted Toggle'}</span>
-              </Button>
-            </motion.div>
+
 
             {/* Notifications Bell */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
