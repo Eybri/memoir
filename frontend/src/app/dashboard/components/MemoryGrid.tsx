@@ -301,16 +301,16 @@ export default function MemoryGrid({
                 ].join(', '),
                 borderRadius: '20px',
                 /* thick mat-board frame: outer dark edge + inner cream lip */
-                border: '14px solid #c9a96e',
-                outline: '4px solid #a0783a',
-                outlineOffset: '-14px',
+                border: { xs: '6px solid #c9a96e', sm: '14px solid #c9a96e' },
+                outline: { xs: '2px solid #a0783a', sm: '4px solid #a0783a' },
+                outlineOffset: { xs: '-6px', sm: '-14px' },
                 boxShadow: [
                   '0 24px 60px -8px rgba(50,30,5,0.28)',
                   '0 4px 12px rgba(50,30,5,0.10)',
                   'inset 0 0 0 2px rgba(255,245,225,0.6)',
                   'inset 0 2px 40px rgba(180,110,30,0.06)',
                 ].join(', '),
-                p: { xs: '20px', sm: '44px' },
+                p: { xs: '12px', sm: '24px', md: '44px' },
               }}
             >
               {/* Fine noise grain overlay for tactile paper feel */}
@@ -355,8 +355,8 @@ export default function MemoryGrid({
               </div>
 
               <div
-                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[210px]"
-                style={{ gap: '18px', gridAutoFlow: 'dense', borderRadius: '12px' }}
+                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
+                style={{ gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
                   const photo = pile[0];
@@ -416,39 +416,28 @@ export default function MemoryGrid({
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        whileHover={{ scale: 1.04, rotate: 0, zIndex: 20 }}
+                        whileHover={{ scale: 1.06, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
-                        style={{ transformStyle: 'preserve-3d', zIndex: 1, border: '5px solid #fff', outline: '1px solid rgba(180,120,40,0.12)' }}
-                        className="w-full h-full relative shadow-lg hover:shadow-2xl bg-white rounded-xl flex flex-col justify-between overflow-hidden"
+                        style={{
+                          transformStyle: 'preserve-3d',
+                          zIndex: 1,
+                          /* Polaroid frame: thin on 3 sides, thick on bottom */
+                          padding: '6px 6px 28px 6px',
+                          background: '#ffffff',
+                          boxShadow: '0 8px 32px -4px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10)',
+                          borderRadius: '2px',
+                        }}
+                        className="w-full h-full relative"
                       >
-                        {/* Photo corner stickers */}
-                        {[
-                          { top: 4, left: 4, rotate: '-45deg' },
-                          { top: 4, right: 4, rotate: '45deg' },
-                          { bottom: 22, left: 4, rotate: '-135deg' },
-                          { bottom: 22, right: 4, rotate: '135deg' },
-                        ].map((pos, ci) => (
-                          <div
-                            key={ci}
-                            className="absolute z-20 pointer-events-none select-none"
-                            style={{
-                              width: 10,
-                              height: 10,
-                              ...pos,
-                              transform: `rotate(${pos.rotate})`,
-                              borderTop: '2px solid rgba(120,80,20,0.35)',
-                              borderLeft: '2px solid rgba(120,80,20,0.35)',
-                            }}
-                          />
-                        ))}
-
                         {/* FRONT FACE */}
                         <div
                           style={{ backfaceVisibility: 'hidden' }}
-                          className="w-full h-full flex flex-col justify-between min-h-0"
+                          className="w-full h-full flex flex-col"
                         >
+                          {/* Photo fills the top of polaroid */}
                           <div
-                            className="w-full flex-grow overflow-hidden relative cursor-pointer min-h-0"
+                            className="w-full flex-grow overflow-hidden relative cursor-pointer"
+                            style={{ borderRadius: '1px' }}
                             onClick={() => onSelectPhoto(photo)}
                           >
                             <img
@@ -458,71 +447,126 @@ export default function MemoryGrid({
                             />
                           </div>
 
-                          {/* Polaroid-style date footer */}
-                          <Box className="px-2 py-1 flex justify-between items-center select-none flex-shrink-0 bg-white">
-                            <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] font-bold font-mono tracking-wide">
+                          {/* Polaroid bottom white strip with handwritten-style date */}
+                          <div
+                            className="absolute bottom-0 left-0 right-0 flex items-center justify-between select-none px-2"
+                            style={{ height: '28px', background: '#ffffff' }}
+                          >
+                            <Typography
+                              className="text-gray-500 font-mono tracking-wider"
+                              style={{ fontSize: '9px', letterSpacing: '0.08em' }}
+                            >
                               {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
-                            <ChevronRight size={9} className="text-amber-600/30 flex-shrink-0" />
-                          </Box>
+
+                            {/* Note indicator — shown only when the photo has captions */}
+                            {photo.captions.length > 0 && (() => {
+                              const noteHints = ['♥', '✿', '★', '✦', '❧', '♪', '◈', '✾'];
+                              const hint = noteHints[pileIndex % noteHints.length];
+                              return (
+                                <span
+                                  title={`${photo.captions.length} note${photo.captions.length > 1 ? 's' : ''} inside`}
+                                  style={{
+                                    fontSize: '12px',
+                                    color: '#b45309',
+                                    opacity: 0.75,
+                                    lineHeight: 1,
+                                    animation: 'subtlePulse 2.4s ease-in-out infinite',
+                                  }}
+                                >
+                                  {hint}
+                                </span>
+                              );
+                            })()}
+                          </div>
                         </div>
 
-                        {/* BACK FACE (Journal Paper) */}
+                        {/* BACK FACE (Handwritten Journal) */}
                         <div
                           style={{
                             backfaceVisibility: 'hidden',
                             transform: 'rotateY(180deg)',
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
+                            background: '#fef9f0',
+                            borderRadius: '2px',
+                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 18px, #d4b896 18px, #d4b896 19px)',
+                            backgroundPositionY: '28px',
+                            overflow: 'hidden',
                           }}
-                          className="bg-[#fefcf7] p-2.5 sm:p-4 rounded-[14px] sm:rounded-[22px] flex flex-col justify-between border-2 border-amber-900/10 shadow-inner"
                         >
-                          <div
-                            className="flex-grow overflow-y-auto space-y-1.5 sm:space-y-3"
-                            style={{
-                              backgroundImage: 'repeating-linear-gradient(transparent, transparent 19px, #cbd5e1 19px, #cbd5e1 20px)',
-                              paddingLeft: '14px',
-                              borderLeft: '1.5px solid #fca5a5',
-                            }}
-                          >
-                            <Typography className="font-mono text-[6px] sm:text-[8px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-0.5 bg-[#fefcf7]">
-                              Journal
+                          {/* Red margin line */}
+                          <div style={{ position: 'absolute', top: 0, bottom: 0, left: '28px', width: '1.5px', background: 'rgba(200,80,80,0.4)' }} />
+
+                          <div style={{ padding: '8px 8px 6px 36px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <Typography
+                              style={{
+                                fontFamily: 'var(--font-caveat)',
+                                fontSize: '9px',
+                                color: '#b45309',
+                                fontWeight: 700,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                                marginBottom: '4px',
+                                lineHeight: '18px',
+                              }}
+                            >
+                              Notes
                             </Typography>
-                            <div className="space-y-1.5 pt-1">
+
+                            <div style={{ flexGrow: 1, overflowY: 'auto' }}>
                               {photo.captions.length === 0 ? (
-                                <Typography className="text-slate-400 font-mono italic text-[8px] sm:text-[10px] leading-tight">
-                                  No stories yet.
+                                <Typography style={{ fontFamily: 'var(--font-caveat)', fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
+                                  No notes yet...
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <div key={i} className="leading-tight">
-                                    <Typography className="text-amber-950 font-mono text-[9px] sm:text-[11px] italic font-bold">
-                                      "{cap.text}"
-                                    </Typography>
-                                  </div>
+                                  <Typography key={i} style={{ fontFamily: 'var(--font-caveat)', fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
+                                    — {cap.text}
+                                  </Typography>
                                 ))
                               )}
                             </div>
-                          </div>
 
-                          <div className="pt-1.5 border-t border-amber-900/5 mt-1 space-y-1">
-                            <textarea
-                              placeholder="Write..."
-                              value={memos[photo._id] || ''}
-                              onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}
-                              className="w-full text-[9px] sm:text-xs p-1 bg-amber-500/5 border border-amber-900/10 rounded focus:outline-none focus:border-amber-600 font-mono resize-none text-amber-950"
-                              rows={1}
-                            />
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              size="small"
-                              disabled={isSavingMemo[photo._id] || !memos[photo._id]?.trim()}
-                              onClick={() => handleSaveMemo(photo._id)}
-                              className="bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[7px] sm:text-[9px] uppercase py-0.5 shadow"
-                            >
-                              Save
-                            </Button>
+                            <div style={{ borderTop: '1px solid rgba(180,100,20,0.12)', paddingTop: '4px' }}>
+                              <textarea
+                                placeholder="Write a memory..."
+                                value={memos[photo._id] || ''}
+                                onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}
+                                rows={1}
+                                style={{
+                                  width: '100%',
+                                  fontFamily: 'var(--font-caveat)',
+                                  fontSize: '12px',
+                                  color: '#374151',
+                                  fontStyle: 'italic',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  outline: 'none',
+                                  resize: 'none',
+                                  lineHeight: '19px',
+                                }}
+                              />
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                size="small"
+                                disabled={isSavingMemo[photo._id] || !memos[photo._id]?.trim()}
+                                onClick={() => handleSaveMemo(photo._id)}
+                                sx={{
+                                  backgroundColor: '#b45309',
+                                  '&:hover': { backgroundColor: '#92400e' },
+                                  fontFamily: 'var(--font-caveat)',
+                                  fontSize: '10px',
+                                  py: 0,
+                                  borderRadius: '4px',
+                                  boxShadow: 'none',
+                                  textTransform: 'none',
+                                }}
+                              >
+                                Save
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </motion.div>

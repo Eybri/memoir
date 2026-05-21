@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, Box, Stack, IconButton, Typography, Button, TextField } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Trash2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Calendar, Trash2, Download, RotateCcw, BookOpen, Send } from 'lucide-react';
 
 interface Photo {
   _id: string;
@@ -24,7 +24,7 @@ interface PhotoDetailDialogProps {
   albums: Album[];
   nostalgiaMode: boolean;
   onDeletePhoto: () => void;
-  onAddCaption: (captionText: string) => void;
+  onAddCaption?: (captionText: string) => void;
   onSetAsCover: (photoUrl: string) => void;
   onUpdatePhotoAlbum: (photoId: string, targetAlbumId: string | null) => void;
 }
@@ -34,154 +34,285 @@ export default function PhotoDetailDialog({
   open,
   onClose,
   albums,
-  nostalgiaMode,
   onDeletePhoto,
   onAddCaption,
   onSetAsCover,
   onUpdatePhotoAlbum
 }: PhotoDetailDialogProps) {
-  const [newCaption, setNewCaption] = useState('');
-
-  useEffect(() => {
-    if (open) {
-      setNewCaption('');
-    }
-  }, [open, photo]);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!photo) return null;
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(photo.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `memoir-photo-${photo._id}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch {
+      window.open(photo.url, '_blank');
+    }
+  };
+
+  const handleSaveNote = async () => {
+    if (!noteText.trim() || !onAddCaption) return;
+    setIsSaving(true);
+    try {
+      await onAddCaption(noteText.trim());
+      setNoteText('');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleClose = () => {
+    setIsFlipped(false);
+    setNoteText('');
+    onClose();
+  };
 
   return (
     <AnimatePresence>
       {open && (
-        <Dialog 
-          open={open} 
-          onClose={onClose}
-          maxWidth="md"
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          maxWidth="sm"
           fullWidth
           slotProps={{
             paper: {
-              sx: { 
-                borderRadius: '16px', 
-                overflow: 'hidden', 
-                border: 'none',
-                backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
-                color: nostalgiaMode ? '#3c2f1f' : '#000000',
-                boxShadow: '0 24px 64px -10px rgba(0, 0, 0, 0.15)'
+              sx: {
+                background: 'transparent',
+                boxShadow: 'none',
+                overflow: 'visible',
               }
+            },
+            backdrop: {
+              sx: { backgroundColor: 'rgba(10,8,5,0.85)', backdropFilter: 'blur(8px)' }
             }
           }}
         >
-          <Box className="flex flex-col md:flex-row h-full max-h-[85vh]">
-            {/* Media viewer */}
-            <Box className="md:w-1/2 bg-black flex items-center justify-center p-2 relative min-h-[300px] md:min-h-0">
-              <img src={photo.url} alt="Scrapbook detail" className="max-w-full max-h-[75vh] object-contain rounded-xl" />
-            </Box>
-            
-            {/* Info panel */}
-            <Box className="md:w-1/2 p-8 flex flex-col justify-between h-full min-h-[400px] md:min-h-0">
-              <div className="space-y-6 flex-grow overflow-y-auto pr-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <Typography variant="h5" className="font-display font-black text-amber-950">Memory Ledger</Typography>
-                    <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs mt-1">
-                      <Calendar size={14} />
-                      {new Date(photo.takenAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                  </div>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton onClick={onDeletePhoto} className="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-full transition-all">
-                      <Trash2 size={18} />
-                    </IconButton>
-                    <IconButton onClick={onClose} className="bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 p-2.5 rounded-full font-black text-sm">
-                      ✕
-                    </IconButton>
-                  </Stack>
-                </div>
+          <Box className="relative flex flex-col items-center">
 
-                <Box className="space-y-4">
-                  <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">Captions Ledger</Typography>
-                  {photo.captions.length === 0 ? (
-                    <Typography className="text-amber-900/30 italic text-sm">No captions recorded yet. Be the first to describe this memory.</Typography>
-                  ) : (
-                    photo.captions.map((cap, i) => (
-                      <motion.div 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        key={i} 
-                        className="bg-amber-500/5 p-4 rounded-2xl border-l-4 border-amber-500"
-                      >
-                        <Typography className="text-amber-950 italic mb-1 text-sm font-medium">"{cap.text}"</Typography>
-                        <Typography variant="caption" className="text-amber-600/60 font-bold text-[10px]">
-                          Recorded {new Date(cap.createdAt).toLocaleDateString()}
-                        </Typography>
-                      </motion.div>
-                    ))
-                  )}
-                </Box>
+            {/* Top action bar */}
+            <Box className="flex justify-between w-full pb-3 px-1">
+              {/* Flip button */}
+              <Button
+                onClick={() => setIsFlipped(f => !f)}
+                startIcon={isFlipped ? <RotateCcw size={14} /> : <BookOpen size={14} />}
+                sx={{
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  borderRadius: '20px',
+                  px: 2,
+                  py: 0.6,
+                  '&:hover': { backgroundColor: '#374151' },
+                }}
+              >
+                {isFlipped ? 'See Photo' : 'See Notes'}
+              </Button>
 
-                {/* Album Assignment Section */}
-                <Box className="space-y-2 pt-2 border-t border-amber-200/20">
-                  <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">
-                    Album Assignment
-                  </Typography>
-                  <div className="flex gap-2 items-center">
-                    <select
-                      value={photo.albumId || ''}
-                      onChange={(e) => onUpdatePhotoAlbum(photo._id, e.target.value || null)}
-                      className="bg-amber-500/5 border border-amber-900/10 rounded-xl p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 flex-grow"
-                    >
-                      <option value="">No Album</option>
-                      {albums.map((alb) => (
-                        <option key={alb._id} value={alb._id}>
-                          {alb.title}
-                        </option>
-                      ))}
-                    </select>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => onSetAsCover(photo.url)}
-                      disabled={!photo.albumId}
-                      className="border-amber-600/30 text-amber-700 hover:bg-amber-500/5 text-[10px] py-2 rounded-xl font-bold uppercase"
-                    >
-                      Make Cover
-                    </Button>
-                  </div>
-                </Box>
-              </div>
-
-              <Stack spacing={2} className="pt-4 border-t border-amber-200/20">
-                <TextField
-                  fullWidth
-                  placeholder="Add a caption..."
-                  multiline
-                  rows={2}
-                  value={newCaption}
-                  onChange={(e) => setNewCaption(e.target.value)}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '20px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                      '& fieldset': { borderColor: 'rgba(217, 119, 6, 0.1)' },
-                      '&.Mui-focused fieldset': { borderColor: '#d97706' },
-                    }
-                  }}
-                />
-                <Button 
-                  fullWidth 
-                  variant="contained" 
-                  className="bg-amber-600 hover:bg-amber-700 rounded-full py-3.5 font-bold text-white shadow-lg shadow-amber-600/10"
-                  onClick={() => {
-                    if (newCaption.trim()) {
-                      onAddCaption(newCaption.trim());
-                      setNewCaption('');
-                    }
-                  }}
+              <Stack direction="row" spacing={1}>
+                <IconButton
+                  onClick={handleDownload}
+                  title="Download"
+                  sx={{ backgroundColor: '#1f2937', color: '#fff', '&:hover': { backgroundColor: '#111827' }, width: 34, height: 34, borderRadius: '50%' }}
                 >
-                  Add Caption
-                </Button>
+                  <Download size={15} />
+                </IconButton>
+                <IconButton
+                  onClick={onDeletePhoto}
+                  title="Delete"
+                  sx={{ backgroundColor: '#1f2937', color: '#fff', '&:hover': { backgroundColor: '#7f1d1d' }, width: 34, height: 34, borderRadius: '50%' }}
+                >
+                  <Trash2 size={15} />
+                </IconButton>
+                <IconButton
+                  onClick={handleClose}
+                  title="Close"
+                  sx={{ backgroundColor: '#1f2937', color: '#fff', '&:hover': { backgroundColor: '#111827' }, width: 34, height: 34, borderRadius: '50%', fontSize: '13px', fontWeight: 900 }}
+                >
+                  ✕
+                </IconButton>
               </Stack>
             </Box>
+
+            {/* ── POLAROID CARD with 3D flip ── */}
+            <Box
+              style={{
+                width: '100%',
+                maxWidth: '480px',
+                perspective: '1200px',
+              }}
+            >
+              <motion.div
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ type: 'spring', stiffness: 80, damping: 18 }}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  position: 'relative',
+                  width: '100%',
+                }}
+              >
+                {/* ── FRONT FACE (Photo) ── */}
+                <motion.div
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    background: '#ffffff',
+                    padding: '10px 10px 0 10px',
+                    boxShadow: '0 30px 80px -10px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.2)',
+                    borderRadius: '3px',
+                    width: '100%',
+                  }}
+                >
+                  {/* Photo */}
+                  <Box style={{ borderRadius: '1px', aspectRatio: '4/3', background: '#000', overflow: 'hidden' }}>
+                    <img
+                      src={photo.url}
+                      alt="Polaroid photo"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  </Box>
+
+                  {/* White bottom strip */}
+                  <Box
+                    className="flex flex-col sm:flex-row justify-between items-center gap-3"
+                    style={{ padding: '14px 8px 18px 8px' }}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Calendar size={13} className="text-gray-400" />
+                      <Typography style={{ fontFamily: "'Courier New', monospace", fontSize: '11px', color: '#555', letterSpacing: '0.05em' }}>
+                        {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </Typography>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={photo.albumId || ''}
+                        onChange={(e) => onUpdatePhotoAlbum(photo._id, e.target.value || null)}
+                        style={{ fontSize: '10px' }}
+                        className="bg-gray-50 text-gray-700 border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:border-amber-400 cursor-pointer hover:bg-gray-100 transition-colors"
+                      >
+                        <option value="">No Album</option>
+                        {albums.map((alb) => (
+                          <option key={alb._id} value={alb._id}>{alb.title}</option>
+                        ))}
+                      </select>
+
+                      <Button
+                        size="small"
+                        onClick={() => onSetAsCover(photo.url)}
+                        disabled={!photo.albumId}
+                        style={{ fontSize: '9px', padding: '3px 10px' }}
+                        className="text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/60 rounded-md font-bold tracking-wider uppercase disabled:opacity-30 transition-all"
+                      >
+                        Make Cover
+                      </Button>
+                    </div>
+                  </Box>
+                </motion.div>
+
+                {/* ── BACK FACE (Handwritten Journal) ── */}
+                <motion.div
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: '#fef9f0',
+                    padding: '24px 20px 20px',
+                    boxShadow: '0 30px 80px -10px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.2)',
+                    borderRadius: '3px',
+                    minHeight: '360px',
+                    backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #d4b896 27px, #d4b896 28px)',
+                    backgroundPositionY: '36px',
+                  }}
+                >
+                  {/* Red margin line */}
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: '44px', width: '1.5px', background: 'rgba(200,80,80,0.35)' }} />
+
+                  <Box style={{ paddingLeft: '52px' }}>
+                    <Typography style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: '13px', color: '#b45309', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                      Notes / Memories
+                    </Typography>
+
+                    {/* Existing captions */}
+                    <Box style={{ marginBottom: '16px', maxHeight: '200px', overflowY: 'auto' }}>
+                      {photo.captions.length === 0 ? (
+                        <Typography style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: '16px', color: '#9ca3af', fontStyle: 'italic', lineHeight: '28px' }}>
+                          No notes written yet...
+                        </Typography>
+                      ) : (
+                        photo.captions.map((cap, i) => (
+                          <Typography
+                            key={i}
+                            style={{
+                              fontFamily: 'var(--font-caveat), cursive',
+                              fontSize: '16px',
+                              color: '#374151',
+                              lineHeight: '28px',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            — {cap.text}
+                          </Typography>
+                        ))
+                      )}
+                    </Box>
+
+                    {/* Write new note */}
+                    {onAddCaption && (
+                      <Box className="flex items-end gap-2">
+                        <TextField
+                          fullWidth
+                          multiline
+                          maxRows={3}
+                          placeholder="Write a memory..."
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          variant="standard"
+                          sx={{
+                            '& .MuiInput-underline:before': { borderBottomColor: 'rgba(180,120,40,0.3)' },
+                            '& .MuiInput-underline:after': { borderBottomColor: '#b45309' },
+                            '& textarea': {
+                              fontFamily: 'var(--font-caveat), cursive',
+                              fontSize: '16px',
+                              color: '#374151',
+                              fontStyle: 'italic',
+                              lineHeight: '28px',
+                            }
+                          }}
+                        />
+                        <IconButton
+                          onClick={handleSaveNote}
+                          disabled={isSaving || !noteText.trim()}
+                          sx={{ color: '#b45309', '&:hover': { background: 'rgba(180,90,0,0.08)' }, flexShrink: 0, mb: 0.5 }}
+                        >
+                          <Send size={16} />
+                        </IconButton>
+                      </Box>
+                    )}
+                  </Box>
+                </motion.div>
+              </motion.div>
+            </Box>
+
           </Box>
         </Dialog>
       )}

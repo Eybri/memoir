@@ -1,26 +1,30 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Button, 
-  Stack, 
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Stack,
   CircularProgress
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { 
-  Plus, 
-  Camera, 
+import {
+  Plus,
+  Camera,
   ArrowLeft,
-  Image as ImageIcon
+  Image as ImageIcon,
+  LayoutGrid,
+  LayoutTemplate,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react';
-import { 
-  fetchPhotos, 
-  addCaption, 
-  searchPhotos, 
-  uploadPhoto, 
+import {
+  fetchPhotos,
+  addCaption,
+  searchPhotos,
+  uploadPhoto,
   deletePhoto,
   fetchAlbums,
   fetchAlbumById,
@@ -68,14 +72,27 @@ export default function AlbumDetailsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [nostalgiaMode, setNostalgiaMode] = useState(false);
-  
+
   // Album UI states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
+  const [galleryZoom, setGalleryZoom] = useState(3);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getGridCols = () => {
+    switch (galleryZoom) {
+      case 1: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'; // largest
+      case 2: return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+      case 3: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'; // normal
+      case 4: return 'grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10';
+      case 5: return 'grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-16'; // smallest (zoomed out)
+      default: return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6';
+    }
+  };
 
   // Sync Nostalgia Mode with localStorage
   useEffect(() => {
@@ -191,7 +208,7 @@ export default function AlbumDetailsPage() {
       await updatePhotoAlbum(photoId, targetAlbumId);
       const allPhotos = await fetchPhotos();
       setPhotos(allPhotos);
-      
+
       if (selectedPhoto && selectedPhoto._id === photoId) {
         setSelectedPhoto(prev => prev ? { ...prev, albumId: targetAlbumId || undefined } : null);
       }
@@ -217,7 +234,7 @@ export default function AlbumDetailsPage() {
     if (!selectedPhoto || !captionText.trim()) return;
     try {
       await addCaption(selectedPhoto._id, captionText);
-      const updated = await fetchPhotos(); 
+      const updated = await fetchPhotos();
       const found = updated.find((p: any) => p._id === selectedPhoto._id);
       setSelectedPhoto(found);
       setPhotos(updated);
@@ -268,17 +285,17 @@ export default function AlbumDetailsPage() {
   }
 
   // Base background theme
-  const bgThemeClass = nostalgiaMode 
-    ? 'bg-[#f4efe2] text-[#3c2f1f] paper-grain' 
+  const bgThemeClass = nostalgiaMode
+    ? 'bg-[#f4efe2] text-[#3c2f1f] paper-grain'
     : 'romantic-gradient text-amber-950';
 
   const coverUrl = album.coverPhotoUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=800';
 
   return (
     <Box className={`min-h-screen transition-all duration-700 pb-24 ${bgThemeClass}`}>
-      
+
       {/* Premium Header */}
-      <Header 
+      <Header
         isDashboard={true}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -289,7 +306,7 @@ export default function AlbumDetailsPage() {
       />
 
       <Container maxWidth="xl" className="py-8 space-y-10">
-        
+
         {/* Navigation & Action Bar */}
         <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }} className="w-full">
           <Button
@@ -299,6 +316,16 @@ export default function AlbumDetailsPage() {
           >
             Dashboard
           </Button>
+
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <Button
+              startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
+              onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
+              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
+            >
+              {viewMode === 'scrapbook' ? 'Gallery' : 'Scrapbook'}
+            </Button>
+          </Stack>
         </Stack>
 
         {/* Cinematic Album Hero Cover */}
@@ -320,30 +347,67 @@ export default function AlbumDetailsPage() {
         <Box className="space-y-12">
           {albumPhotos.length > 0 ? (
             <>
-              {/* Album Film Strip — scrolling reel + stats */}
-              <AlbumFilmStrip photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
+              {viewMode === 'scrapbook' && (
+                <AlbumFilmStrip photos={albumPhotos} nostalgiaMode={nostalgiaMode} />
+              )}
 
-              {/* Album Photos Grid */}
-              <Box className="scrapbook-page-canvas p-6 sm:p-12 space-y-6">
-                <Box className="border-b border-amber-200/30 pb-4">
-                  <Typography variant="h4" className="font-display font-black text-amber-950">
-                    Album Ledger
-                  </Typography>
-                  <Typography className="text-amber-900/50 text-sm mt-1">
-                    Your beautiful stories, organized inside this private space.
-                  </Typography>
+              {viewMode === 'scrapbook' ? (
+                <Box className="scrapbook-page-canvas p-2 sm:p-6 md:p-12 space-y-6 overflow-hidden">
+
+
+                  <MemoryGrid
+                    photos={albumPhotos}
+                    albums={albums}
+                    activeAlbumId={albumId}
+                    onSelectPhoto={setSelectedPhoto}
+                    nostalgiaMode={nostalgiaMode}
+                    onAddCaption={handleAddCaptionForId}
+                    disableStacking={true}
+                  />
                 </Box>
-                
-                <MemoryGrid 
-                  photos={albumPhotos} 
-                  albums={albums}
-                  activeAlbumId={albumId}
-                  onSelectPhoto={setSelectedPhoto} 
-                  nostalgiaMode={nostalgiaMode} 
-                  onAddCaption={handleAddCaptionForId}
-                  disableStacking={true}
-                />
-              </Box>
+              ) : (
+                <Box className="bg-white/90 dark:bg-black/90 backdrop-blur-xl p-0.5 border-y border-amber-900/10 shadow-sm w-full relative">
+                  {/* Zoom Controls above images */}
+                  <Box className="flex justify-center sm:justify-end p-2 mb-1 w-full">
+                    <Box className="flex items-center bg-amber-900/5 border border-amber-900/10 rounded-full px-1 py-1">
+                      <Button
+                        onClick={() => setGalleryZoom(z => Math.max(1, z - 1))}
+                        disabled={galleryZoom === 1}
+                        className="min-w-0 p-2 text-amber-900 rounded-full hover:bg-amber-900/10 disabled:opacity-30"
+                      >
+                        <ZoomIn size={18} />
+                      </Button>
+                      <Box className="px-4 text-xs font-mono font-bold text-amber-900/70">
+                        {galleryZoom}
+                      </Box>
+                      <Button
+                        onClick={() => setGalleryZoom(z => Math.min(5, z + 1))}
+                        disabled={galleryZoom === 5}
+                        className="min-w-0 p-2 text-amber-900 rounded-full hover:bg-amber-900/10 disabled:opacity-30"
+                      >
+                        <ZoomOut size={18} />
+                      </Button>
+                    </Box>
+                  </Box>
+
+                  <div className={`grid ${getGridCols()} gap-0.5 w-full`}>
+                    {albumPhotos.map((photo) => (
+                      <div
+                        key={photo._id}
+                        className="aspect-square relative cursor-pointer group bg-amber-100/50"
+                        onClick={() => setSelectedPhoto(photo)}
+                      >
+                        <img
+                          src={photo.url}
+                          alt="Gallery Photo"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                      </div>
+                    ))}
+                  </div>
+                </Box>
+              )}
             </>
           ) : (
             <Box className="w-full flex flex-col items-center justify-center py-32 text-center border-2 border-dashed border-amber-900/10 rounded-[36px] bg-amber-500/5 p-8">
