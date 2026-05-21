@@ -461,62 +461,92 @@ export default function MemoryGrid({
                           </div>
                         </div>
 
-                        {/* BACK FACE (Journal Paper) */}
+                        {/* BACK FACE (Handwritten Journal) */}
                         <div
                           style={{
                             backfaceVisibility: 'hidden',
                             transform: 'rotateY(180deg)',
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
+                            background: '#fef9f0',
+                            borderRadius: '2px',
+                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 18px, #d4b896 18px, #d4b896 19px)',
+                            backgroundPositionY: '28px',
+                            overflow: 'hidden',
                           }}
-                          className="bg-[#fefcf7] p-2.5 sm:p-4 rounded-[14px] sm:rounded-[22px] flex flex-col justify-between border-2 border-amber-900/10 shadow-inner"
                         >
-                          <div
-                            className="flex-grow overflow-y-auto space-y-1.5 sm:space-y-3"
-                            style={{
-                              backgroundImage: 'repeating-linear-gradient(transparent, transparent 19px, #cbd5e1 19px, #cbd5e1 20px)',
-                              paddingLeft: '14px',
-                              borderLeft: '1.5px solid #fca5a5',
-                            }}
-                          >
-                            <Typography className="font-mono text-[6px] sm:text-[8px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-0.5 bg-[#fefcf7]">
-                              Journal
+                          {/* Red margin line */}
+                          <div style={{ position: 'absolute', top: 0, bottom: 0, left: '28px', width: '1.5px', background: 'rgba(200,80,80,0.4)' }} />
+
+                          <div style={{ padding: '8px 8px 6px 36px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <Typography
+                              style={{
+                                fontFamily: 'var(--font-caveat)',
+                                fontSize: '9px',
+                                color: '#b45309',
+                                fontWeight: 700,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                                marginBottom: '4px',
+                                lineHeight: '18px',
+                              }}
+                            >
+                              Notes
                             </Typography>
-                            <div className="space-y-1.5 pt-1">
+
+                            <div style={{ flexGrow: 1, overflowY: 'auto' }}>
                               {photo.captions.length === 0 ? (
-                                <Typography className="text-slate-400 font-mono italic text-[8px] sm:text-[10px] leading-tight">
-                                  No stories yet.
+                                <Typography style={{ fontFamily: 'var(--font-caveat)', fontSize: '11px', color: '#aaa', fontStyle: 'italic', lineHeight: '19px' }}>
+                                  No notes yet...
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <div key={i} className="leading-tight">
-                                    <Typography className="text-amber-950 font-mono text-[9px] sm:text-[11px] italic font-bold">
-                                      "{cap.text}"
-                                    </Typography>
-                                  </div>
+                                  <Typography key={i} style={{ fontFamily: 'var(--font-caveat)', fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
+                                    — {cap.text}
+                                  </Typography>
                                 ))
                               )}
                             </div>
-                          </div>
 
-                          <div className="pt-1.5 border-t border-amber-900/5 mt-1 space-y-1">
-                            <textarea
-                              placeholder="Write..."
-                              value={memos[photo._id] || ''}
-                              onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}
-                              className="w-full text-[9px] sm:text-xs p-1 bg-amber-500/5 border border-amber-900/10 rounded focus:outline-none focus:border-amber-600 font-mono resize-none text-amber-950"
-                              rows={1}
-                            />
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              size="small"
-                              disabled={isSavingMemo[photo._id] || !memos[photo._id]?.trim()}
-                              onClick={() => handleSaveMemo(photo._id)}
-                              className="bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[7px] sm:text-[9px] uppercase py-0.5 shadow"
-                            >
-                              Save
-                            </Button>
+                            <div style={{ borderTop: '1px solid rgba(180,100,20,0.12)', paddingTop: '4px' }}>
+                              <textarea
+                                placeholder="Write a memory..."
+                                value={memos[photo._id] || ''}
+                                onChange={(e) => setMemos(prev => ({ ...prev, [photo._id]: e.target.value }))}
+                                rows={1}
+                                style={{
+                                  width: '100%',
+                                  fontFamily: 'var(--font-caveat)',
+                                  fontSize: '12px',
+                                  color: '#374151',
+                                  fontStyle: 'italic',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  outline: 'none',
+                                  resize: 'none',
+                                  lineHeight: '19px',
+                                }}
+                              />
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                size="small"
+                                disabled={isSavingMemo[photo._id] || !memos[photo._id]?.trim()}
+                                onClick={() => handleSaveMemo(photo._id)}
+                                sx={{
+                                  backgroundColor: '#b45309',
+                                  '&:hover': { backgroundColor: '#92400e' },
+                                  fontFamily: 'var(--font-caveat)',
+                                  fontSize: '10px',
+                                  py: 0,
+                                  borderRadius: '4px',
+                                  boxShadow: 'none',
+                                  textTransform: 'none',
+                                }}
+                              >
+                                Save
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </motion.div>
