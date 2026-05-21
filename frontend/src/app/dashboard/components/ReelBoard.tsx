@@ -125,6 +125,55 @@ export default function ReelBoard({
           </Box>
         </motion.div>
 
+        {/* Public Images Virtual Album */}
+        {(() => {
+          const unassignedPhotos = photos.filter(p => !p.albumId);
+          const count = unassignedPhotos.length;
+          const cover = unassignedPhotos.length > 0 ? unassignedPhotos[0].url : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=250';
+          const isActive = activeAlbumId === 'unassigned';
+
+          return (
+            <motion.div
+              key="unassigned"
+              whileHover={{ scale: 1.04, y: -6 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => onSelectAlbum(isActive ? null : 'unassigned')}
+              className={`flex-shrink-0 cursor-pointer relative transition-transform duration-500 group pt-2 pb-2 -rotate-1 mt-1 group-hover:rotate-1`}
+            >
+              <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-right transition-all duration-500 ease-out group-hover:rotate-6 group-hover:translate-x-3 group-hover:-translate-y-1 ${isActive ? 'rotate-3 translate-x-1' : 'rotate-2 translate-x-0.5'}`} />
+              <div className={`absolute inset-0 bg-[#fdfcf8] rounded-md shadow-sm border border-black/5 transform origin-bottom-left transition-all duration-500 ease-out group-hover:-rotate-6 group-hover:-translate-x-3 group-hover:-translate-y-1 ${isActive ? '-rotate-3 -translate-x-1' : '-rotate-1 -translate-x-0.5'}`} />
+
+              <Box className={`relative z-10 w-40 h-[216px] bg-[#fdfcf8] rounded-md p-3 flex flex-col transition-all duration-500 ${isActive
+                  ? 'border border-rose-400 shadow-[0_8px_30px_rgb(244,63,94,0.3)] ring-2 ring-rose-400/30 scale-105'
+                  : 'border border-rose-900/20 shadow-md hover:border-rose-400 hover:shadow-xl'
+                }`}>
+                
+                {!isActive && (
+                  <div className="absolute h-5 bg-white/60 backdrop-blur-md border border-rose-900/10 shadow-sm z-30 transition-opacity duration-300 group-hover:opacity-0 top-[-6px] left-1/2 -translate-x-1/2 -rotate-2 w-14" style={{ clipPath: 'polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)' }} />
+                )}
+
+                <div className="relative w-full aspect-square flex-shrink-0 rounded-sm overflow-hidden bg-rose-50 shadow-inner border border-black/10">
+                  <img
+                    src={cover}
+                    alt="Public Images"
+                    className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
+                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-rose-600/90' : 'bg-black/50'}`}>
+                    {count} Log{count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <div className="text-center mt-3 flex flex-col items-center justify-center flex-grow overflow-hidden">
+                  <Typography className={`font-display font-black italic text-[15px] leading-tight line-clamp-2 px-1 ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-rose-950'}`}>
+                    Public Images
+                  </Typography>
+                </div>
+              </Box>
+            </motion.div>
+          );
+        })()}
+
         {/* Albums List */}
         {albums.map((album, idx) => {
           const count = getAlbumPhotoCount(album._id);

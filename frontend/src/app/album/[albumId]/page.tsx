@@ -122,9 +122,18 @@ export default function AlbumDetailsPage() {
   const loadPageData = async () => {
     setIsPageLoading(true);
     try {
-      const albumData = await fetchAlbumById(albumId);
-      setAlbum(albumData);
-      setEditedTitle(albumData.title);
+      if (albumId === 'unassigned') {
+        setAlbum({
+          _id: 'unassigned',
+          title: 'Public Images',
+          coverPhotoUrl: '',
+        });
+        setEditedTitle('Public Images');
+      } else {
+        const albumData = await fetchAlbumById(albumId);
+        setAlbum(albumData);
+        setEditedTitle(albumData.title);
+      }
 
       const allPhotos = await fetchPhotos();
       setPhotos(allPhotos);
@@ -265,6 +274,9 @@ export default function AlbumDetailsPage() {
 
   // Filter photos to only those belonging to this album
   const albumPhotos = React.useMemo(() => {
+    if (albumId === 'unassigned') {
+      return photos.filter(p => !p.albumId);
+    }
     return photos.filter(p => p.albumId === albumId);
   }, [photos, albumId]);
 

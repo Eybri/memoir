@@ -90,6 +90,11 @@ export default function MemoryGrid({
     // 1. Group into Albums (Chapters)
     const chapterMap: { [key: string]: Photo[] } = {};
     sorted.forEach(photo => {
+      // If no active album is selected (e.g. on Dashboard), only show unassigned photos (Loose Memories)
+      if (!activeAlbumId && photo.albumId) {
+        return;
+      }
+      
       const key = photo.albumId || 'unassigned';
       if (!chapterMap[key]) {
         chapterMap[key] = [];
