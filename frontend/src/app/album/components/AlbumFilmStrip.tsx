@@ -111,7 +111,7 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           {Array.from({ length: 32 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#111111] border border-white/5"
+              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#fdfbf7] shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
             />
           ))}
         </div>
@@ -166,7 +166,7 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           {Array.from({ length: 32 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#111111] border border-white/5"
+              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#fdfbf7] shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
             />
           ))}
         </div>
