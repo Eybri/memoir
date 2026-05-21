@@ -28,16 +28,22 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
   );
   const oldest = sorted[0];
   const newest = sorted[sorted.length - 1];
-  const totalCaptions = photos.reduce((acc, p) => acc + p.captions.length, 0);
+
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = String(d.getFullYear()).slice(-2);
+    return `${month}/${day}/${year}`;
+  };
 
   const dateSpan =
     oldest._id === newest._id
-      ? new Date(oldest.takenAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
-      : `${new Date(oldest.takenAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })} — ${new Date(newest.takenAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`;
+      ? formatDate(oldest.takenAt)
+      : `${formatDate(oldest.takenAt)} - ${formatDate(newest.takenAt)}`;
 
   const stats = [
     { icon: <Camera size={16} />, label: 'Memories', value: photos.length },
-    { icon: <MessageSquare size={16} />, label: 'Captions', value: totalCaptions },
     { icon: <CalendarDays size={16} />, label: 'Span', value: dateSpan },
   ];
 
@@ -46,40 +52,36 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
 
   return (
     <Box
-      className="relative w-full rounded-3xl overflow-hidden"
+      className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden border-y border-neutral-900 bg-black"
       sx={{
-        background: nostalgiaMode
-          ? 'linear-gradient(135deg, #2a1a0e 0%, #1a0f07 100%)'
-          : 'linear-gradient(135deg, #1c1008 0%, #0f0803 100%)',
-        border: '1px solid rgba(255,200,80,0.08)',
-        boxShadow: '0 24px 60px -10px rgba(0,0,0,0.6)',
+        boxShadow: '0 24px 60px -10px rgba(0,0,0,0.8)',
       }}
     >
-      {/* Ambient glow */}
+      {/* Subtle ambient reflection */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251,191,36,0.07) 0%, transparent 70%)',
+            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.02) 0%, transparent 70%)',
         }}
       />
 
       {/* Top label & Navigation Controls */}
-      <div className="relative z-10 px-6 pt-5 pb-2 flex items-center justify-between">
+      <div className="relative z-10 px-6 sm:px-12 pt-5 pb-2 flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <ImageIcon size={14} className="text-amber-400/70" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-400/60 font-bold">
+          <ImageIcon size={14} className="text-white/60" />
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold">
             Album Reel
           </span>
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[9px] uppercase tracking-widest text-amber-900/40 font-bold mr-4 hidden sm:block">
+          <span className="font-mono text-[9px] uppercase tracking-widest text-white/30 font-bold mr-4 hidden sm:block">
             {dateSpan}
           </span>
           <button 
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-8 h-8 rounded-full border border-amber-900/40 flex items-center justify-center text-amber-500/80 hover:bg-amber-900/80 hover:text-amber-400 hover:border-amber-500/50 transition-all active:scale-95"
+            className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-all active:scale-95"
             aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
@@ -97,7 +99,7 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           .film-track {
             display: flex;
             width: max-content;
-            animation: smoothFilmScroll ${Math.max(stripPhotos.length * 4.5, 40)}s linear infinite;
+            animation: smoothFilmScroll ${Math.max(stripPhotos.length * 2.5, 20)}s linear infinite;
           }
           .film-track.paused {
             animation-play-state: paused;
@@ -109,7 +111,7 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           {Array.from({ length: 32 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-amber-950/60 border border-amber-900/30"
+              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#111111] border border-white/5"
             />
           ))}
         </div>
@@ -164,22 +166,22 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           {Array.from({ length: 32 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-amber-950/60 border border-amber-900/30"
+              className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#111111] border border-white/5"
             />
           ))}
         </div>
       </div>
 
       {/* ── Stats row ── */}
-      <div className="relative z-10 px-6 pb-5 pt-1 flex flex-wrap gap-6 sm:gap-10 border-t border-amber-900/20">
+      <div className="relative z-10 px-6 sm:px-12 pb-5 pt-1 flex flex-wrap gap-6 sm:gap-10 border-t border-white/10 max-w-7xl mx-auto">
         {stats.map((s, i) => (
           <div key={i} className="flex items-center gap-2.5">
-            <span className="text-amber-500/70">{s.icon}</span>
+            <span className="text-white/40">{s.icon}</span>
             <div>
-              <div className="font-display font-black text-amber-100 text-base sm:text-lg leading-none">
+              <div className="font-display font-black text-white/90 text-base sm:text-lg leading-none">
                 {s.value}
               </div>
-              <div className="font-mono text-[9px] uppercase tracking-widest text-amber-700/60 font-bold mt-0.5">
+              <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 font-bold mt-0.5">
                 {s.label}
               </div>
             </div>
