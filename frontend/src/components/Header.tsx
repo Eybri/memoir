@@ -20,11 +20,14 @@ import {
   Search, 
   Sparkles, 
   LogOut,
-  Bell
+  Bell,
+  UserPlus,
+  UserMinus
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
+import { searchUsers, fetchFriends, sendFriendRequest, removeFriend, fetchPendingRequests, fetchSentRequests, acceptFriendRequest, rejectFriendRequest, UserBasic } from '@/lib/api';
 
 interface HeaderProps {
   isDashboard?: boolean;
@@ -48,6 +51,80 @@ export default function Header({
   const router = useRouter();
   const { user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+  const [friends, setFriends] = React.useState<UserBasic[]>([]);
+  const [searchEmail, setSearchEmail] = React.useState('');
+  const [searchResult, setSearchResult] = React.useState<UserBasic[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [hasSearched, setHasSearched] = React.useState(false);
+  const [pendingRequests, setPendingRequests] = React.useState<any[]>([]);
+  const [sentRequests, setSentRequests] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (isProfileOpen && user) {
+      loadFriends();
+    }
+  }, [isProfileOpen, user]);
+
+  const loadFriends = async () => {
+    try {
+      const f = await fetchFriends();
+      setFriends(f);
+      const reqs = await fetchPendingRequests();
+      setPendingRequests(reqs);
+      const sent = await fetchSentRequests();
+      setSentRequests(sent);
+    } catch(e) { console.error(e) }
+  };
+
+  const handleSearchUser = async () => {
+    if (!searchEmail.trim()) {
+      setSearchResult([]);
+      setHasSearched(false);
+      return;
+    }
+    setIsSearching(true);
+    setHasSearched(false);
+    try {
+      const res = await searchUsers(searchEmail.trim());
+      setSearchResult(res);
+      setHasSearched(true);
+    } catch(e) { console.error(e) }
+    finally { setIsSearching(false); }
+  }
+
+  const handleSendRequest = async (id: string) => {
+    try {
+      await sendFriendRequest(id);
+      setSearchResult([]);
+      setSearchEmail('');
+      loadFriends();
+      alert('Friend request sent!');
+    } catch(e: any) { 
+      alert(e.message || 'Failed to send request');
+      console.error(e); 
+    }
+  }
+
+  const handleAcceptRequest = async (requestId: string) => {
+    try {
+      await acceptFriendRequest(requestId);
+      loadFriends();
+    } catch(e) { console.error(e) }
+  }
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      await rejectFriendRequest(requestId);
+      loadFriends();
+    } catch(e) { console.error(e) }
+  }
+
+  const handleRemoveFriend = async (id: string) => {
+    try {
+      const f = await removeFriend(id);
+      setFriends(f);
+    } catch(e) { console.error(e) }
+  }
 
   const initials = React.useMemo(() => {
     if (!user || !user.name) return 'U';
@@ -295,7 +372,126 @@ export default function Header({
                 {user.email}
               </Typography>
             </div>
-            <div className="w-full border-t border-amber-900/10 mt-6 pt-6 flex justify-center">
+            <div className="w-full text-left mt-2">
+              <Typography className="font-display font-black text-amber-950 text-sm mb-2">
+                Friends
+              </Typography>
+              
+              {/* Search User */}
+              <div className="flex gap-2 mb-3">
+                <TextField
+                  size="small"
+                  placeholder="Find by email..."
+                  value={searchEmail}
+                  onChange={(e) => setSearchEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: '0.8rem',
+                    }
+                  }}
+                />
+                <Button 
+                  variant="contained" 
+                  onClick={handleSearchUser}
+                  disabled={isSearching || !searchEmail}
+                  className="bg-amber-600 hover:bg-amber-700 min-w-[60px] rounded-lg shadow-none"
+                >
+                  <Search size={14} />
+                </Button>
+              </div>
+
+              {/* Search Results */}
+              {hasSearched && searchResult.length === 0 && (
+                <div className="bg-amber-50 rounded-lg p-3 mb-3 border border-amber-200 text-center">
+                  <Typography className="text-xs text-amber-900/60 italic">No user found with that email.</Typography>
+                </div>
+              )}
+              {searchResult.length > 0 && (
+                <div className="bg-amber-50 rounded-lg p-2 mb-3 border border-amber-200">
+                  <Typography className="text-xs font-bold text-amber-900 mb-2">Search Result:</Typography>
+                  {searchResult.map(res => {
+                    const isFriend = friends.some(f => f._id === res._id);
+                    return (
+                      <div key={res._id} className="flex justify-between items-center py-1">
+                        <div>
+                          <Typography className="text-sm font-bold text-amber-950">{res.name}</Typography>
+                          <Typography className="text-[10px] text-amber-700">{res.email}</Typography>
+                        </div>
+                        {!isFriend && (
+                          <Button 
+                            size="small" 
+                            variant="outlined"
+                            onClick={() => handleSendRequest(res._id)} 
+                            className="text-[9px] py-0.5 px-2 border-amber-600 text-amber-700 rounded-md font-bold"
+                          >
+                            Send Request
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Pending Requests */}
+              {pendingRequests.length > 0 && (
+                <div className="bg-blue-50/50 rounded-lg p-2 mb-3 border border-blue-200">
+                  <Typography className="text-xs font-bold text-blue-900 mb-2">Friend Requests:</Typography>
+                  {pendingRequests.map(req => (
+                    <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-blue-100 shadow-sm mb-1">
+                      <div>
+                        <Typography className="text-sm font-bold text-blue-950">{req.senderId?.name || 'Unknown'}</Typography>
+                        <Typography className="text-[10px] text-blue-700">{req.senderId?.email || 'unknown@example.com'}</Typography>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="small" variant="contained" className="bg-blue-600 hover:bg-blue-700 text-white min-w-0 px-2 py-0.5 text-[9px] rounded font-bold shadow-none" onClick={() => handleAcceptRequest(req._id)}>Accept</Button>
+                        <Button size="small" variant="outlined" className="border-red-200 text-red-600 min-w-0 px-2 py-0.5 text-[9px] rounded font-bold hover:bg-red-50" onClick={() => handleRejectRequest(req._id)}>Reject</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Sent Requests */}
+              {sentRequests.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-2 mb-3 border border-gray-200">
+                  <Typography className="text-xs font-bold text-gray-700 mb-2">Sent Requests:</Typography>
+                  {sentRequests.map(req => (
+                    <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-gray-100 shadow-sm mb-1">
+                      <div>
+                        <Typography className="text-sm font-bold text-gray-800">{req.receiverId?.name || 'Unknown'}</Typography>
+                        <Typography className="text-[10px] text-gray-500">{req.receiverId?.email || 'unknown@example.com'}</Typography>
+                      </div>
+                      <Typography className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest">Pending</Typography>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Friends List */}
+              <div className="max-h-[120px] overflow-y-auto space-y-2">
+                {friends.length === 0 ? (
+                  <Typography className="text-xs text-amber-900/40 italic">No friends added yet.</Typography>
+                ) : (
+                  friends.map(f => (
+                    <div key={f._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+                      <div>
+                        <Typography className="text-xs font-bold text-gray-900">{f.name}</Typography>
+                        <Typography className="text-[9px] text-gray-500">{f.email}</Typography>
+                      </div>
+                      <IconButton size="small" onClick={() => handleRemoveFriend(f._id)} className="text-red-400 hover:text-red-600">
+                        <UserMinus size={14} />
+                      </IconButton>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="w-full border-t border-amber-900/10 mt-4 pt-4 flex justify-center">
               <Button 
                 onClick={() => {
                   setIsProfileOpen(false);

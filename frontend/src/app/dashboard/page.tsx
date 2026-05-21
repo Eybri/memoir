@@ -132,9 +132,9 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string) => {
+  const handleCreateAlbum = async (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => {
     try {
-      await createAlbum(title, coverPhotoUrl);
+      await createAlbum(title, coverPhotoUrl, sharedWith);
       loadAlbums();
     } catch (error) {
       console.error('Failed to create album:', error);

@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Plus, Folder, Sparkles, Upload } from 'lucide-react';
-import { uploadPhoto } from '@/lib/api';
+import { uploadPhoto, fetchFriends, UserBasic } from '@/lib/api';
 
 interface Album {
   _id: string;
@@ -34,7 +34,7 @@ interface ReelBoardProps {
   photos: Photo[];
   activeAlbumId: string | null;
   onSelectAlbum: (albumId: string | null) => void;
-  onCreateAlbum: (title: string, coverPhotoUrl?: string) => Promise<void>;
+  onCreateAlbum: (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => Promise<void>;
   nostalgiaMode: boolean;
 }
 
@@ -51,7 +51,19 @@ export default function ReelBoard({
   const [selectedCoverUrl, setSelectedCoverUrl] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [friends, setFriends] = React.useState<UserBasic[]>([]);
+  const [selectedFriends, setSelectedFriends] = React.useState<string[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (isCreateOpen) {
+      fetchFriends().then(setFriends).catch(console.error);
+    } else {
+      setNewTitle('');
+      setSelectedCoverUrl('');
+      setSelectedFriends([]);
+    }
+  }, [isCreateOpen]);
 
   const handleUploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,9 +99,7 @@ export default function ReelBoard({
     if (!newTitle.trim()) return;
     setIsSubmitting(true);
     try {
-      await onCreateAlbum(newTitle.trim(), selectedCoverUrl || undefined);
-      setNewTitle('');
-      setSelectedCoverUrl('');
+      await onCreateAlbum(newTitle.trim(), selectedCoverUrl || undefined, selectedFriends);
       setIsCreateOpen(false);
     } catch (error) {
       console.error('Failed to create album:', error);
@@ -361,6 +371,33 @@ export default function ReelBoard({
                           <Sparkles size={16} className="text-white" />
                         </div>
                       )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Box>
+
+          <Box className="space-y-2">
+            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+              Share with Friends (Optional)
+            </Typography>
+            {friends.length === 0 ? (
+              <Typography className="text-xs text-amber-900/40 italic">
+                Add friends from your profile to share albums.
+              </Typography>
+            ) : (
+              <div className="max-h-[100px] overflow-y-auto space-y-1 p-1 border border-amber-950/10 rounded-xl bg-amber-500/5">
+                {friends.map(f => {
+                  const isShared = selectedFriends.includes(f._id);
+                  return (
+                    <div 
+                      key={f._id} 
+                      onClick={() => setSelectedFriends(prev => isShared ? prev.filter(id => id !== f._id) : [...prev, f._id])}
+                      className={`flex justify-between items-center p-2 rounded-lg cursor-pointer transition-all border ${isShared ? 'bg-amber-500/20 border-amber-300 shadow-sm' : 'hover:bg-amber-50 border-transparent'}`}
+                    >
+                      <Typography className="text-xs font-bold text-amber-950">{f.name}</Typography>
+                      {isShared && <Sparkles size={14} className="text-amber-600" />}
                     </div>
                   );
                 })}

@@ -13,18 +13,24 @@ export class AlbumsService {
     private readonly photosService: PhotosService,
   ) {}
 
-  async create(userId: string, title: string, coverPhotoUrl?: string) {
+  async create(userId: string, title: string, coverPhotoUrl?: string, sharedWith?: string[]) {
     const album = new this.albumModel({
       title,
       userId: new Types.ObjectId(userId),
       coverPhotoUrl: coverPhotoUrl || '',
+      sharedWith: sharedWith?.map(id => new Types.ObjectId(id)) || [],
     });
     return album.save();
   }
 
   async findAll(userId: string) {
     return this.albumModel
-      .find({ userId: new Types.ObjectId(userId) })
+      .find({
+        $or: [
+          { userId: new Types.ObjectId(userId) },
+          { sharedWith: new Types.ObjectId(userId) }
+        ]
+      })
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -32,7 +38,10 @@ export class AlbumsService {
   async findOne(albumId: string, userId: string) {
     const album = await this.albumModel.findOne({
       _id: new Types.ObjectId(albumId),
-      userId: new Types.ObjectId(userId),
+      $or: [
+        { userId: new Types.ObjectId(userId) },
+        { sharedWith: new Types.ObjectId(userId) }
+      ]
     });
     if (!album) {
       throw new NotFoundException('Album not found');
@@ -40,10 +49,14 @@ export class AlbumsService {
     return album;
   }
 
-  async update(userId: string, albumId: string, updateData: { title?: string; coverPhotoUrl?: string }) {
+  async update(userId: string, albumId: string, updateData: { title?: string; coverPhotoUrl?: string, sharedWith?: string[] }) {
+    const updateObj: any = { ...updateData };
+    if (updateData.sharedWith) {
+      updateObj.sharedWith = updateData.sharedWith.map(id => new Types.ObjectId(id));
+    }
     const album = await this.albumModel.findOneAndUpdate(
       { _id: new Types.ObjectId(albumId), userId: new Types.ObjectId(userId) },
-      { $set: updateData },
+      { $set: updateObj },
       { new: true }
     );
     if (!album) {

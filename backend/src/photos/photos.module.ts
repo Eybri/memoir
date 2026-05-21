@@ -3,12 +3,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PhotosController } from './photos.controller';
 import { PhotosService } from './photos.service';
 import { Photo, PhotoSchema } from '../schemas/photo.schema';
+import { Album, AlbumSchema } from '../schemas/album.schema';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryService } from './cloudinary.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
+    MongooseModule.forFeature([
+      { name: Photo.name, schema: PhotoSchema },
+      { name: Album.name, schema: AlbumSchema }
+    ]),
     AuthModule,
   ],
   controllers: [PhotosController],

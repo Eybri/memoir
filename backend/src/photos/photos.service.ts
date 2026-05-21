@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Photo } from '../schemas/photo.schema';
+import { Album } from '../schemas/album.schema';
 import { CloudinaryService } from './cloudinary.service';
 
 @Injectable()
 export class PhotosService {
   constructor(
     @InjectModel(Photo.name) private photoModel: Model<Photo>,
+    @InjectModel(Album.name) private albumModel: Model<Album>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -22,8 +24,16 @@ export class PhotosService {
   }
 
   async findAll(userId: string) {
+    const sharedAlbums = await this.albumModel.find({ sharedWith: new Types.ObjectId(userId) });
+    const sharedAlbumIds = sharedAlbums.map(a => a._id);
+
     return this.photoModel
-      .find({ userId: new Types.ObjectId(userId) })
+      .find({
+        $or: [
+          { userId: new Types.ObjectId(userId) },
+          { albumId: { $in: sharedAlbumIds } }
+        ]
+      })
       .sort({ takenAt: -1 })
       .exec();
   }

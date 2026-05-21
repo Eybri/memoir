@@ -11,6 +11,9 @@ export class Album extends Document {
 
   @Prop({ default: '' })
   coverPhotoUrl: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  sharedWith: Types.ObjectId[];
 }
 
 export const AlbumSchema = SchemaFactory.createForClass(Album);
