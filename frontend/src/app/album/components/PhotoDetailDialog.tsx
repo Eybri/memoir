@@ -87,13 +87,28 @@ export default function PhotoDetailDialog({
               {/* Overlaid controls top-right */}
               <Box className="absolute top-0 right-0 p-4 sm:p-6 flex justify-end z-20 pointer-events-none w-full">
                 <Stack direction="row" spacing={1} className="pointer-events-auto">
-                  <IconButton onClick={handleDownload} title="Download" className="text-white bg-gray-900 hover:bg-black p-2.5 rounded-full shadow-xl transition-all">
+                  <IconButton 
+                    onClick={handleDownload} 
+                    title="Download" 
+                    className="shadow-xl transition-all"
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                  >
                     <Download size={18} />
                   </IconButton>
-                  <IconButton onClick={onDeletePhoto} title="Delete" className="text-white bg-gray-900 hover:bg-black p-2.5 rounded-full shadow-xl transition-all">
+                  <IconButton 
+                    onClick={onDeletePhoto} 
+                    title="Delete" 
+                    className="shadow-xl transition-all"
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                  >
                     <Trash2 size={18} />
                   </IconButton>
-                  <IconButton onClick={onClose} title="Close" className="text-white bg-gray-900 hover:bg-black p-2.5 rounded-full shadow-xl transition-all font-black text-sm">
+                  <IconButton 
+                    onClick={onClose} 
+                    title="Close" 
+                    className="shadow-xl transition-all font-black text-sm"
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                  >
                     ✕
                   </IconButton>
                 </Stack>
