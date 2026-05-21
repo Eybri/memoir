@@ -90,24 +90,21 @@ export default function PhotoDetailDialog({
                   <IconButton 
                     onClick={handleDownload} 
                     title="Download" 
-                    className="shadow-xl transition-all"
-                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, width: 32, height: 32, minWidth: 32, borderRadius: '50%', p: 0 }}
                   >
-                    <Download size={18} />
+                    <Download size={15} />
                   </IconButton>
                   <IconButton 
                     onClick={onDeletePhoto} 
                     title="Delete" 
-                    className="shadow-xl transition-all"
-                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, width: 32, height: 32, minWidth: 32, borderRadius: '50%', p: 0 }}
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={15} />
                   </IconButton>
                   <IconButton 
                     onClick={onClose} 
                     title="Close" 
-                    className="shadow-xl transition-all font-black text-sm"
-                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, p: 1.25 }}
+                    sx={{ backgroundColor: '#1f2937', color: '#ffffff', '&:hover': { backgroundColor: '#000000' }, width: 32, height: 32, minWidth: 32, borderRadius: '50%', p: 0, fontSize: '12px', fontWeight: 900 }}
                   >
                     ✕
                   </IconButton>
