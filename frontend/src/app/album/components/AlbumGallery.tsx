@@ -66,7 +66,7 @@ export default function AlbumGallery({ photos, onSelectPhoto }: AlbumGalleryProp
             <img
               src={photo.url}
               alt="Gallery Photo"
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-[1.01]"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           </div>
