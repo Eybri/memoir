@@ -9,15 +9,17 @@ import {
   Stack,
   CircularProgress,
   Snackbar,
-  Alert
+  Alert,
+  IconButton
 } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
   Camera,
   ArrowLeft,
   LayoutGrid,
-  LayoutTemplate
+  LayoutTemplate,
+  X
 } from 'lucide-react';
 import {
   fetchPhotos,
@@ -29,7 +31,8 @@ import {
   fetchAlbumById,
   deleteAlbum,
   updateAlbum,
-  updatePhotoAlbum
+  updatePhotoAlbum,
+  bulkDeletePhotos
 } from '@/lib/api';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter, useParams } from 'next/navigation';
@@ -82,14 +85,16 @@ export default function AlbumDetailsPage() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
-  const [galleryZoom, setGalleryZoom] = useState(3);
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
   const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(false);
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
 
+  // Selection Mode State
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(new Set());
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-
 
   // Sync Nostalgia Mode with localStorage
   useEffect(() => {
@@ -152,7 +157,6 @@ export default function AlbumDetailsPage() {
     setIsUploading(true);
     setUploadProgress({ done: 0, total: files.length });
 
-    // Upload all files concurrently, track individual completions
     await Promise.allSettled(
       files.map(async (file) => {
         try {
@@ -168,7 +172,6 @@ export default function AlbumDetailsPage() {
       })
     );
 
-    // Reset input so the same files can be re-selected if needed
     if (fileInputRef.current) fileInputRef.current.value = '';
 
     setIsUploading(false);
@@ -259,6 +262,36 @@ export default function AlbumDetailsPage() {
     }
   }, []);
 
+  const handleToggleSelection = (photoId: string) => {
+    setSelectedPhotoIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(photoId)) newSet.delete(photoId);
+      else newSet.add(photoId);
+      return newSet;
+    });
+  };
+
+  const handleLongPress = (photoId: string) => {
+    if (!isSelectionMode) {
+      setIsSelectionMode(true);
+      setSelectedPhotoIds(new Set([photoId]));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      await bulkDeletePhotos(Array.from(selectedPhotoIds));
+      setSnackbar({ open: true, message: `${selectedPhotoIds.size} memories deleted!`, severity: 'success' });
+      setSelectedPhotoIds(new Set());
+      setIsSelectionMode(false);
+      loadPageData();
+    } catch (e) {
+      console.error(e);
+      setSnackbar({ open: true, message: 'Failed to delete photos', severity: 'error' });
+    }
+    setConfirmBulkDelete(false);
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -269,7 +302,6 @@ export default function AlbumDetailsPage() {
     }
   };
 
-  // Filter photos to only those belonging to this album
   const albumPhotos = React.useMemo(() => {
     if (albumId === 'unassigned') {
       return photos.filter(p => !p.albumId);
@@ -293,7 +325,6 @@ export default function AlbumDetailsPage() {
     );
   }
 
-  // Base background theme
   const bgThemeClass = nostalgiaMode
     ? 'bg-[#f4efe2] text-[#3c2f1f] paper-grain'
     : 'romantic-gradient text-amber-950';
@@ -303,7 +334,6 @@ export default function AlbumDetailsPage() {
   return (
     <Box className={`min-h-screen transition-all duration-700 pb-24 ${bgThemeClass}`}>
 
-      {/* Premium Header */}
       <Header
         isDashboard={true}
         searchQuery={searchQuery}
@@ -316,7 +346,6 @@ export default function AlbumDetailsPage() {
 
       <Container maxWidth="xl" className="py-8 space-y-10">
 
-        {/* Navigation & Action Bar */}
         <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }} className="w-full">
           <Button
             startIcon={<ArrowLeft size={16} />}
@@ -337,7 +366,6 @@ export default function AlbumDetailsPage() {
           </Stack>
         </Stack>
 
-        {/* Cinematic Album Hero Cover */}
         <AlbumHero
           album={album}
           albumPhotosCount={albumPhotos.length}
@@ -353,7 +381,6 @@ export default function AlbumDetailsPage() {
           currentUser={user}
         />
 
-        {/* Main Content Area */}
         <Box className="space-y-12">
           {albumPhotos.length > 0 ? (
             <>
@@ -363,8 +390,6 @@ export default function AlbumDetailsPage() {
 
               {viewMode === 'scrapbook' ? (
                 <Box className="scrapbook-page-canvas p-2 sm:p-6 md:p-12 space-y-6 overflow-hidden">
-
-
                   <MemoryGrid
                     photos={albumPhotos}
                     albums={albums}
@@ -373,12 +398,20 @@ export default function AlbumDetailsPage() {
                     nostalgiaMode={nostalgiaMode}
                     onAddCaption={handleAddCaptionForId}
                     disableStacking={true}
+                    isSelectionMode={isSelectionMode}
+                    selectedPhotoIds={selectedPhotoIds}
+                    onToggleSelection={handleToggleSelection}
+                    onLongPress={handleLongPress}
                   />
                 </Box>
               ) : (
                 <AlbumGallery 
                   photos={albumPhotos} 
                   onSelectPhoto={setSelectedPhoto} 
+                  isSelectionMode={isSelectionMode}
+                  selectedPhotoIds={selectedPhotoIds}
+                  onToggleSelection={handleToggleSelection}
+                  onLongPress={handleLongPress}
                 />
               )}
             </>
@@ -388,7 +421,6 @@ export default function AlbumDetailsPage() {
         </Box>
       </Container>
 
-      {/* Photo Detail Dialog */}
       <PhotoDetailDialog
         photo={selectedPhoto}
         open={!!selectedPhoto}
@@ -418,6 +450,59 @@ export default function AlbumDetailsPage() {
         onConfirm={handleDeleteAlbum}
         onCancel={() => setConfirmDeleteAlbum(false)}
       />
+
+      <ConfirmDialog
+        open={confirmBulkDelete}
+        title={`Delete ${selectedPhotoIds.size} ${selectedPhotoIds.size === 1 ? 'Memory' : 'Memories'}`}
+        message={`Are you sure you want to permanently delete ${selectedPhotoIds.size === 1 ? 'this memory' : 'these memories'}? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={handleBulkDelete}
+        onCancel={() => setConfirmBulkDelete(false)}
+        isDestructive={true}
+      />
+
+      {/* Bulk Selection Floating Action Bar */}
+      <AnimatePresence>
+        {isSelectionMode && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-amber-950/90 backdrop-blur-xl px-6 py-4 rounded-full shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)] border border-amber-500/20"
+          >
+            <Typography className="text-amber-50 font-display font-bold whitespace-nowrap min-w-[100px] text-center">
+              {selectedPhotoIds.size} Selected
+            </Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setSelectedPhotoIds(new Set(albumPhotos.map(p => p._id)))}
+              className="border-amber-500/50 text-amber-200 hover:bg-amber-500/20 rounded-full font-bold uppercase tracking-wider text-[10px]"
+            >
+              Select All
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setConfirmBulkDelete(true)}
+              disabled={selectedPhotoIds.size === 0}
+              className="bg-red-500 hover:bg-red-600 disabled:bg-red-900/50 text-white rounded-full font-bold uppercase tracking-wider text-[10px] shadow-none"
+            >
+              Delete
+            </Button>
+            <IconButton
+              size="small"
+              onClick={() => {
+                setIsSelectionMode(false);
+                setSelectedPhotoIds(new Set());
+              }}
+              className="bg-white/10 text-white hover:bg-white/20 ml-2"
+            >
+              <X size={16} />
+            </IconButton>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <FloatingUploadButton
         fileInputRef={fileInputRef}

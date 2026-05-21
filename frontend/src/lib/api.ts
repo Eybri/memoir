@@ -116,6 +116,16 @@ export async function deletePhoto(photoId: string) {
   return response.json();
 }
 
+export async function bulkDeletePhotos(photoIds: string[]) {
+  const response = await fetch(`${API_URL}/photos/bulk-delete`, {
+    method: 'POST',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ photoIds }),
+  });
+  if (!response.ok) throw new Error('Failed to bulk delete photos');
+  return response.json();
+}
+
 export async function addCaption(photoId: string, text: string) {
   const response = await fetch(`${API_URL}/photos/${photoId}/caption`, {
     method: 'POST',

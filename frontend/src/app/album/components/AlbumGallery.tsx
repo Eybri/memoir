@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Box, Button } from '@mui/material';
-import { ZoomIn, ZoomOut } from 'lucide-react';
+import { ZoomIn, ZoomOut, Check } from 'lucide-react';
 
 interface Photo {
   _id: string;
@@ -15,10 +15,45 @@ interface Photo {
 interface AlbumGalleryProps {
   photos: Photo[];
   onSelectPhoto: (photo: Photo) => void;
+  isSelectionMode?: boolean;
+  selectedPhotoIds?: Set<string>;
+  onToggleSelection?: (photoId: string) => void;
+  onLongPress?: (photoId: string) => void;
 }
 
-export default function AlbumGallery({ photos, onSelectPhoto }: AlbumGalleryProps) {
+export default function AlbumGallery({ 
+  photos, 
+  onSelectPhoto,
+  isSelectionMode,
+  selectedPhotoIds,
+  onToggleSelection,
+  onLongPress
+}: AlbumGalleryProps) {
   const [galleryZoom, setGalleryZoom] = useState(3);
+
+  const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const justLongPressed = React.useRef(false);
+
+  const startLongPress = (photoId: string) => {
+    if (isSelectionMode) return;
+    justLongPressed.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      justLongPressed.current = true;
+      if (onLongPress) {
+        onLongPress(photoId);
+        if (window.navigator && window.navigator.vibrate) {
+          window.navigator.vibrate(50);
+        }
+      }
+    }, 500);
+  };
+
+  const endLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   const getGridCols = () => {
     switch (galleryZoom) {
@@ -60,15 +95,42 @@ export default function AlbumGallery({ photos, onSelectPhoto }: AlbumGalleryProp
         {photos.map((photo) => (
           <div
             key={photo._id}
-            className="aspect-square relative cursor-pointer group bg-amber-100/50 border-[1px] border-black"
-            onClick={() => onSelectPhoto(photo)}
+            className={`aspect-square relative cursor-pointer group bg-amber-100/50 border-[1px] border-black overflow-hidden ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'ring-4 ring-amber-500 ring-inset border-none' : ''}`}
+            onPointerDown={() => startLongPress(photo._id)}
+            onPointerUp={endLongPress}
+            onPointerLeave={endLongPress}
+            onClick={() => {
+              if (justLongPressed.current) {
+                justLongPressed.current = false;
+                return;
+              }
+              if (isSelectionMode && onToggleSelection) {
+                onToggleSelection(photo._id);
+              } else {
+                onSelectPhoto(photo);
+              }
+            }}
           >
             <img
               src={photo.url}
               alt="Gallery Photo"
-              className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-[1.01]"
+              className={`w-full h-full object-cover transition-transform duration-150 group-hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            
+            {/* Selection Checkbox */}
+            {isSelectionMode && selectedPhotoIds && (
+              <div className="absolute top-2 left-2 z-50 transition-all duration-200">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg ${
+                  selectedPhotoIds.has(photo._id) 
+                    ? 'bg-amber-500 border-amber-500 text-white' 
+                    : 'bg-black/30 border-white/80 hover:bg-black/50'
+                }`}>
+                  {selectedPhotoIds.has(photo._id) && <Check size={14} strokeWidth={4} />}
+                </div>
+              </div>
+            )}
+            
+            <div className={`absolute inset-0 transition-colors duration-300 ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'bg-amber-500/20' : 'bg-black/0 group-hover:bg-black/10'}`} />
           </div>
         ))}
       </div>

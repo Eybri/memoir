@@ -38,7 +38,7 @@ interface ReelBoardProps {
   onSelectAlbum: (albumId: string | null) => void;
   onCreateAlbum: (title: string, coverPhotoUrl?: string, sharedWith?: string[]) => Promise<void>;
   nostalgiaMode: boolean;
-  currentUser?: UserBasic;
+  currentUser?: any;
 }
 
 export default function ReelBoard({

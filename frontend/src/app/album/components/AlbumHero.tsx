@@ -135,7 +135,7 @@ export default function AlbumHero({
         </div>
 
         {/* Action Buttons */}
-        <Stack direction="row" spacing={2} className="flex-shrink-0">
+        <Stack direction="row" spacing={2} className="flex-shrink-0 flex-wrap justify-end">
           {albumPhotosCount > 0 && (
             <Button
               variant="contained"
