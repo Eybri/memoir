@@ -107,8 +107,8 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
         `}</style>
         
         {/* Film sprocket holes top */}
-        <div className="absolute top-0 left-0 right-0 h-5 flex items-center gap-[18px] px-4 pointer-events-none z-20">
-          {Array.from({ length: 32 }).map((_, i) => (
+        <div className="absolute top-0 left-0 right-0 h-5 flex items-center gap-[18px] px-4 pointer-events-none z-20 overflow-hidden">
+          {Array.from({ length: 120 }).map((_, i) => (
             <div
               key={i}
               className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#fdfbf7] shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
@@ -162,8 +162,8 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
         </div>
 
         {/* Film sprocket holes bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-5 flex items-center gap-[18px] px-4 pointer-events-none z-20">
-          {Array.from({ length: 32 }).map((_, i) => (
+        <div className="absolute bottom-0 left-0 right-0 h-5 flex items-center gap-[18px] px-4 pointer-events-none z-20 overflow-hidden">
+          {Array.from({ length: 120 }).map((_, i) => (
             <div
               key={i}
               className="flex-shrink-0 w-3 h-2.5 rounded-[3px] bg-[#fdfbf7] shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
