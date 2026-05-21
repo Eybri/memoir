@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 
 interface FloatingUploadButtonProps {
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void> | void;
   isUploading: boolean;
   uploadProgress: { done: number; total: number } | null;
