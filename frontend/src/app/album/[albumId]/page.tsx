@@ -91,6 +91,7 @@ export default function AlbumDetailsPage() {
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
   const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(false);
+  const [collaboratorToRemove, setCollaboratorToRemove] = useState<{ id: string, name: string } | null>(null);
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
 
   // Selection Mode State
@@ -219,6 +220,24 @@ export default function AlbumDetailsPage() {
     } catch (error) {
       console.error('Failed to invite collaborators:', error);
       setSnackbar({ open: true, message: 'Failed to invite friends', severity: 'error' });
+    }
+  };
+
+  const handleRemoveCollaborator = async () => {
+    if (!album || !collaboratorToRemove) return;
+    try {
+      const currentShared = album.sharedWith?.map((sw: any) => sw._id) || [];
+      const newSharedWith = currentShared.filter((id: string) => id !== collaboratorToRemove.id);
+      await updateAlbum(albumId, { sharedWith: newSharedWith });
+      
+      const fetchedAlbum = await fetchAlbumById(albumId);
+      setAlbum(fetchedAlbum);
+      setSnackbar({ open: true, message: `${collaboratorToRemove.name} was removed from the album.`, severity: 'info' });
+    } catch (error) {
+      console.error('Failed to remove collaborator:', error);
+      setSnackbar({ open: true, message: 'Failed to remove friend', severity: 'error' });
+    } finally {
+      setCollaboratorToRemove(null);
     }
   };
 
@@ -400,6 +419,7 @@ export default function AlbumDetailsPage() {
           handleDeleteAlbum={() => setConfirmDeleteAlbum(true)}
           startSlideshow={() => setIsSlideshowOpen(true)}
           onInviteClick={() => setIsInviteDialogOpen(true)}
+          onRemoveCollaborator={(id, name) => setCollaboratorToRemove({ id, name })}
           currentUser={user}
         />
 
@@ -471,6 +491,15 @@ export default function AlbumDetailsPage() {
         confirmText="Delete Album"
         onConfirm={handleDeleteAlbum}
         onCancel={() => setConfirmDeleteAlbum(false)}
+      />
+
+      <ConfirmDialog
+        open={!!collaboratorToRemove}
+        title="Remove Friend"
+        message={`Are you sure you want to remove ${collaboratorToRemove?.name} from this album? They will no longer be able to view it.`}
+        confirmText="Remove"
+        onConfirm={handleRemoveCollaborator}
+        onCancel={() => setCollaboratorToRemove(null)}
       />
 
       <ConfirmDialog

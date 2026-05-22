@@ -24,6 +24,7 @@ interface AlbumHeroProps {
   handleDeleteAlbum: () => void;
   startSlideshow: () => void;
   onInviteClick?: () => void;
+  onRemoveCollaborator?: (userId: string, userName: string) => void;
   currentUser?: any;
 }
 
@@ -40,6 +41,7 @@ export default function AlbumHero({
   handleDeleteAlbum,
   startSlideshow,
   onInviteClick,
+  onRemoveCollaborator,
   currentUser
 }: AlbumHeroProps) {
   return (
@@ -118,9 +120,14 @@ export default function AlbumHero({
               <div className="flex items-center">
                 <div className="flex -space-x-1.5 mr-3">
                   {album.sharedWith && album.sharedWith.length > 0 ? album.sharedWith.map(sw => (
-                    <div key={sw._id} className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase" title={sw.name}>
+                    <button 
+                      key={sw._id} 
+                      onClick={() => onRemoveCollaborator?.(sw._id, sw.name)}
+                      className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase hover:bg-red-500 hover:scale-110 hover:z-20 transition-all focus:outline-none" 
+                      title={`Remove ${sw.name}`}
+                    >
                       {sw.name.substring(0, 2)}
-                    </div>
+                    </button>
                   )) : (
                     <span className="text-white/40 text-xs italic ml-1 mr-1">Just you</span>
                   )}
