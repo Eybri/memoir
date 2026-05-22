@@ -9,9 +9,7 @@ import {
   Stack, 
   IconButton,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Drawer,
   Avatar
 } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -143,6 +141,7 @@ export default function Header({
   }, []);
 
   return (
+    <>
     <nav className={`sticky top-0 z-40 p-5 backdrop-blur-lg border-b transition-all duration-700 select-none ${
       nostalgiaMode 
         ? 'bg-gradient-to-b from-[#f4efe2] to-[#ebdcb9] border-[#dcd2be] shadow-[0_4px_20px_rgba(60,47,31,0.08)]' 
@@ -327,35 +326,40 @@ export default function Header({
           </Stack>
         )}
       </Container>
+    </nav>
 
-      {/* User Profile Modal */}
+      {/* User Profile Sidebar */}
       {user && (
-        <Dialog
+        <Drawer
+          variant="persistent"
+          anchor="right"
           open={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
-          maxWidth="xs"
-          fullWidth
-          slotProps={{
-            paper: {
-              sx: {
-                borderRadius: '24px',
-                p: 2,
-                backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
-                color: nostalgiaMode ? '#3c2f1f' : '#000000',
-              }
+          elevation={4}
+          sx={{
+            zIndex: 1200,
+            '& .MuiDrawer-paper': {
+              width: { xs: 280, sm: 400 },
+              backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
+              color: nostalgiaMode ? '#3c2f1f' : '#000000',
+              borderLeft: nostalgiaMode ? '1px solid #dcd2be' : '1px solid #f3f4f6',
+              mt: '80px',
+              height: 'calc(100% - 80px)',
             }
           }}
         >
-          <DialogTitle className="flex justify-between items-center pb-2">
-            <Typography className="font-display font-black text-amber-950 text-xl">
-              Profile Details
-            </Typography>
-            <IconButton onClick={() => setIsProfileOpen(false)} className="text-amber-700 hover:bg-amber-500/10">
-              ✕
-            </IconButton>
-          </DialogTitle>
-          <DialogContent className="flex flex-col items-center justify-center py-6 text-center space-y-4">
-            <Avatar 
+          <div className="flex flex-col h-full">
+            <div className="flex justify-between items-center p-4 border-b border-amber-900/10">
+              <Typography className="font-display font-black text-amber-950 text-xl">
+                Profile Details
+              </Typography>
+              <IconButton onClick={() => setIsProfileOpen(false)} className="text-amber-700 hover:bg-amber-500/10">
+                ✕
+              </IconButton>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center text-center space-y-4">
+              <Avatar 
               sx={{ 
                 width: 80, 
                 height: 80, 
@@ -408,7 +412,7 @@ export default function Header({
               </div>
 
               {/* Search Results & Lists Scroll Container */}
-              <div className="max-h-[35vh] overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-amber-900/10">
+              <div className="w-full space-y-3">
                 {/* Search Results */}
                 {hasSearched && searchResult.length === 0 && (
                   <div className="bg-amber-50 rounded-lg p-3 border border-amber-200 text-center">
@@ -508,7 +512,7 @@ export default function Header({
               onCancel={() => setFriendToRemove(null)}
             />
 
-            <div className="w-full border-t border-amber-900/10 mt-4 pt-4 flex justify-center">
+            <div className="w-full border-t border-amber-900/10 mt-auto pt-6 flex justify-center">
               <Button 
                 onClick={() => {
                   setIsProfileOpen(false);
@@ -520,8 +524,9 @@ export default function Header({
                 Sign Out
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+            </div>
+          </div>
+        </Drawer>
       )}
 
       {/* Global Snackbar for Header Notifications */}
@@ -541,6 +546,6 @@ export default function Header({
         </Alert>
       </Snackbar>
 
-    </nav>
+    </>
   );
 }
