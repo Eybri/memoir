@@ -19,7 +19,8 @@ import {
   Sparkles, 
   LogOut,
   Bell,
-  UserMinus
+  UserMinus,
+  Users
 } from 'lucide-react';
 import { Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -286,20 +287,6 @@ export default function Header({
               </motion.div>
             )}
 
-            {/* Wax-Seal styled Logout Button */}
-            <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
-              <IconButton 
-                onClick={logout} 
-                title="Close Vault"
-                className={`p-2.5 rounded-full border transition-all duration-500 ${
-                  nostalgiaMode 
-                    ? 'bg-[#3c2f1f]/5 border-[#3c2f1f]/10 text-amber-800 hover:bg-[#3c2f1f]/10 hover:text-red-700' 
-                    : 'bg-white/20 border-white/20 text-amber-700 hover:bg-white/40 hover:text-amber-900'
-                }`}
-              >
-                <LogOut size={16} />
-              </IconButton>
-            </motion.div>
           </Stack>
         ) : (
           /* Public Web Landing Mode Navigation */
@@ -381,8 +368,8 @@ export default function Header({
               </Typography>
             </div>
             <div className="w-full text-left mt-2">
-              <Typography className="font-display font-black text-amber-950 text-sm mb-2">
-                Friends
+              <Typography className="font-display font-black text-amber-950 text-sm mb-3 flex items-center gap-2">
+                <Users size={16} className="text-amber-700" /> Friends
               </Typography>
               
               {/* Search User */}
@@ -486,17 +473,23 @@ export default function Header({
                   {friends.length === 0 ? (
                     <Typography className="text-xs text-amber-900/40 italic">No friends added yet.</Typography>
                   ) : (
-                    friends.map(f => (
-                      <div key={f._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-                        <div>
-                          <Typography className="text-xs font-bold text-gray-900">{f.name}</Typography>
-                          <Typography className="text-[9px] text-gray-500">{f.email}</Typography>
+                    friends.map(f => {
+                      const fInitials = f.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+                      return (
+                        <div key={f._id} className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-900/5 shadow-sm hover:shadow-md transition-all group">
+                          <div className="flex items-center gap-3">
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: nostalgiaMode ? '#5c4a3d' : '#f59e0b', fontSize: '12px', fontWeight: 'bold' }}>{fInitials}</Avatar>
+                            <div>
+                              <Typography className="text-sm font-bold text-amber-950">{f.name}</Typography>
+                              <Typography className="text-[10px] text-amber-900/60">{f.email}</Typography>
+                            </div>
+                          </div>
+                          <IconButton size="small" onClick={() => setFriendToRemove({id: f._id, name: f.name})} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <UserMinus size={14} />
+                          </IconButton>
                         </div>
-                        <IconButton size="small" onClick={() => setFriendToRemove({id: f._id, name: f.name})} className="text-red-400 hover:text-red-600">
-                          <UserMinus size={14} />
-                        </IconButton>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
