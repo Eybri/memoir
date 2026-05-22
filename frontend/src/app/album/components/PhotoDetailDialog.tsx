@@ -179,11 +179,11 @@ export default function PhotoDetailDialog({
                   }}
                 >
                   {/* Photo */}
-                  <Box style={{ borderRadius: '1px', aspectRatio: '4/3', background: '#000', overflow: 'hidden' }}>
+                  <Box style={{ borderRadius: '1px', overflow: 'hidden' }}>
                     <img
                       src={photo.url}
                       alt="Polaroid photo"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
                     />
                   </Box>
 
