@@ -58,15 +58,20 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
     }
   };
 
-  // Helper to calculate time difference in days, hours, minutes, and seconds
+  // Helper to calculate time difference to the next annual occurrence (e.g. anniversaries/birthdays)
   const getTimeDifference = (dateString: string) => {
-    const targetDate = new Date(dateString);
-    // If date is saved as YYYY-MM-DD, parsing it might give midnight UTC.
-    // We compare it to currentTime.
+    const originalDate = new Date(dateString);
+    
+    // Create a target date in the current year using the same month and day
+    const targetDate = new Date(currentTime.getFullYear(), originalDate.getMonth(), originalDate.getDate());
+    
+    // If the date has already passed this year, count down to next year
+    if (targetDate.getTime() < currentTime.getTime()) {
+      targetDate.setFullYear(currentTime.getFullYear() + 1);
+    }
     
     const diffMs = targetDate.getTime() - currentTime.getTime();
-    const isPast = diffMs < 0;
-    const absDiff = Math.abs(diffMs);
+    const absDiff = Math.max(0, diffMs);
     
     const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((absDiff / (1000 * 60 * 60)) % 24);
@@ -78,7 +83,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
       hours,
       mins,
       secs,
-      isPast
+      isPast: false // It is now always counting down to a future date
     };
   };
 
