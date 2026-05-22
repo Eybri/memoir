@@ -358,7 +358,7 @@ export default function AlbumDetailsPage() {
         >
           <Camera size={64} className="text-amber-500 animate-pulse" />
         </motion.div>
-        <Typography className="font-mono text-amber-800/60 text-xs uppercase tracking-widest font-bold">
+        <Typography className="font-mono text-amber-800/60 text-[10px] sm:text-xs md:text-sm uppercase tracking-widest font-bold">
           Restoring Memories...
         </Typography>
       </Box>
@@ -390,7 +390,7 @@ export default function AlbumDetailsPage() {
           <Button
             startIcon={<ArrowLeft size={16} />}
             onClick={() => router.push('/dashboard')}
-            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm"
+            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm"
           >
             Dashboard
           </Button>
@@ -399,7 +399,7 @@ export default function AlbumDetailsPage() {
             <Button
               startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
               onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
-              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
+              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
             >
               {viewMode === 'scrapbook' ? 'Gallery' : 'Scrapbook'}
             </Button>
@@ -528,7 +528,7 @@ export default function AlbumDetailsPage() {
               variant="outlined"
               size="small"
               onClick={() => setSelectedPhotoIds(new Set(albumPhotos.map(p => p._id)))}
-              className="border-amber-500/50 text-amber-200 hover:bg-amber-500/20 rounded-full font-bold uppercase tracking-wider text-[10px]"
+              className="border-amber-500/50 text-amber-200 hover:bg-amber-500/20 rounded-full font-bold uppercase tracking-wider text-[10px] sm:text-xs"
             >
               Select All
             </Button>
@@ -537,7 +537,7 @@ export default function AlbumDetailsPage() {
               size="small"
               onClick={() => setConfirmBulkDelete(true)}
               disabled={selectedPhotoIds.size === 0}
-              className="bg-red-500 hover:bg-red-600 disabled:bg-red-900/50 text-white rounded-full font-bold uppercase tracking-wider text-[10px] shadow-none"
+              className="bg-red-500 hover:bg-red-600 disabled:bg-red-900/50 text-white rounded-full font-bold uppercase tracking-wider text-[10px] sm:text-xs shadow-none"
             >
               Delete
             </Button>

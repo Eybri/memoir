@@ -66,14 +66,14 @@ export default function InviteCollaboratorDialog({ open, onClose, onInvite, curr
         }
       }}
     >
-      <DialogTitle className="font-display font-black text-amber-950 text-xl pb-1 flex items-center gap-2">
+      <DialogTitle className="font-display font-black text-amber-950 text-lg sm:text-xl md:text-2xl pb-1 flex items-center gap-2">
         <UserPlus size={24} className="text-amber-600" /> Invite Friends
       </DialogTitle>
       <DialogContent className="space-y-4 pt-2 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-amber-900/10">
         {isLoading ? (
-          <Typography className="text-center text-xs text-amber-900/60 py-4">Loading friends...</Typography>
+          <Typography className="text-center text-[10px] sm:text-xs md:text-sm text-amber-900/60 py-4">Loading friends...</Typography>
         ) : availableFriends.length === 0 ? (
-          <Typography className="text-center text-xs text-amber-900/60 py-4 italic">
+          <Typography className="text-center text-[10px] sm:text-xs md:text-sm text-amber-900/60 py-4 italic">
             No more friends available to invite.
           </Typography>
         ) : (
@@ -95,8 +95,8 @@ export default function InviteCollaboratorDialog({ open, onClose, onInvite, curr
                   <div className="flex items-center gap-3">
                     <Avatar sx={{ width: 32, height: 32, bgcolor: nostalgiaMode ? '#5c4a3d' : '#f59e0b', fontSize: '12px', fontWeight: 'bold' }}>{fInitials}</Avatar>
                     <div>
-                      <Typography className="text-sm font-bold text-amber-950">{f.name}</Typography>
-                      <Typography className="text-[10px] text-amber-900/60">{f.email}</Typography>
+                      <Typography className="text-xs sm:text-sm md:text-base font-bold text-amber-950">{f.name}</Typography>
+                      <Typography className="text-[10px] sm:text-xs text-amber-900/60">{f.email}</Typography>
                     </div>
                   </div>
                   <IconButton size="small" className={isSelected ? 'text-amber-600' : 'text-amber-900/20'}>

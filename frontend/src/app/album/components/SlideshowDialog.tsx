@@ -67,7 +67,7 @@ export default function SlideshowDialog({ open, onClose, photos, albumTitle }: S
           <Typography variant="h6" className="font-display font-black text-white leading-none">
             {albumTitle}
           </Typography>
-          <Typography className="text-amber-400 font-mono text-[10px] uppercase tracking-wider mt-1 font-bold">
+          <Typography className="text-amber-400 font-mono text-[10px] sm:text-xs uppercase tracking-wider mt-1 font-bold">
             Memory Reels Playback
           </Typography>
         </div>
@@ -100,12 +100,12 @@ export default function SlideshowDialog({ open, onClose, photos, albumTitle }: S
 
         {/* Slideshow Description and Index Stamp */}
         <Box className="absolute bottom-24 text-center max-w-xl space-y-2 z-40 bg-black/60 backdrop-blur-md p-5 rounded-2xl border border-white/10">
-          <Typography className="text-white text-base italic font-medium leading-relaxed">
+          <Typography className="text-white text-sm sm:text-base md:text-lg italic font-medium leading-relaxed">
             {photos[slideshowIndex].captions[0]?.text 
               ? `"${photos[slideshowIndex].captions[0].text}"`
               : 'Untitled Memory'}
           </Typography>
-          <Typography className="text-amber-400 font-mono text-xs font-bold uppercase tracking-wider">
+          <Typography className="text-amber-400 font-mono text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider">
             {new Date(photos[slideshowIndex].takenAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </Typography>
         </Box>
@@ -134,7 +134,7 @@ export default function SlideshowDialog({ open, onClose, photos, albumTitle }: S
           <ChevronRight size={24} />
         </IconButton>
 
-        <span className="absolute right-8 text-white/50 font-mono text-xs font-bold uppercase">
+        <span className="absolute right-8 text-white/50 font-mono text-[10px] sm:text-xs md:text-sm font-bold uppercase">
           {slideshowIndex + 1} / {photos.length}
         </span>
       </Box>

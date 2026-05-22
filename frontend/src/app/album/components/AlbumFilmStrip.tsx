@@ -70,13 +70,13 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
       <div className="relative z-10 px-6 sm:px-12 pt-5 pb-2 flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <ImageIcon size={14} className="text-white/60" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold">
+          <span className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white/50 font-bold">
             Album Reel
           </span>
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[9px] uppercase tracking-widest text-white/30 font-bold mr-4 hidden sm:block">
+          <span className="font-mono text-[9px] sm:text-[11px] uppercase tracking-widest text-white/30 font-bold mr-4 hidden sm:block">
             {dateSpan}
           </span>
           <button 
@@ -152,7 +152,7 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
                 />
                 {/* Frame number */}
                 <span
-                  className="absolute bottom-1 right-1.5 font-mono text-[8px] text-amber-400/50 font-bold select-none"
+                  className="absolute bottom-1 right-1.5 font-mono text-[8px] sm:text-[10px] text-amber-400/50 font-bold select-none"
                 >
                   {String((i % photos.length) + 1).padStart(2, '0')}
                 </span>
@@ -178,10 +178,10 @@ export default function AlbumFilmStrip({ photos, nostalgiaMode }: AlbumFilmStrip
           <div key={i} className="flex items-center gap-2.5">
             <span className="text-white/40">{s.icon}</span>
             <div>
-              <div className="font-display font-black text-white/90 text-base sm:text-lg leading-none">
+              <div className="font-display font-black text-white/90 text-sm sm:text-base md:text-lg sm:text-lg leading-none">
                 {s.value}
               </div>
-              <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 font-bold mt-0.5">
+              <div className="font-mono text-[9px] sm:text-[11px] uppercase tracking-widest text-white/40 font-bold mt-0.5">
                 {s.label}
               </div>
             </div>

@@ -313,11 +313,11 @@ export default function MemoryGrid({
               <Typography variant="h4" className="font-display font-extrabold text-amber-950 flex items-center gap-2">
                 <FolderOpen className="text-amber-600" size={24} /> {chapter.title}
               </Typography>
-              <Typography className="text-amber-900/50 text-sm mt-1">
+              <Typography className="text-amber-900/50 text-xs sm:text-sm md:text-base mt-1">
                 {chapter.description}
               </Typography>
             </div>
-            <Typography variant="caption" className="text-amber-600 font-bold uppercase tracking-wider bg-amber-500/5 px-3 py-1 rounded-full text-[10px]">
+            <Typography variant="caption" className="text-amber-600 font-bold uppercase tracking-wider bg-amber-500/5 px-3 py-1 rounded-full text-[10px] sm:text-xs">
               {chapter.piles.reduce((acc, p) => acc + p.length, 0)} Memories
             </Typography>
           </Box>
@@ -386,7 +386,7 @@ export default function MemoryGrid({
               {/* Page label stamp */}
               <div className="absolute top-5 right-7 z-10 opacity-30 select-none pointer-events-none">
                 <div
-                  className="font-serif italic text-amber-900 text-[10px] sm:text-xs border border-amber-900/40 px-2 py-0.5 rounded"
+                  className="font-serif italic text-amber-900 text-[10px] sm:text-xs sm:text-xs border border-amber-900/40 px-2 py-0.5 rounded"
                   style={{ transform: 'rotate(2deg)', letterSpacing: '0.05em' }}
                 >
                   Scrapbook Ledger · {activeAlbumId ? 'Vol. I' : 'Vol. II'}
@@ -523,7 +523,7 @@ export default function MemoryGrid({
                               >
                                 <Mail size={12} className="text-amber-800/80" />
                                 {photo.captions.length > 1 && (
-                                  <span className="absolute -top-1.5 -right-1.5 bg-amber-700 text-yellow-50 text-[8px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full border border-white shadow-sm">
+                                  <span className="absolute -top-1.5 -right-1.5 bg-amber-700 text-yellow-50 text-[8px] sm:text-[10px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full border border-white shadow-sm">
                                     {photo.captions.length}
                                   </span>
                                 )}
@@ -725,16 +725,16 @@ export default function MemoryGrid({
                             style={{ background: 'linear-gradient(to top, rgba(15,8,2,0.85) 0%, rgba(15,8,2,0.25) 55%, transparent 100%)' }}
                           >
                             <div className="space-y-1">
-                              <Typography className="text-amber-100 font-display font-black text-sm leading-tight drop-shadow">
+                              <Typography className="text-amber-100 font-display font-black text-xs sm:text-sm md:text-base leading-tight drop-shadow">
                                 {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                               </Typography>
                               {photo.captions.length > 0 && (
-                                <span className="inline-block bg-amber-500/25 backdrop-blur-sm text-amber-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border border-amber-400/20 uppercase tracking-wider">
+                                <span className="inline-block bg-amber-500/25 backdrop-blur-sm text-amber-200 font-mono text-[9px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-400/20 uppercase tracking-wider">
                                   {photo.captions.length} {photo.captions.length === 1 ? 'caption' : 'captions'}
                                 </span>
                               )}
                               {photo.captions[0] && (
-                                <Typography className="text-amber-200/75 font-mono italic text-[9px] leading-tight line-clamp-2">
+                                <Typography className="text-amber-200/75 font-mono italic text-[9px] sm:text-[11px] leading-tight line-clamp-2">
                                   &ldquo;{photo.captions[0].text}&rdquo;
                                 </Typography>
                               )}
@@ -744,7 +744,7 @@ export default function MemoryGrid({
 
                         {/* Polaroid footer */}
                         <Box className="pt-1.5 px-1 flex justify-between items-center select-none">
-                          <Typography className="text-amber-800/50 text-[8px] sm:text-xs font-bold font-mono tracking-wide">
+                          <Typography className="text-amber-800/50 text-[8px] sm:text-[10px] sm:text-xs font-bold font-mono tracking-wide">
                             {new Date(photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                           </Typography>
                           <ChevronRight size={10} className="text-amber-600/30 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
@@ -833,7 +833,7 @@ export default function MemoryGrid({
                               </div>
 
                               <Box className="pt-1 px-1 flex justify-between items-center select-none flex-shrink-0">
-                                <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] font-bold font-mono">
+                                <Typography className="text-amber-800/60 text-[8px] sm:text-[10px] sm:text-[10px] font-bold font-mono">
                                   {new Date(isTopCard ? topPhoto.takenAt : photo.takenAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                 </Typography>
                               </Box>
@@ -863,22 +863,22 @@ export default function MemoryGrid({
                                     borderLeft: '1.5px solid #f87171',
                                   }}
                                 >
-                                  <Typography className="font-mono text-[7px] sm:text-[9px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-1 mt-1">
+                                  <Typography className="font-mono text-[7px] sm:text-[9px] sm:text-[9px] uppercase tracking-wider text-amber-600 font-bold leading-none border-b border-amber-500/10 pb-1 mt-1">
                                     Top Memory Journal
                                   </Typography>
                                   
                                   <div className="space-y-2 pt-1 sm:pt-2">
                                     {topPhoto.captions.length === 0 ? (
-                                      <Typography className="text-slate-400 font-mono italic text-[9px] sm:text-xs leading-normal">
+                                      <Typography className="text-slate-400 font-mono italic text-[9px] sm:text-[11px] sm:text-xs leading-normal">
                                         No stories recorded yet.
                                       </Typography>
                                     ) : (
                                       topPhoto.captions.map((cap, i) => (
                                         <div key={i} className="leading-tight pb-0.5">
-                                          <Typography className="text-amber-950 font-mono text-[10px] sm:text-xs italic font-bold">
+                                          <Typography className="text-amber-950 font-mono text-[10px] sm:text-xs sm:text-xs italic font-bold">
                                             "{cap.text}"
                                           </Typography>
-                                          <Typography className="text-[7px] sm:text-[8px] font-mono text-amber-800/40 uppercase">
+                                          <Typography className="text-[7px] sm:text-[9px] sm:text-[8px] font-mono text-amber-800/40 uppercase">
                                             {new Date(cap.createdAt).toLocaleDateString()}
                                           </Typography>
                                         </div>
@@ -892,7 +892,7 @@ export default function MemoryGrid({
                                     placeholder="Jot down details..."
                                     value={memos[topPhoto._id] || ''}
                                     onChange={(e) => setMemos(prev => ({ ...prev, [topPhoto._id]: e.target.value }))}
-                                    className="w-full text-[10px] sm:text-xs p-1.5 sm:p-2.5 bg-amber-500/5 border border-amber-900/10 rounded-lg sm:rounded-xl focus:outline-none focus:border-amber-600 font-mono resize-none text-amber-950"
+                                    className="w-full text-[10px] sm:text-xs sm:text-xs p-1.5 sm:p-2.5 bg-amber-500/5 border border-amber-900/10 rounded-lg sm:rounded-xl focus:outline-none focus:border-amber-600 font-mono resize-none text-amber-950"
                                     rows={2}
                                   />
                                   <Button
@@ -901,7 +901,7 @@ export default function MemoryGrid({
                                     size="small"
                                     disabled={isSavingMemo[topPhoto._id] || !memos[topPhoto._id]?.trim()}
                                     onClick={() => handleSaveMemo(topPhoto._id)}
-                                    className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[8px] sm:text-[10px] uppercase py-1 sm:py-1.5 shadow"
+                                    className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[8px] sm:text-[10px] sm:text-[10px] uppercase py-1 sm:py-1.5 shadow"
                                   >
                                     {isSavingMemo[topPhoto._id] ? 'Saving...' : 'Save'}
                                   </Button>

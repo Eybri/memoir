@@ -46,7 +46,7 @@ export default function DailyCanvas({ photos, nostalgiaMode }: DailyCanvasProps)
         <Typography variant="h6" className="font-display font-bold text-amber-950/70">
           Your Canvas is Waiting
         </Typography>
-        <Typography className="text-amber-900/50 text-sm max-w-sm mt-1">
+        <Typography className="text-amber-900/50 text-xs sm:text-sm md:text-base max-w-sm mt-1">
           Upload some photos below to see them compiled into your daily canvas collage.
         </Typography>
       </Box>
@@ -54,31 +54,31 @@ export default function DailyCanvas({ photos, nostalgiaMode }: DailyCanvasProps)
   }
 
   return (
-    <Box className="relative w-full h-full rounded-[40px] overflow-hidden shadow-xl border border-white/20 glass-card p-6 flex flex-col gap-6 items-center justify-center">
+    <Box className="relative w-full h-full min-h-[500px] rounded-[40px] shadow-xl border border-white/20 glass-card p-6 sm:p-8 flex flex-col gap-6 items-center justify-center">
       {/* Background ambient lighting */}
-      <div className={`absolute inset-0 transition-colors duration-700 ${nostalgiaMode ? 'bg-[#f4efe2]/40' : 'bg-gradient-to-br from-yellow-100/20 to-amber-100/20'}`} />
+      <div className={`absolute inset-0 rounded-[40px] overflow-hidden transition-colors duration-700 ${nostalgiaMode ? 'bg-[#f4efe2]/40' : 'bg-gradient-to-br from-yellow-100/20 to-amber-100/20'}`} />
       
       {/* Top text */}
-      <div className="w-full relative z-10 space-y-3 text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold uppercase tracking-wider mx-auto">
-          <Calendar size={14} /> The Daily Canvas
+      <div className="w-full relative z-10 space-y-4 text-center mt-2">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 text-amber-800 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider mx-auto">
+          <Calendar size={16} /> The Daily Canvas
         </div>
-        <Typography variant="h3" className="font-display font-black text-amber-950 leading-tight text-2xl sm:text-3xl">
+        <Typography variant="h3" className="font-display font-black text-amber-950 leading-tight text-3xl sm:text-4xl md:text-5xl">
           Nostalgia <br />
-          <span className="text-gradient">Unlocked</span>
+          <span className="text-amber-600">Unlocked</span>
         </Typography>
-        <Typography className="text-amber-900/60 font-medium text-sm">
+        <Typography className="text-amber-900/70 font-medium text-xs sm:text-sm md:text-base max-w-sm mx-auto leading-relaxed">
           Here is a snippet of where your story was during this time of the year in the past.
         </Typography>
       </div>
 
       {/* Bottom Collage Layer (Living Photo Effect) */}
-      <div className="w-full h-[220px] sm:h-[260px] relative flex items-center justify-center z-10 mt-2">
+      <div className="w-full flex-grow relative flex items-center justify-center z-10 min-h-[250px] sm:min-h-[280px]">
         {canvasPhotos.map((photo, index) => {
           // Unique rotations/translations for the layered collage look
           const positions = [
-            { rotate: -6, z: 10, scale: 0.9, x: '-25%', y: '-5%' },
-            { rotate: 8, z: 20, scale: 0.95, x: '25%', y: '5%' },
+            { rotate: -6, z: 10, scale: 0.9, x: '-20%', y: '-5%' },
+            { rotate: 8, z: 20, scale: 0.95, x: '20%', y: '5%' },
             { rotate: -2, z: 30, scale: 1.0, x: '0%', y: '0%' }
           ];
           const pos = positions[index % positions.length];
@@ -100,16 +100,16 @@ export default function DailyCanvas({ photos, nostalgiaMode }: DailyCanvasProps)
                 rotate: { repeat: Infinity, duration: 8 + index * 3, ease: "easeInOut" }
               }}
               style={{ zIndex: pos.z }}
-              className="absolute w-[180px] sm:w-[220px] aspect-[4/3] bg-white p-3 pb-8 rounded-2xl shadow-2xl border border-yellow-50 flex flex-col justify-between"
+              className="absolute w-[200px] sm:w-[240px] md:w-[260px] bg-white p-3 pb-10 sm:p-4 sm:pb-12 rounded-2xl shadow-2xl border border-yellow-50 flex flex-col justify-between"
             >
-              <Box className="w-full h-full bg-slate-100 rounded-lg overflow-hidden relative">
+              <Box className="w-full aspect-[4/3] bg-slate-100/50 rounded-lg overflow-hidden relative border border-amber-100/50 flex items-center justify-center">
                 <img 
                   src={photo.url} 
                   alt="Scrapbook Memory" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain drop-shadow-sm p-1"
                 />
               </Box>
-              <Typography className="font-display font-bold text-amber-950 mt-2 text-center text-xs italic truncate">
+              <Typography className="font-display font-bold text-amber-950 mt-2 text-center text-[10px] sm:text-xs md:text-sm italic truncate">
                 {photo.captions[0]?.text || new Date(photo.takenAt).toLocaleDateString()}
               </Typography>
             </motion.div>

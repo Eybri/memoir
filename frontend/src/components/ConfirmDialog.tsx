@@ -35,12 +35,12 @@ export default function ConfirmDialog({
       }}
     >
       <DialogTitle>
-        <Typography className="font-display font-black text-amber-950 text-lg">
+        <Typography className="font-display font-black text-amber-950 text-base sm:text-lg md:text-xl">
           {title}
         </Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography className="text-sm text-gray-700">
+        <Typography className="text-xs sm:text-sm md:text-base text-gray-700">
           {message}
         </Typography>
       </DialogContent>
