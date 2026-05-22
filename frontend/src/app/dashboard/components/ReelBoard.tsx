@@ -119,7 +119,7 @@ export default function ReelBoard({
         <Typography className="font-display font-extrabold text-[11px] tracking-[0.15em] text-amber-600/70 uppercase flex items-center gap-1.5">
           <Folder size={12} className="text-amber-500" /> Section 1: The Album Board
         </Typography>
-        <Typography className="font-mono text-[9px] text-amber-900/30 uppercase">
+        <Typography className="font-mono text-[9px] sm:text-[11px] text-amber-900/30 uppercase">
           Memory Collections
         </Typography>
       </Box>
@@ -150,7 +150,7 @@ export default function ReelBoard({
               <Typography className="text-[14px] font-display font-black tracking-tight leading-tight text-amber-950 truncate w-full">
                 + Create
               </Typography>
-              <Typography className="text-[9px] font-mono tracking-widest sm:tracking-[0.2em] text-amber-600/80 font-bold uppercase mt-1 truncate w-full">
+              <Typography className="text-[9px] sm:text-[11px] font-mono tracking-widest sm:tracking-[0.2em] text-amber-600/80 font-bold uppercase mt-1 truncate w-full">
                 Collection
               </Typography>
             </div>
@@ -191,7 +191,7 @@ export default function ReelBoard({
                     className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${nostalgiaMode ? 'sepia-[0.15] contrast-95' : ''}`}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-white/10" />
-                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-rose-600/90' : 'bg-black/50'}`}>
+                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-[11px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-rose-600/90' : 'bg-black/50'}`}>
                     {count} Log{count !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -264,7 +264,7 @@ export default function ReelBoard({
                   {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
                     <div className="absolute top-2 right-2 flex -space-x-1.5" title="Shared with friends">
                       {album.sharedWith.map(sw => (
-                        <div key={sw._id} className="w-5 h-5 rounded-full bg-amber-600 border border-white text-[8px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase">
+                        <div key={sw._id} className="w-5 h-5 rounded-full bg-amber-600 border border-white text-[8px] sm:text-[10px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase">
                           {sw.name.substring(0, 2)}
                         </div>
                       ))}
@@ -272,15 +272,15 @@ export default function ReelBoard({
                   )}
                   {currentUser && album.userId && album.userId._id !== currentUser.id && (
                     <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/20" title={`Shared by ${album.userId.name}`}>
-                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[7px] text-white font-bold uppercase">
+                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[7px] sm:text-[9px] text-white font-bold uppercase">
                         {album.userId.name.substring(0, 2)}
                       </div>
-                      <span className="text-[8px] text-white font-bold uppercase tracking-wider pr-0.5">Shared</span>
+                      <span className="text-[8px] sm:text-[10px] text-white font-bold uppercase tracking-wider pr-0.5">Shared</span>
                     </div>
                   )}
 
                   {/* Count indicator */}
-                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-amber-600/90' : 'bg-black/50'
+                  <span className={`absolute bottom-2 right-2 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-[11px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-lg transition-colors ${isActive ? 'bg-amber-600/90' : 'bg-black/50'
                     }`}>
                     {count} Log{count !== 1 ? 's' : ''}
                   </span>
@@ -308,7 +308,7 @@ export default function ReelBoard({
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '24px',
+              borderRadius: '12px',
               p: 2,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
               color: nostalgiaMode ? '#3c2f1f' : '#000000',
@@ -316,7 +316,7 @@ export default function ReelBoard({
           }
         }}
       >
-        <DialogTitle className="font-display font-black text-amber-950 text-xl pb-1">
+        <DialogTitle className="font-display font-black text-amber-950 text-lg sm:text-xl md:text-2xl pb-1">
           Create New Album
         </DialogTitle>
 
@@ -344,7 +344,7 @@ export default function ReelBoard({
 
           <Box className="space-y-2">
             <div className="flex justify-between items-center">
-              <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+              <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px] sm:text-[11px]">
                 Choose Cover Photo (Optional)
               </Typography>
               <Button
@@ -353,7 +353,7 @@ export default function ReelBoard({
                 disabled={isUploading}
                 onClick={() => fileInputRef.current?.click()}
                 startIcon={isUploading ? <Sparkles className="animate-spin" size={14} /> : <Upload size={14} />}
-                className="text-[9px] border-amber-500/30 text-amber-700 hover:bg-amber-500/10 rounded-lg py-1 px-2 font-bold"
+                className="text-[9px] sm:text-[11px] border-amber-500/30 text-amber-700 hover:bg-amber-500/10 rounded-lg py-1 px-2 font-bold"
               >
                 {isUploading ? 'Uploading...' : 'Upload Cover'}
               </Button>
@@ -368,13 +368,13 @@ export default function ReelBoard({
                     <Sparkles size={12} className="text-white" />
                   </div>
                 </div>
-                <Typography className="text-[10px] text-amber-900/80 font-bold italic leading-tight">
+                <Typography className="text-[10px] sm:text-xs text-amber-900/80 font-bold italic leading-tight">
                   Custom cover uploaded and selected!
                 </Typography>
               </div>
             )}
             {photos.length === 0 ? (
-              <Typography className="text-xs text-amber-900/40 italic">
+              <Typography className="text-[10px] sm:text-xs md:text-sm text-amber-900/40 italic">
                 Upload photos to choose a cover.
               </Typography>
             ) : (
@@ -402,11 +402,11 @@ export default function ReelBoard({
           </Box>
 
           <Box className="space-y-2">
-            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px]">
+            <Typography variant="caption" className="font-bold text-amber-900/60 uppercase tracking-widest text-[9px] sm:text-[11px]">
               Share with Friends (Optional)
             </Typography>
             {friends.length === 0 ? (
-              <Typography className="text-xs text-amber-900/40 italic">
+              <Typography className="text-[10px] sm:text-xs md:text-sm text-amber-900/40 italic">
                 Add friends from your profile to share albums.
               </Typography>
             ) : (
@@ -419,7 +419,7 @@ export default function ReelBoard({
                       onClick={() => setSelectedFriends(prev => isShared ? prev.filter(id => id !== f._id) : [...prev, f._id])}
                       className={`flex justify-between items-center p-2 rounded-lg cursor-pointer transition-all border ${isShared ? 'bg-amber-500/20 border-amber-300 shadow-sm' : 'hover:bg-amber-50 border-transparent'}`}
                     >
-                      <Typography className="text-xs font-bold text-amber-950">{f.name}</Typography>
+                      <Typography className="text-[10px] sm:text-xs md:text-sm font-bold text-amber-950">{f.name}</Typography>
                       {isShared && <Sparkles size={14} className="text-amber-600" />}
                     </div>
                   );

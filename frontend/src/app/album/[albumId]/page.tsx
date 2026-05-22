@@ -48,12 +48,15 @@ import AlbumGallery from '../components/AlbumGallery';
 import FloatingUploadButton from '../components/FloatingUploadButton';
 import EmptyAlbumState from '../components/EmptyAlbumState';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import InviteCollaboratorDialog from '../components/InviteCollaboratorDialog';
 
 interface Album {
   _id: string;
   title: string;
   coverPhotoUrl: string;
   createdAt?: string;
+  userId?: any;
+  sharedWith?: any[];
 }
 
 interface Photo {
@@ -84,9 +87,11 @@ export default function AlbumDetailsPage() {
   const [editedTitle, setEditedTitle] = useState('');
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
   const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(false);
+  const [collaboratorToRemove, setCollaboratorToRemove] = useState<{ id: string, name: string } | null>(null);
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
 
   // Selection Mode State
@@ -193,11 +198,46 @@ export default function AlbumDetailsPage() {
   const handleRenameAlbum = async () => {
     if (!editedTitle.trim() || !album) return;
     try {
-      const updated = await updateAlbum(albumId, { title: editedTitle.trim() });
-      setAlbum(updated);
+      await updateAlbum(albumId, { title: editedTitle.trim() });
+      setAlbum(prev => prev ? { ...prev, title: editedTitle.trim() } : prev);
       setIsEditingTitle(false);
     } catch (error) {
       console.error('Failed to rename album:', error);
+    }
+  };
+
+  const handleInviteCollaborators = async (selectedUserIds: string[]) => {
+    if (!album) return;
+    try {
+      const currentShared = album.sharedWith?.map((sw: any) => sw._id) || [];
+      const newSharedWith = [...new Set([...currentShared, ...selectedUserIds])];
+      await updateAlbum(albumId, { sharedWith: newSharedWith });
+      
+      const fetchedAlbum = await fetchAlbumById(albumId);
+      setAlbum(fetchedAlbum);
+      setIsInviteDialogOpen(false);
+      setSnackbar({ open: true, message: `Successfully invited ${selectedUserIds.length} friend(s)!`, severity: 'success' });
+    } catch (error) {
+      console.error('Failed to invite collaborators:', error);
+      setSnackbar({ open: true, message: 'Failed to invite friends', severity: 'error' });
+    }
+  };
+
+  const handleRemoveCollaborator = async () => {
+    if (!album || !collaboratorToRemove) return;
+    try {
+      const currentShared = album.sharedWith?.map((sw: any) => sw._id) || [];
+      const newSharedWith = currentShared.filter((id: string) => id !== collaboratorToRemove.id);
+      await updateAlbum(albumId, { sharedWith: newSharedWith });
+      
+      const fetchedAlbum = await fetchAlbumById(albumId);
+      setAlbum(fetchedAlbum);
+      setSnackbar({ open: true, message: `${collaboratorToRemove.name} was removed from the album.`, severity: 'info' });
+    } catch (error) {
+      console.error('Failed to remove collaborator:', error);
+      setSnackbar({ open: true, message: 'Failed to remove friend', severity: 'error' });
+    } finally {
+      setCollaboratorToRemove(null);
     }
   };
 
@@ -318,7 +358,7 @@ export default function AlbumDetailsPage() {
         >
           <Camera size={64} className="text-amber-500 animate-pulse" />
         </motion.div>
-        <Typography className="font-mono text-amber-800/60 text-xs uppercase tracking-widest font-bold">
+        <Typography className="font-mono text-amber-800/60 text-[10px] sm:text-xs md:text-sm uppercase tracking-widest font-bold">
           Restoring Memories...
         </Typography>
       </Box>
@@ -350,7 +390,7 @@ export default function AlbumDetailsPage() {
           <Button
             startIcon={<ArrowLeft size={16} />}
             onClick={() => router.push('/dashboard')}
-            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm"
+            className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm"
           >
             Dashboard
           </Button>
@@ -359,7 +399,7 @@ export default function AlbumDetailsPage() {
             <Button
               startIcon={viewMode === 'scrapbook' ? <LayoutGrid size={16} /> : <LayoutTemplate size={16} />}
               onClick={() => setViewMode(v => v === 'scrapbook' ? 'gallery' : 'scrapbook')}
-              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-xs uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
+              className="text-amber-800 hover:bg-amber-500/5 font-display font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-5 py-2.5 border border-amber-900/10 backdrop-blur-sm transition-all"
             >
               {viewMode === 'scrapbook' ? 'Gallery' : 'Scrapbook'}
             </Button>
@@ -378,6 +418,8 @@ export default function AlbumDetailsPage() {
           handleRenameAlbum={handleRenameAlbum}
           handleDeleteAlbum={() => setConfirmDeleteAlbum(true)}
           startSlideshow={() => setIsSlideshowOpen(true)}
+          onInviteClick={() => setIsInviteDialogOpen(true)}
+          onRemoveCollaborator={(id, name) => setCollaboratorToRemove({ id, name })}
           currentUser={user}
         />
 
@@ -452,6 +494,15 @@ export default function AlbumDetailsPage() {
       />
 
       <ConfirmDialog
+        open={!!collaboratorToRemove}
+        title="Remove Friend"
+        message={`Are you sure you want to remove ${collaboratorToRemove?.name} from this album? They will no longer be able to view it.`}
+        confirmText="Remove"
+        onConfirm={handleRemoveCollaborator}
+        onCancel={() => setCollaboratorToRemove(null)}
+      />
+
+      <ConfirmDialog
         open={confirmBulkDelete}
         title={`Delete ${selectedPhotoIds.size} ${selectedPhotoIds.size === 1 ? 'Memory' : 'Memories'}`}
         message={`Are you sure you want to permanently delete ${selectedPhotoIds.size === 1 ? 'this memory' : 'these memories'}? This action cannot be undone.`}
@@ -477,7 +528,7 @@ export default function AlbumDetailsPage() {
               variant="outlined"
               size="small"
               onClick={() => setSelectedPhotoIds(new Set(albumPhotos.map(p => p._id)))}
-              className="border-amber-500/50 text-amber-200 hover:bg-amber-500/20 rounded-full font-bold uppercase tracking-wider text-[10px]"
+              className="border-amber-500/50 text-amber-200 hover:bg-amber-500/20 rounded-full font-bold uppercase tracking-wider text-[10px] sm:text-xs"
             >
               Select All
             </Button>
@@ -486,7 +537,7 @@ export default function AlbumDetailsPage() {
               size="small"
               onClick={() => setConfirmBulkDelete(true)}
               disabled={selectedPhotoIds.size === 0}
-              className="bg-red-500 hover:bg-red-600 disabled:bg-red-900/50 text-white rounded-full font-bold uppercase tracking-wider text-[10px] shadow-none"
+              className="bg-red-500 hover:bg-red-600 disabled:bg-red-900/50 text-white rounded-full font-bold uppercase tracking-wider text-[10px] sm:text-xs shadow-none"
             >
               Delete
             </Button>
@@ -517,6 +568,14 @@ export default function AlbumDetailsPage() {
         onClose={() => setIsSlideshowOpen(false)}
         photos={albumPhotos}
         albumTitle={album.title}
+      />
+
+      <InviteCollaboratorDialog
+        open={isInviteDialogOpen}
+        onClose={() => setIsInviteDialogOpen(false)}
+        onInvite={handleInviteCollaborators}
+        currentCollaborators={album.sharedWith?.map((sw: any) => sw._id) || []}
+        nostalgiaMode={nostalgiaMode}
       />
 
       <Snackbar 

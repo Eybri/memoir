@@ -58,15 +58,20 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
     }
   };
 
-  // Helper to calculate time difference in days, hours, minutes, and seconds
+  // Helper to calculate time difference to the next annual occurrence (e.g. anniversaries/birthdays)
   const getTimeDifference = (dateString: string) => {
-    const targetDate = new Date(dateString);
-    // If date is saved as YYYY-MM-DD, parsing it might give midnight UTC.
-    // We compare it to currentTime.
+    const originalDate = new Date(dateString);
+    
+    // Create a target date in the current year using the same month and day
+    const targetDate = new Date(currentTime.getFullYear(), originalDate.getMonth(), originalDate.getDate());
+    
+    // If the date has already passed this year, count down to next year
+    if (targetDate.getTime() < currentTime.getTime()) {
+      targetDate.setFullYear(currentTime.getFullYear() + 1);
+    }
     
     const diffMs = targetDate.getTime() - currentTime.getTime();
-    const isPast = diffMs < 0;
-    const absDiff = Math.abs(diffMs);
+    const absDiff = Math.max(0, diffMs);
     
     const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((absDiff / (1000 * 60 * 60)) % 24);
@@ -78,7 +83,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
       hours,
       mins,
       secs,
-      isPast
+      isPast: false // It is now always counting down to a future date
     };
   };
 
@@ -111,31 +116,31 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
                   <Typography className={`text-[12px] font-display font-black tracking-tight leading-tight line-clamp-2 ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'}`}>
                     {milestone.title}
                   </Typography>
-                  <Typography className="text-[9px] font-mono tracking-[0.1em] text-amber-600/70 font-bold uppercase mt-1">
+                  <Typography className="text-[9px] sm:text-[11px] font-mono tracking-[0.1em] text-amber-600/70 font-bold uppercase mt-1">
                     {new Date(milestone.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </Typography>
 
                   <div className="flex-grow flex flex-col justify-end">
-                    <Typography className="text-[8px] font-mono uppercase text-amber-600/70 mb-1.5 font-bold tracking-widest text-center">
+                    <Typography className="text-[8px] sm:text-[10px] font-mono uppercase text-amber-600/70 mb-1.5 font-bold tracking-widest text-center">
                       {diff.isPast ? 'Time Elapsed' : 'Time Remaining'}
                     </Typography>
                     
                     <div className="flex gap-2 w-full justify-between">
                       <div className={`flex-1 flex flex-col items-center justify-center rounded-lg py-2.5 px-1 shadow-lg ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                        <Typography className={`text-xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.days).padStart(2, '0')}</Typography>
-                        <Typography className={`text-[8px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Days</Typography>
+                        <Typography className={`text-lg sm:text-xl md:text-2xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.days).padStart(2, '0')}</Typography>
+                        <Typography className={`text-[8px] sm:text-[10px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Days</Typography>
                       </div>
                       <div className={`flex-1 flex flex-col items-center justify-center rounded-lg py-2.5 px-1 shadow-lg ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                        <Typography className={`text-xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.hours).padStart(2, '0')}</Typography>
-                        <Typography className={`text-[8px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Hrs</Typography>
+                        <Typography className={`text-lg sm:text-xl md:text-2xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.hours).padStart(2, '0')}</Typography>
+                        <Typography className={`text-[8px] sm:text-[10px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Hrs</Typography>
                       </div>
                       <div className={`flex-1 flex flex-col items-center justify-center rounded-lg py-2.5 px-1 shadow-lg ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                        <Typography className={`text-xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.mins).padStart(2, '0')}</Typography>
-                        <Typography className={`text-[8px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Min</Typography>
+                        <Typography className={`text-lg sm:text-xl md:text-2xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.mins).padStart(2, '0')}</Typography>
+                        <Typography className={`text-[8px] sm:text-[10px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Min</Typography>
                       </div>
                       <div className={`flex-1 flex flex-col items-center justify-center rounded-lg py-2.5 px-1 shadow-lg ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                        <Typography className={`text-xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.secs).padStart(2, '0')}</Typography>
-                        <Typography className={`text-[8px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Sec</Typography>
+                        <Typography className={`text-lg sm:text-xl md:text-2xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.secs).padStart(2, '0')}</Typography>
+                        <Typography className={`text-[8px] sm:text-[10px] font-mono uppercase font-bold mt-1 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Sec</Typography>
                       </div>
                     </div>
                   </div>
@@ -176,14 +181,14 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '24px',
+              borderRadius: '12px',
               p: 2,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
             }
           }
         }}
       >
-        <DialogTitle className="font-display font-black text-amber-950 text-xl pb-1">
+        <DialogTitle className="font-display font-black text-amber-950 text-lg sm:text-xl md:text-2xl pb-1">
           Save a Date
         </DialogTitle>
         <DialogContent className="space-y-4 pt-2">
@@ -241,7 +246,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '16px',
+              borderRadius: '12px',
               p: 3,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
             }
@@ -254,10 +259,10 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
             <Box className="space-y-6 select-none">
               <div className="flex justify-between items-start">
                 <div>
-                  <Typography className={`text-2xl font-display font-black leading-tight ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'}`}>
+                  <Typography className={`text-xl sm:text-2xl md:text-3xl font-display font-black leading-tight ${nostalgiaMode ? 'text-[#3c2f1f]' : 'text-amber-950'}`}>
                     {selectedMilestone.title}
                   </Typography>
-                  <Typography className="text-sm font-mono tracking-[0.1em] text-amber-600/70 font-bold uppercase mt-1">
+                  <Typography className="text-xs sm:text-sm md:text-base font-mono tracking-[0.1em] text-amber-600/70 font-bold uppercase mt-1">
                     {new Date(selectedMilestone.date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                   </Typography>
                 </div>
@@ -274,26 +279,26 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
               </div>
 
               <div>
-                <Typography className="text-xs font-mono uppercase text-amber-600/70 mb-3 font-bold tracking-widest text-center">
+                <Typography className="text-[10px] sm:text-xs md:text-sm font-mono uppercase text-amber-600/70 mb-3 font-bold tracking-widest text-center">
                   {diff.isPast ? 'Time Elapsed' : 'Time Remaining'}
                 </Typography>
                 
                 <div className="flex gap-3 w-full justify-between">
                   <div className={`flex-1 flex flex-col items-center justify-center rounded-xl py-6 px-2 shadow-xl ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                    <Typography className={`text-4xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.days).padStart(2, '0')}</Typography>
-                    <Typography className={`text-[10px] font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Days</Typography>
+                    <Typography className={`text-3xl sm:text-4xl md:text-5xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.days).padStart(2, '0')}</Typography>
+                    <Typography className={`text-[10px] sm:text-xs font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Days</Typography>
                   </div>
                   <div className={`flex-1 flex flex-col items-center justify-center rounded-xl py-6 px-2 shadow-xl ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                    <Typography className={`text-4xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.hours).padStart(2, '0')}</Typography>
-                    <Typography className={`text-[10px] font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Hrs</Typography>
+                    <Typography className={`text-3xl sm:text-4xl md:text-5xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.hours).padStart(2, '0')}</Typography>
+                    <Typography className={`text-[10px] sm:text-xs font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Hrs</Typography>
                   </div>
                   <div className={`flex-1 flex flex-col items-center justify-center rounded-xl py-6 px-2 shadow-xl ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                    <Typography className={`text-4xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.mins).padStart(2, '0')}</Typography>
-                    <Typography className={`text-[10px] font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Min</Typography>
+                    <Typography className={`text-3xl sm:text-4xl md:text-5xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.mins).padStart(2, '0')}</Typography>
+                    <Typography className={`text-[10px] sm:text-xs font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Min</Typography>
                   </div>
                   <div className={`flex-1 flex flex-col items-center justify-center rounded-xl py-6 px-2 shadow-xl ${nostalgiaMode ? 'bg-[#3c2f1f]' : 'bg-amber-950'}`}>
-                    <Typography className={`text-4xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.secs).padStart(2, '0')}</Typography>
-                    <Typography className={`text-[10px] font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Sec</Typography>
+                    <Typography className={`text-3xl sm:text-4xl md:text-5xl sm:text-5xl font-mono font-black tracking-tighter leading-none ${nostalgiaMode ? 'text-[#fdfcf8]' : 'text-amber-50'}`}>{String(diff.secs).padStart(2, '0')}</Typography>
+                    <Typography className={`text-[10px] sm:text-xs font-mono uppercase font-bold mt-3 tracking-widest ${nostalgiaMode ? 'text-[#fdfcf8]/60' : 'text-amber-50/60'}`}>Sec</Typography>
                   </div>
                 </div>
               </div>

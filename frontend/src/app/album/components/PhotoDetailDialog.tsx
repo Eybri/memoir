@@ -94,6 +94,8 @@ export default function PhotoDetailDialog({
                 background: 'transparent',
                 boxShadow: 'none',
                 overflow: 'visible',
+                margin: { xs: 1, sm: 2 },
+                width: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 32px)' }
               }
             },
             backdrop: {
@@ -169,28 +171,26 @@ export default function PhotoDetailDialog({
               >
                 {/* ── FRONT FACE (Photo) ── */}
                 <motion.div
+                  className="bg-white p-2 pb-0 sm:p-3 sm:pb-0"
                   style={{
                     backfaceVisibility: 'hidden',
-                    background: '#ffffff',
-                    padding: '10px 10px 0 10px',
                     boxShadow: '0 30px 80px -10px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.2)',
                     borderRadius: '3px',
                     width: '100%',
                   }}
                 >
                   {/* Photo */}
-                  <Box style={{ borderRadius: '1px', aspectRatio: '4/3', background: '#000', overflow: 'hidden' }}>
+                  <Box style={{ borderRadius: '1px', overflow: 'hidden' }}>
                     <img
                       src={photo.url}
                       alt="Polaroid photo"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
                     />
                   </Box>
 
                   {/* White bottom strip */}
                   <Box
-                    className="flex flex-col sm:flex-row justify-between items-center gap-3"
-                    style={{ padding: '14px 8px 18px 8px' }}
+                    className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3 px-1 py-3 sm:px-2 sm:py-4"
                   >
                     <div className="flex items-center gap-1.5">
                       <Calendar size={13} className="text-gray-400" />

@@ -54,10 +54,10 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
         <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full filter blur-xl" />
         
         <div className="flex justify-between items-center relative z-10">
-          <Typography className="font-display font-extrabold text-amber-950 text-sm tracking-wider uppercase flex items-center gap-2">
+          <Typography className="font-display font-extrabold text-amber-950 text-xs sm:text-sm md:text-base tracking-wider uppercase flex items-center gap-2">
             <Music size={16} className="text-amber-600 animate-bounce" /> Soundscape
           </Typography>
-          <Typography variant="caption" className="text-amber-900/40 font-bold uppercase tracking-widest text-[9px]">
+          <Typography variant="caption" className="text-amber-900/40 font-bold uppercase tracking-widest text-[9px] sm:text-[11px]">
             Nostalgia Tuner
           </Typography>
         </div>
@@ -79,12 +79,12 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
             <Typography variant="body1" className="font-display font-bold text-amber-950 truncate leading-snug">
               {soundscape.track}
             </Typography>
-            <Typography className="text-amber-900/50 text-xs truncate font-medium">
+            <Typography className="text-amber-900/50 text-[10px] sm:text-xs md:text-sm truncate font-medium">
               {soundscape.artist} — {soundscape.album}
             </Typography>
             <div className="flex items-center gap-1.5 mt-2.5">
               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-              <Typography variant="caption" className="text-amber-600 font-bold text-[9px] uppercase tracking-wider">
+              <Typography variant="caption" className="text-amber-600 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider">
                 Playing from memory
               </Typography>
             </div>
@@ -98,10 +98,10 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
         className="glass-card p-6 rounded-[32px] border border-yellow-100 flex flex-col gap-4 relative overflow-hidden"
       >
         <div className="flex justify-between items-center">
-          <Typography className="font-display font-extrabold text-amber-950 text-sm tracking-wider uppercase flex items-center gap-2">
+          <Typography className="font-display font-extrabold text-amber-950 text-xs sm:text-sm md:text-base tracking-wider uppercase flex items-center gap-2">
             <Compass size={16} className="text-amber-600" /> Memory Map
           </Typography>
-          <Typography variant="caption" className="text-amber-900/40 font-bold uppercase tracking-widest text-[9px]">
+          <Typography variant="caption" className="text-amber-900/40 font-bold uppercase tracking-widest text-[9px] sm:text-[11px]">
             Visual Atlas
           </Typography>
         </div>
@@ -125,7 +125,7 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
             <div className="w-3.5 h-3.5 bg-amber-600 rounded-full border border-white flex items-center justify-center shadow-lg relative">
               <div className="w-1.5 h-1.5 bg-white rounded-full" />
               {/* Tooltip */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-amber-950 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-amber-950 text-white text-[9px] sm:text-[11px] font-bold px-2 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
                 Beach House
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
             <div className="w-3.5 h-3.5 bg-amber-600 rounded-full border border-white flex items-center justify-center shadow-lg relative">
               <div className="w-1.5 h-1.5 bg-white rounded-full" />
               {/* Tooltip */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-amber-950 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-amber-950 text-white text-[9px] sm:text-[11px] font-bold px-2 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
                 Mountain Trails
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function SensoryCorner({ photos, nostalgiaMode }: SensoryCornerPr
 
           <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-md rounded-lg px-2.5 py-1 flex items-center gap-1.5 border border-amber-100/50 shadow-sm">
             <MapPin size={10} className="text-amber-600" />
-            <Typography variant="caption" className="text-amber-950 font-bold text-[9px] uppercase tracking-wider">
+            <Typography variant="caption" className="text-amber-950 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider">
               2 Locations
             </Typography>
           </div>
