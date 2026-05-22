@@ -308,7 +308,7 @@ export default function ReelBoard({
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '24px',
+              borderRadius: '12px',
               p: 2,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
               color: nostalgiaMode ? '#3c2f1f' : '#000000',

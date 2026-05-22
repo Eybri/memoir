@@ -181,7 +181,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '24px',
+              borderRadius: '12px',
               p: 2,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
             }
@@ -246,7 +246,7 @@ export default function MilestoneCountdown({ nostalgiaMode }: MilestoneCountdown
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '16px',
+              borderRadius: '12px',
               p: 3,
               backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
             }

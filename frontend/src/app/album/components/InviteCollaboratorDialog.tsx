@@ -59,7 +59,7 @@ export default function InviteCollaboratorDialog({ open, onClose, onInvite, curr
       slotProps={{
         paper: {
           sx: {
-            borderRadius: '24px',
+            borderRadius: '12px',
             p: 2,
             backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
           }

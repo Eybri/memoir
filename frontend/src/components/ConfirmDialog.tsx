@@ -30,7 +30,7 @@ export default function ConfirmDialog({
       onClose={onCancel}
       slotProps={{
         paper: {
-          sx: { borderRadius: '16px', padding: 1, minWidth: '300px' }
+          sx: { borderRadius: '12px', padding: 1, minWidth: '300px' }
         }
       }}
     >
