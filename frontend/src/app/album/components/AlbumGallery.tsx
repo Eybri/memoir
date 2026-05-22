@@ -78,7 +78,7 @@ export default function AlbumGallery({
           >
             <ZoomIn size={18} />
           </Button>
-          <Box className="px-4 text-xs font-mono font-bold text-amber-900/70">
+          <Box className="px-4 text-[10px] sm:text-xs md:text-sm font-mono font-bold text-amber-900/70">
             {galleryZoom}
           </Box>
           <Button

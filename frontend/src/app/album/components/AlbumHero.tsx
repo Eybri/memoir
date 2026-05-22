@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, IconButton, Button, Stack } from '@mui/material';
-import { Calendar, Edit2, Play, Trash2, Check, X } from 'lucide-react';
+import { Calendar, Edit2, Play, Trash2, Check, X, UserPlus } from 'lucide-react';
 
 interface Album {
   _id: string;
@@ -23,6 +23,8 @@ interface AlbumHeroProps {
   handleRenameAlbum: () => void;
   handleDeleteAlbum: () => void;
   startSlideshow: () => void;
+  onInviteClick?: () => void;
+  onRemoveCollaborator?: (userId: string, userName: string) => void;
   currentUser?: any;
 }
 
@@ -38,6 +40,8 @@ export default function AlbumHero({
   handleRenameAlbum,
   handleDeleteAlbum,
   startSlideshow,
+  onInviteClick,
+  onRemoveCollaborator,
   currentUser
 }: AlbumHeroProps) {
   return (
@@ -58,7 +62,7 @@ export default function AlbumHero({
       {/* Album Info & Controls inside Cover */}
       <div className="relative z-10 w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-3 max-w-xl">
-          <span className="bg-amber-500 text-amber-950 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+          <span className="bg-amber-500 text-amber-950 font-mono text-[9px] sm:text-[11px] sm:text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
             Memory Album
           </span>
           
@@ -68,7 +72,7 @@ export default function AlbumHero({
                 type="text"
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
-                className="font-display font-black text-white text-3xl sm:text-5xl bg-white/10 border-b-2 border-amber-500 outline-none px-2 py-1 rounded-t-lg max-w-md"
+                className="font-display font-black text-white text-2xl sm:text-3xl md:text-4xl sm:text-4xl md:text-5xl bg-white/10 border-b-2 border-amber-500 outline-none px-2 py-1 rounded-t-lg max-w-md w-full"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleRenameAlbum();
@@ -84,7 +88,7 @@ export default function AlbumHero({
             </div>
           ) : (
             <div className="flex items-center gap-3 group">
-              <Typography variant="h2" className="font-display font-black text-white text-3xl sm:text-5xl leading-tight">
+              <Typography variant="h2" className="font-display font-black text-white text-2xl sm:text-3xl md:text-4xl sm:text-4xl md:text-5xl leading-tight">
                 {album.title}
               </Typography>
               <IconButton 
@@ -100,7 +104,7 @@ export default function AlbumHero({
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/70 text-xs font-mono font-bold">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/70 text-[10px] sm:text-xs md:text-sm sm:text-sm font-mono font-bold">
             <div className="flex items-center gap-1.5">
               <Calendar size={14} className="text-amber-400" />
               <span>Created {album.createdAt ? new Date(album.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}</span>
@@ -110,25 +114,44 @@ export default function AlbumHero({
           </div>
 
           {/* Shared Album Indicators */}
-          {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
+          {currentUser && album.userId && (album.userId === currentUser.id || album.userId._id === currentUser.id) && (
             <div className="flex items-center gap-2 pt-2">
-              <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Shared With:</span>
-              <div className="flex -space-x-1.5">
-                {album.sharedWith.map(sw => (
-                  <div key={sw._id} className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase" title={sw.name}>
-                    {sw.name.substring(0, 2)}
-                  </div>
-                ))}
+              <span className="text-white/60 text-[10px] sm:text-xs sm:text-xs font-bold uppercase tracking-widest">Shared With:</span>
+              <div className="flex items-center">
+                <div className="flex -space-x-1.5 mr-3">
+                  {album.sharedWith && album.sharedWith.length > 0 ? album.sharedWith.map(sw => {
+                    const nameStr = typeof sw === 'string' ? '' : (sw.name || '');
+                    return (
+                      <button 
+                        key={sw._id || sw} 
+                        onClick={() => onRemoveCollaborator?.(sw._id || sw, nameStr)}
+                        className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] sm:text-[11px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase hover:bg-red-500 hover:scale-110 hover:z-20 transition-all focus:outline-none" 
+                        title={`Remove ${nameStr || 'User'}`}
+                      >
+                        {nameStr ? nameStr.substring(0, 2) : 'U'}
+                      </button>
+                    );
+                  }) : (
+                    <span className="text-white/40 text-[10px] sm:text-xs sm:text-xs italic ml-1 mr-1">Just you</span>
+                  )}
+                </div>
+                <button 
+                  onClick={onInviteClick} 
+                  className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md shadow-lg border border-white/30 ml-1 transition-all hover:scale-105 outline-none" 
+                  title="Invite Friends"
+                >
+                  <UserPlus size={18} strokeWidth={2.5} className="text-white ml-[2px]" />
+                </button>
               </div>
             </div>
           )}
-          {currentUser && album.userId && album.userId._id !== currentUser.id && (
+          {currentUser && album.userId && album.userId !== currentUser.id && album.userId._id !== currentUser.id && (
             <div className="flex items-center gap-2 pt-2">
               <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded border border-white/10 flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold uppercase">
-                  {album.userId.name.substring(0, 2)}
+                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] sm:text-[10px] text-white font-bold uppercase">
+                  {album.userId.name ? album.userId.name.substring(0, 2) : 'U'}
                 </div>
-                <span className="text-white/90 text-xs font-bold tracking-wide">Shared by {album.userId.name}</span>
+                <span className="text-white/90 text-[10px] sm:text-xs sm:text-xs font-bold tracking-wide">Shared by {album.userId.name || 'Unknown'}</span>
               </div>
             </div>
           )}
@@ -141,7 +164,7 @@ export default function AlbumHero({
               variant="contained"
               onClick={startSlideshow}
               startIcon={<Play size={16} strokeWidth={3} />}
-              className="bg-amber-500 hover:bg-amber-600 text-amber-950 font-display font-black text-xs uppercase tracking-wider rounded-full px-6 py-3 shadow-lg shadow-amber-500/20"
+              className="bg-amber-500 hover:bg-amber-600 text-amber-950 font-display font-black text-[10px] sm:text-xs sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-4 sm:px-6 py-2 sm:py-3 shadow-lg shadow-amber-500/20"
             >
               Slideshow
             </Button>
@@ -150,7 +173,7 @@ export default function AlbumHero({
             variant="outlined"
             onClick={handleDeleteAlbum}
             startIcon={<Trash2 size={16} />}
-            className="border-red-500/40 hover:border-red-600 text-red-400 hover:bg-red-950/20 font-display font-bold text-xs uppercase tracking-wider rounded-full px-6 py-3 backdrop-blur-sm"
+            className="border-red-500/40 hover:border-red-600 text-red-400 hover:bg-red-950/20 font-display font-bold text-[10px] sm:text-xs sm:text-xs md:text-sm uppercase tracking-wider rounded-full px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm"
           >
             Delete Album
           </Button>

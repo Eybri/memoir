@@ -263,10 +263,10 @@ export default function DashboardPage() {
       <Container maxWidth="xl" className="py-12 space-y-12">
         {/* Welcome Block */}
         <Box className="space-y-2">
-          <Typography variant="h6" className="font-display text-amber-600/70 font-semibold tracking-wide uppercase text-xs sm:text-sm">
+          <Typography variant="h6" className="font-display text-amber-600/70 font-semibold tracking-wide uppercase text-[10px] sm:text-xs md:text-sm sm:text-sm">
             {timeDifferenceText}
           </Typography>
-          <Typography variant="h2" className="font-display font-black text-3xl sm:text-5xl leading-tight">
+          <Typography variant="h2" className="font-display font-black text-2xl sm:text-3xl md:text-4xl sm:text-5xl leading-tight">
             The Living Scrapbook
           </Typography>
         </Box>
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <Typography variant="h5" className="font-display font-black text-amber-950">Memory Ledger</Typography>
-                      <div className="flex items-center gap-1.5 text-amber-600 font-bold text-xs mt-1">
+                      <div className="flex items-center gap-1.5 text-amber-600 font-bold text-[10px] sm:text-xs md:text-sm mt-1">
                         <Calendar size={14} />
                         {new Date(selectedPhoto.takenAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                       </div>
@@ -341,16 +341,16 @@ export default function DashboardPage() {
                       <IconButton onClick={() => setConfirmDeletePhoto(true)} className="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-full transition-all">
                         <Trash2 size={18} />
                       </IconButton>
-                      <IconButton onClick={() => setSelectedPhoto(null)} className="bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 p-2.5 rounded-full font-black text-sm">
+                      <IconButton onClick={() => setSelectedPhoto(null)} className="bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 p-2.5 rounded-full font-black text-xs sm:text-sm md:text-base">
                         ✕
                       </IconButton>
                     </Stack>
                   </div>
 
                   <Box className="space-y-4">
-                    <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">Captions Ledger</Typography>
+                    <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px] sm:text-xs">Captions Ledger</Typography>
                     {selectedPhoto.captions.length === 0 ? (
-                      <Typography className="text-amber-900/30 italic text-sm">No captions recorded yet. Be the first to describe this memory.</Typography>
+                      <Typography className="text-amber-900/30 italic text-xs sm:text-sm md:text-base">No captions recorded yet. Be the first to describe this memory.</Typography>
                     ) : (
                       selectedPhoto.captions.map((cap, i) => (
                         <motion.div 
@@ -359,8 +359,8 @@ export default function DashboardPage() {
                           key={i} 
                           className="bg-amber-500/5 p-4 rounded-2xl border-l-4 border-amber-500"
                         >
-                          <Typography className="text-amber-950 italic mb-1 text-sm font-medium">"{cap.text}"</Typography>
-                          <Typography variant="caption" className="text-amber-600/60 font-bold text-[10px]">
+                          <Typography className="text-amber-950 italic mb-1 text-xs sm:text-sm md:text-base font-medium">"{cap.text}"</Typography>
+                          <Typography variant="caption" className="text-amber-600/60 font-bold text-[10px] sm:text-xs">
                             Recorded {new Date(cap.createdAt).toLocaleDateString()}
                           </Typography>
                         </motion.div>
@@ -370,14 +370,14 @@ export default function DashboardPage() {
 
           {/* Album Assignment Section */}
           <Box className="space-y-2 pt-2 border-t border-amber-200/20">
-            <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px]">
+            <Typography className="font-bold text-amber-900/40 uppercase tracking-widest text-[10px] sm:text-xs">
               Album Assignment
             </Typography>
             <div className="flex gap-2 items-center">
               <select
                 value={selectedPhoto.albumId || ''}
                 onChange={(e) => handleUpdatePhotoAlbum(selectedPhoto._id, e.target.value || null)}
-                className="bg-amber-500/5 border border-amber-900/10 rounded-xl p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 flex-grow"
+                className="bg-amber-500/5 border border-amber-900/10 rounded-xl p-2.5 text-[10px] sm:text-xs md:text-sm text-amber-950 focus:outline-none focus:border-amber-600 flex-grow"
               >
                 <option value="">No Album</option>
                 {albums.map((alb) => (
@@ -391,7 +391,7 @@ export default function DashboardPage() {
                 variant="outlined"
                 onClick={() => handleSetAsCover(selectedPhoto.url)}
                 disabled={!selectedPhoto.albumId}
-                className="border-amber-600/30 text-amber-700 hover:bg-amber-500/5 text-[10px] py-2 rounded-xl font-bold uppercase"
+                className="border-amber-600/30 text-amber-700 hover:bg-amber-500/5 text-[10px] sm:text-xs py-2 rounded-xl font-bold uppercase"
               >
                 Make Cover
               </Button>
@@ -445,7 +445,7 @@ export default function DashboardPage() {
             variant="contained" 
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-sm uppercase tracking-wider transition-all duration-300"
+            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-2xl px-6 py-4 flex items-center gap-2 font-display font-black text-xs sm:text-sm md:text-base uppercase tracking-wider transition-all duration-300"
             title="Quick Toss a Photo"
           >
             {isUploading ? (

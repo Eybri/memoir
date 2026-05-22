@@ -15,13 +15,13 @@ export default function EmptyAlbumState({ onAddMemoryClick }: EmptyAlbumStatePro
       <Typography variant="h5" className="font-display font-black text-amber-950">
         This album is currently empty
       </Typography>
-      <Typography className="text-amber-900/60 max-w-sm mt-2 text-sm leading-relaxed">
+      <Typography className="text-amber-900/60 max-w-sm mt-2 text-xs sm:text-sm md:text-base leading-relaxed">
         Toss photos inside this scrapbook or upload memories using the button below to start your collection.
       </Typography>
       <Button
         variant="contained"
         onClick={onAddMemoryClick}
-        className="mt-6 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-6 py-2.5 font-bold text-sm uppercase tracking-wider shadow"
+        className="mt-6 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-6 py-2.5 font-bold text-xs sm:text-sm md:text-base uppercase tracking-wider shadow"
       >
         Add first memory
       </Button>

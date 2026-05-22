@@ -94,7 +94,7 @@ export default function SignupPage() {
                   className="w-full h-full object-cover"
                 />
               </Box>
-              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-sm italic">
+              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-xs sm:text-sm md:text-base italic">
                 Wild Hills, 2026
               </Typography>
             </motion.div>
@@ -115,7 +115,7 @@ export default function SignupPage() {
                   className="w-full h-full object-cover"
                 />
               </Box>
-              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-sm italic">
+              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-xs sm:text-sm md:text-base italic">
                 Mountain Lake, 2026
               </Typography>
             </motion.div>
@@ -136,7 +136,7 @@ export default function SignupPage() {
                   className="w-full h-full object-cover"
                 />
               </Box>
-              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-sm italic">
+              <Typography className="font-display font-bold text-amber-950 mt-3 text-center text-xs sm:text-sm md:text-base italic">
                 Meadow Life, 2026
               </Typography>
             </motion.div>
@@ -330,7 +330,7 @@ export default function SignupPage() {
                   size="large"
                   disabled={loading}
                   endIcon={<ArrowRight size={18} />}
-                  className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 rounded-full py-4 font-bold text-lg text-white shadow-xl shadow-amber-600/10 transition-all border-0"
+                  className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 rounded-full py-4 font-bold text-base sm:text-lg md:text-xl text-white shadow-xl shadow-amber-600/10 transition-all border-0"
                 >
                   {loading ? 'Creating Vault...' : 'Create Vault'}
                 </Button>

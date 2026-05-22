@@ -9,9 +9,7 @@ import {
   Stack, 
   IconButton,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Drawer,
   Avatar
 } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -21,7 +19,8 @@ import {
   Sparkles, 
   LogOut,
   Bell,
-  UserMinus
+  UserMinus,
+  Users
 } from 'lucide-react';
 import { Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -143,6 +142,7 @@ export default function Header({
   }, []);
 
   return (
+    <>
     <nav className={`sticky top-0 z-40 p-5 backdrop-blur-lg border-b transition-all duration-700 select-none ${
       nostalgiaMode 
         ? 'bg-gradient-to-b from-[#f4efe2] to-[#ebdcb9] border-[#dcd2be] shadow-[0_4px_20px_rgba(60,47,31,0.08)]' 
@@ -182,7 +182,7 @@ export default function Header({
               >
                 Memoir
               </Typography>
-              <span className={`font-mono text-[8px] tracking-[0.2em] font-semibold mt-0.5 uppercase ${
+              <span className={`font-mono text-[8px] sm:text-[10px] tracking-[0.2em] font-semibold mt-0.5 uppercase ${
                 nostalgiaMode ? 'text-amber-800/40' : 'text-amber-600/55'
               }`}>
                 Vault No. 01
@@ -195,14 +195,14 @@ export default function Header({
             initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
             animate={{ opacity: 1, scale: 1, rotate: -4 }}
             whileHover={{ rotate: 0, scale: 1.02 }}
-            className={`hidden sm:flex flex-col items-center justify-center border border-dashed rounded px-2.5 py-0.5 border-red-800/30 text-red-800/60 font-mono text-[10px] font-bold tracking-widest bg-red-50/5 leading-none transition-all select-none ${
+            className={`hidden sm:flex flex-col items-center justify-center border border-dashed rounded px-2.5 py-0.5 border-red-800/30 text-red-800/60 font-mono text-[10px] sm:text-xs font-bold tracking-widest bg-red-50/5 leading-none transition-all select-none ${
               nostalgiaMode ? 'border-red-900/40 text-red-900/50 rotate-[-5deg]' : 'border-amber-700/30 text-amber-700/50'
             }`}
             style={{
               boxShadow: nostalgiaMode ? 'inset 0 0 4px rgba(153, 27, 27, 0.05)' : 'none'
             }}
           >
-            <span className="text-[7px] uppercase opacity-70 tracking-widest pb-0.5">archived</span>
+            <span className="text-[7px] sm:text-[9px] uppercase opacity-70 tracking-widest pb-0.5">archived</span>
             {stampDateText}
           </motion.div>
         </Stack>
@@ -277,7 +277,7 @@ export default function Header({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsProfileOpen(true)}
                 title={`Logged in as ${user.name} (${user.email})`}
-                className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-xs shadow-md border-2 cursor-pointer select-none transition-all duration-300 ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-[10px] sm:text-xs md:text-sm shadow-md border-2 cursor-pointer select-none transition-all duration-300 ${
                   nostalgiaMode 
                     ? 'bg-[#3c2f1f] border-[#3c2f1f]/20 text-[#fdfcf8] hover:shadow-[0_4px_12px_rgba(60,47,31,0.2)]' 
                     : 'bg-gradient-to-br from-amber-500 to-amber-700 border-white text-white hover:shadow-[0_4px_12px_rgba(217,119,6,0.3)]'
@@ -287,20 +287,6 @@ export default function Header({
               </motion.div>
             )}
 
-            {/* Wax-Seal styled Logout Button */}
-            <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
-              <IconButton 
-                onClick={logout} 
-                title="Close Vault"
-                className={`p-2.5 rounded-full border transition-all duration-500 ${
-                  nostalgiaMode 
-                    ? 'bg-[#3c2f1f]/5 border-[#3c2f1f]/10 text-amber-800 hover:bg-[#3c2f1f]/10 hover:text-red-700' 
-                    : 'bg-white/20 border-white/20 text-amber-700 hover:bg-white/40 hover:text-amber-900'
-                }`}
-              >
-                <LogOut size={16} />
-              </IconButton>
-            </motion.div>
           </Stack>
         ) : (
           /* Public Web Landing Mode Navigation */
@@ -327,35 +313,40 @@ export default function Header({
           </Stack>
         )}
       </Container>
+    </nav>
 
-      {/* User Profile Modal */}
+      {/* User Profile Sidebar */}
       {user && (
-        <Dialog
+        <Drawer
+          variant="persistent"
+          anchor="right"
           open={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
-          maxWidth="xs"
-          fullWidth
-          slotProps={{
-            paper: {
-              sx: {
-                borderRadius: '24px',
-                p: 2,
-                backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
-                color: nostalgiaMode ? '#3c2f1f' : '#000000',
-              }
+          elevation={4}
+          sx={{
+            zIndex: 1200,
+            '& .MuiDrawer-paper': {
+              width: { xs: 280, sm: 400 },
+              backgroundColor: nostalgiaMode ? '#f4efe2' : '#ffffff',
+              color: nostalgiaMode ? '#3c2f1f' : '#000000',
+              borderLeft: nostalgiaMode ? '1px solid #dcd2be' : '1px solid #f3f4f6',
+              mt: '80px',
+              height: 'calc(100% - 80px)',
             }
           }}
         >
-          <DialogTitle className="flex justify-between items-center pb-2">
-            <Typography className="font-display font-black text-amber-950 text-xl">
-              Profile Details
-            </Typography>
-            <IconButton onClick={() => setIsProfileOpen(false)} className="text-amber-700 hover:bg-amber-500/10">
-              ✕
-            </IconButton>
-          </DialogTitle>
-          <DialogContent className="flex flex-col items-center justify-center py-6 text-center space-y-4">
-            <Avatar 
+          <div className="flex flex-col h-full">
+            <div className="flex justify-between items-center p-4 border-b border-amber-900/10">
+              <Typography className="font-display font-black text-amber-950 text-lg sm:text-xl md:text-2xl">
+                Profile Details
+              </Typography>
+              <IconButton onClick={() => setIsProfileOpen(false)} className="text-amber-700 hover:bg-amber-500/10">
+                ✕
+              </IconButton>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center text-center space-y-4">
+              <Avatar 
               sx={{ 
                 width: 80, 
                 height: 80, 
@@ -369,16 +360,16 @@ export default function Header({
               {initials}
             </Avatar>
             <div>
-              <Typography className="font-display font-black text-2xl text-amber-950">
+              <Typography className="font-display font-black text-xl sm:text-2xl md:text-3xl text-amber-950">
                 {user.name}
               </Typography>
-              <Typography className="font-mono text-sm tracking-wider text-amber-700/70 uppercase font-bold mt-1">
+              <Typography className="font-mono text-xs sm:text-sm md:text-base tracking-wider text-amber-700/70 uppercase font-bold mt-1">
                 {user.email}
               </Typography>
             </div>
             <div className="w-full text-left mt-2">
-              <Typography className="font-display font-black text-amber-950 text-sm mb-2">
-                Friends
+              <Typography className="font-display font-black text-amber-950 text-xs sm:text-sm md:text-base mb-3 flex items-center gap-2">
+                <Users size={16} className="text-amber-700" /> Friends
               </Typography>
               
               {/* Search User */}
@@ -408,30 +399,30 @@ export default function Header({
               </div>
 
               {/* Search Results & Lists Scroll Container */}
-              <div className="max-h-[35vh] overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-amber-900/10">
+              <div className="w-full space-y-3">
                 {/* Search Results */}
                 {hasSearched && searchResult.length === 0 && (
                   <div className="bg-amber-50 rounded-lg p-3 border border-amber-200 text-center">
-                    <Typography className="text-xs text-amber-900/60 italic">No user found with that email.</Typography>
+                    <Typography className="text-[10px] sm:text-xs md:text-sm text-amber-900/60 italic">No user found with that email.</Typography>
                   </div>
                 )}
                 {searchResult.length > 0 && (
                   <div className="bg-amber-50 rounded-lg p-2 border border-amber-200">
-                    <Typography className="text-xs font-bold text-amber-900 mb-2">Search Result:</Typography>
+                    <Typography className="text-[10px] sm:text-xs md:text-sm font-bold text-amber-900 mb-2">Search Result:</Typography>
                     {searchResult.map(res => {
                       const isFriend = friends.some(f => f._id === res._id);
                       return (
                         <div key={res._id} className="flex justify-between items-center py-1">
                           <div>
-                            <Typography className="text-sm font-bold text-amber-950">{res.name}</Typography>
-                            <Typography className="text-[10px] text-amber-700">{res.email}</Typography>
+                            <Typography className="text-xs sm:text-sm md:text-base font-bold text-amber-950">{res.name}</Typography>
+                            <Typography className="text-[10px] sm:text-xs text-amber-700">{res.email}</Typography>
                           </div>
                           {!isFriend && (
                             <Button 
                               size="small" 
                               variant="outlined"
                               onClick={() => handleSendRequest(res._id)} 
-                              className="text-[9px] py-0.5 px-2 border-amber-600 text-amber-700 rounded-md font-bold"
+                              className="text-[9px] sm:text-[11px] py-0.5 px-2 border-amber-600 text-amber-700 rounded-md font-bold"
                             >
                               Send Request
                             </Button>
@@ -445,16 +436,16 @@ export default function Header({
                 {/* Pending Requests */}
                 {pendingRequests.length > 0 && (
                   <div className="bg-blue-50/50 rounded-lg p-2 border border-blue-200">
-                    <Typography className="text-xs font-bold text-blue-900 mb-2">Friend Requests:</Typography>
+                    <Typography className="text-[10px] sm:text-xs md:text-sm font-bold text-blue-900 mb-2">Friend Requests:</Typography>
                     {pendingRequests.map(req => (
                       <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-blue-100 shadow-sm mb-1">
                         <div>
-                          <Typography className="text-sm font-bold text-blue-950">{req.senderId?.name || 'Unknown'}</Typography>
-                          <Typography className="text-[10px] text-blue-700">{req.senderId?.email || 'unknown@example.com'}</Typography>
+                          <Typography className="text-xs sm:text-sm md:text-base font-bold text-blue-950">{req.senderId?.name || 'Unknown'}</Typography>
+                          <Typography className="text-[10px] sm:text-xs text-blue-700">{req.senderId?.email || 'unknown@example.com'}</Typography>
                         </div>
                         <div className="flex gap-1">
-                          <Button size="small" variant="contained" className="bg-blue-600 hover:bg-blue-700 text-white min-w-0 px-2 py-0.5 text-[9px] rounded font-bold shadow-none" onClick={() => handleAcceptRequest(req._id)}>Accept</Button>
-                          <Button size="small" variant="outlined" className="border-red-200 text-red-600 min-w-0 px-2 py-0.5 text-[9px] rounded font-bold hover:bg-red-50" onClick={() => handleRejectRequest(req._id)}>Reject</Button>
+                          <Button size="small" variant="contained" className="bg-blue-600 hover:bg-blue-700 text-white min-w-0 px-2 py-0.5 text-[9px] sm:text-[11px] rounded font-bold shadow-none" onClick={() => handleAcceptRequest(req._id)}>Accept</Button>
+                          <Button size="small" variant="outlined" className="border-red-200 text-red-600 min-w-0 px-2 py-0.5 text-[9px] sm:text-[11px] rounded font-bold hover:bg-red-50" onClick={() => handleRejectRequest(req._id)}>Reject</Button>
                         </div>
                       </div>
                     ))}
@@ -464,14 +455,14 @@ export default function Header({
                 {/* Sent Requests */}
                 {sentRequests.length > 0 && (
                   <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                    <Typography className="text-xs font-bold text-gray-700 mb-2">Sent Requests:</Typography>
+                    <Typography className="text-[10px] sm:text-xs md:text-sm font-bold text-gray-700 mb-2">Sent Requests:</Typography>
                     {sentRequests.map(req => (
                       <div key={req._id} className="flex justify-between items-center py-1 bg-white p-2 rounded-lg border border-gray-100 shadow-sm mb-1">
                         <div>
-                          <Typography className="text-sm font-bold text-gray-800">{req.receiverId?.name || 'Unknown'}</Typography>
-                          <Typography className="text-[10px] text-gray-500">{req.receiverId?.email || 'unknown@example.com'}</Typography>
+                          <Typography className="text-xs sm:text-sm md:text-base font-bold text-gray-800">{req.receiverId?.name || 'Unknown'}</Typography>
+                          <Typography className="text-[10px] sm:text-xs text-gray-500">{req.receiverId?.email || 'unknown@example.com'}</Typography>
                         </div>
-                        <Typography className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest">Pending</Typography>
+                        <Typography className="text-[9px] sm:text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest">Pending</Typography>
                       </div>
                     ))}
                   </div>
@@ -480,19 +471,25 @@ export default function Header({
                 {/* Friends List */}
                 <div className="space-y-2 pt-1">
                   {friends.length === 0 ? (
-                    <Typography className="text-xs text-amber-900/40 italic">No friends added yet.</Typography>
+                    <Typography className="text-[10px] sm:text-xs md:text-sm text-amber-900/40 italic">No friends added yet.</Typography>
                   ) : (
-                    friends.map(f => (
-                      <div key={f._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-                        <div>
-                          <Typography className="text-xs font-bold text-gray-900">{f.name}</Typography>
-                          <Typography className="text-[9px] text-gray-500">{f.email}</Typography>
+                    friends.map(f => {
+                      const fInitials = f.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+                      return (
+                        <div key={f._id} className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-900/5 shadow-sm hover:shadow-md transition-all group">
+                          <div className="flex items-center gap-3">
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: nostalgiaMode ? '#5c4a3d' : '#f59e0b', fontSize: '12px', fontWeight: 'bold' }}>{fInitials}</Avatar>
+                            <div>
+                              <Typography className="text-xs sm:text-sm md:text-base font-bold text-amber-950">{f.name}</Typography>
+                              <Typography className="text-[10px] sm:text-xs text-amber-900/60">{f.email}</Typography>
+                            </div>
+                          </div>
+                          <IconButton size="small" onClick={() => setFriendToRemove({id: f._id, name: f.name})} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <UserMinus size={14} />
+                          </IconButton>
                         </div>
-                        <IconButton size="small" onClick={() => setFriendToRemove({id: f._id, name: f.name})} className="text-red-400 hover:text-red-600">
-                          <UserMinus size={14} />
-                        </IconButton>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -508,7 +505,7 @@ export default function Header({
               onCancel={() => setFriendToRemove(null)}
             />
 
-            <div className="w-full border-t border-amber-900/10 mt-4 pt-4 flex justify-center">
+            <div className="w-full border-t border-amber-900/10 mt-auto pt-6 flex justify-center">
               <Button 
                 onClick={() => {
                   setIsProfileOpen(false);
@@ -520,8 +517,9 @@ export default function Header({
                 Sign Out
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+            </div>
+          </div>
+        </Drawer>
       )}
 
       {/* Global Snackbar for Header Notifications */}
@@ -541,6 +539,6 @@ export default function Header({
         </Alert>
       </Snackbar>
 
-    </nav>
+    </>
   );
 }

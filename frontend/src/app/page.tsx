@@ -54,13 +54,13 @@ export default function Home() {
           >
             <Typography 
               variant="h1" 
-              className="font-display font-extrabold text-amber-950 mb-6 text-5xl md:text-8xl leading-[1.1]"
+              className="font-display font-extrabold text-amber-950 mb-6 text-4xl sm:text-5xl md:text-6xl md:text-8xl leading-[1.1]"
             >
               Preserve Your <span className="text-gradient">Memories</span> Today
             </Typography>
             <Typography 
               variant="h5" 
-              className="text-amber-900/60 mb-10 font-light leading-relaxed max-w-lg text-lg md:text-xl"
+              className="text-amber-900/60 mb-10 font-light leading-relaxed max-w-lg text-base sm:text-lg md:text-xl md:text-xl"
             >
               Preserve your life's story, one snapshot at a time. A secure personal vault to store and cherish your precious photo albums.
             </Typography>
@@ -70,7 +70,7 @@ export default function Home() {
                   variant="contained" 
                   size="large"
                   disableElevation
-                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-10 py-5 shadow-2xl shadow-yellow-200 text-lg font-bold transition-all hover:scale-105"
+                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-10 py-5 shadow-2xl shadow-yellow-200 text-base sm:text-lg md:text-xl font-bold transition-all hover:scale-105"
                   endIcon={<ArrowRight />}
                 >
                   Create Your Vault
@@ -79,7 +79,7 @@ export default function Home() {
               <Button 
                 variant="outlined" 
                 size="large"
-                className="border-2 border-yellow-200 text-amber-600 hover:bg-white/50 hover:border-yellow-300 rounded-full px-10 py-5 text-lg font-bold backdrop-blur-sm transition-all"
+                className="border-2 border-yellow-200 text-amber-600 hover:bg-white/50 hover:border-yellow-300 rounded-full px-10 py-5 text-base sm:text-lg md:text-xl font-bold backdrop-blur-sm transition-all"
               >
                 Learn More
               </Button>
@@ -118,7 +118,7 @@ export default function Home() {
                 </div>
                 
                 <Box className="pt-4">
-                  <div className="flex justify-between text-xs font-bold text-yellow-600 mb-2 uppercase tracking-widest">
+                  <div className="flex justify-between text-[10px] sm:text-xs md:text-sm font-bold text-yellow-600 mb-2 uppercase tracking-widest">
                     <span>Vault Storage</span>
                     <span>12%</span>
                   </div>
@@ -155,7 +155,7 @@ export default function Home() {
                 <Calendar size={24} />
               </div>
               <div>
-                <Typography className="font-bold text-amber-900 text-sm">Travel memories 2026</Typography>
+                <Typography className="font-bold text-amber-900 text-xs sm:text-sm md:text-base">Travel memories 2026</Typography>
                 <Typography variant="caption" className="text-yellow-800/50 font-bold uppercase">Stored</Typography>
               </div>
             </motion.div>
@@ -170,7 +170,7 @@ export default function Home() {
             <Typography variant="h2" className="font-display font-bold text-amber-950 mb-4">
               Designed for Everyone
             </Typography>
-            <Typography className="text-amber-900/50 text-xl max-w-2xl mx-auto">
+            <Typography className="text-amber-900/50 text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto">
               Every feature is crafted to organize and preserve your life's most precious snapshots.
             </Typography>
           </Box>
@@ -189,7 +189,7 @@ export default function Home() {
                   <Typography variant="h5" className="text-amber-950 font-bold mb-4 font-display">
                     {f.title}
                   </Typography>
-                  <Typography className="text-amber-900/60 leading-relaxed text-lg">
+                  <Typography className="text-amber-900/60 leading-relaxed text-base sm:text-lg md:text-xl">
                     {f.desc}
                   </Typography>
                 </Card>
@@ -206,14 +206,14 @@ export default function Home() {
           <Typography variant="h3" className="font-display font-bold text-amber-950 mb-6">
             Ready to preserve your story?
           </Typography>
-          <Typography className="text-amber-900/60 text-xl mb-10 max-w-xl mx-auto">
+          <Typography className="text-amber-900/60 text-lg sm:text-xl md:text-2xl mb-10 max-w-xl mx-auto">
             Join thousands of people who are keeping their digital memories safe and organized.
           </Typography>
           <Link href="/auth/signup" style={{ textDecoration: 'none' }}>
             <Button 
               variant="contained" 
               size="large"
-              className="bg-amber-600 hover:bg-amber-700 rounded-full px-12 py-5 text-xl font-bold shadow-xl shadow-yellow-100 transition-all hover:scale-105 text-white"
+              className="bg-amber-600 hover:bg-amber-700 rounded-full px-12 py-5 text-lg sm:text-xl md:text-2xl font-bold shadow-xl shadow-yellow-100 transition-all hover:scale-105 text-white"
             >
               Get Started for Free
             </Button>
@@ -234,8 +234,8 @@ export default function Home() {
             © 2026 Memoir App. Built with Passion.
           </Typography>
           <Stack direction="row" spacing={4}>
-            <Button className="text-yellow-800/40 text-sm capitalize">Privacy</Button>
-            <Button className="text-yellow-800/40 text-sm capitalize">Terms</Button>
+            <Button className="text-yellow-800/40 text-xs sm:text-sm md:text-base capitalize">Privacy</Button>
+            <Button className="text-yellow-800/40 text-xs sm:text-sm md:text-base capitalize">Terms</Button>
           </Stack>
         </Container>
       </footer>

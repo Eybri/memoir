@@ -30,17 +30,17 @@ export default function ConfirmDialog({
       onClose={onCancel}
       slotProps={{
         paper: {
-          sx: { borderRadius: '16px', padding: 1, minWidth: '300px' }
+          sx: { borderRadius: '12px', padding: 1, minWidth: '300px' }
         }
       }}
     >
       <DialogTitle>
-        <Typography className="font-display font-black text-amber-950 text-lg">
+        <Typography className="font-display font-black text-amber-950 text-base sm:text-lg md:text-xl">
           {title}
         </Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography className="text-sm text-gray-700">
+        <Typography className="text-xs sm:text-sm md:text-base text-gray-700">
           {message}
         </Typography>
       </DialogContent>
