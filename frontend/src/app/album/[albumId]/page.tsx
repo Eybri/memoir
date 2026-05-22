@@ -48,12 +48,15 @@ import AlbumGallery from '../components/AlbumGallery';
 import FloatingUploadButton from '../components/FloatingUploadButton';
 import EmptyAlbumState from '../components/EmptyAlbumState';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import InviteCollaboratorDialog from '../components/InviteCollaboratorDialog';
 
 interface Album {
   _id: string;
   title: string;
   coverPhotoUrl: string;
   createdAt?: string;
+  userId?: any;
+  sharedWith?: any[];
 }
 
 interface Photo {
@@ -84,6 +87,7 @@ export default function AlbumDetailsPage() {
   const [editedTitle, setEditedTitle] = useState('');
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'scrapbook' | 'gallery'>('scrapbook');
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
   const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(false);
@@ -198,6 +202,23 @@ export default function AlbumDetailsPage() {
       setIsEditingTitle(false);
     } catch (error) {
       console.error('Failed to rename album:', error);
+    }
+  };
+
+  const handleInviteCollaborators = async (selectedUserIds: string[]) => {
+    if (!album) return;
+    try {
+      const currentShared = album.sharedWith?.map((sw: any) => sw._id) || [];
+      const newSharedWith = [...new Set([...currentShared, ...selectedUserIds])];
+      await updateAlbum(albumId, { sharedWith: newSharedWith });
+      
+      const fetchedAlbum = await fetchAlbumById(albumId);
+      setAlbum(fetchedAlbum);
+      setIsInviteDialogOpen(false);
+      setSnackbar({ open: true, message: `Successfully invited ${selectedUserIds.length} friend(s)!`, severity: 'success' });
+    } catch (error) {
+      console.error('Failed to invite collaborators:', error);
+      setSnackbar({ open: true, message: 'Failed to invite friends', severity: 'error' });
     }
   };
 
@@ -378,6 +399,7 @@ export default function AlbumDetailsPage() {
           handleRenameAlbum={handleRenameAlbum}
           handleDeleteAlbum={() => setConfirmDeleteAlbum(true)}
           startSlideshow={() => setIsSlideshowOpen(true)}
+          onInviteClick={() => setIsInviteDialogOpen(true)}
           currentUser={user}
         />
 
@@ -517,6 +539,14 @@ export default function AlbumDetailsPage() {
         onClose={() => setIsSlideshowOpen(false)}
         photos={albumPhotos}
         albumTitle={album.title}
+      />
+
+      <InviteCollaboratorDialog
+        open={isInviteDialogOpen}
+        onClose={() => setIsInviteDialogOpen(false)}
+        onInvite={handleInviteCollaborators}
+        currentCollaborators={album.sharedWith?.map((sw: any) => sw._id) || []}
+        nostalgiaMode={nostalgiaMode}
       />
 
       <Snackbar 

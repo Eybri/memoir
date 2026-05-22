@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, IconButton, Button, Stack } from '@mui/material';
-import { Calendar, Edit2, Play, Trash2, Check, X } from 'lucide-react';
+import { Calendar, Edit2, Play, Trash2, Check, X, UserPlus } from 'lucide-react';
 
 interface Album {
   _id: string;
@@ -23,6 +23,7 @@ interface AlbumHeroProps {
   handleRenameAlbum: () => void;
   handleDeleteAlbum: () => void;
   startSlideshow: () => void;
+  onInviteClick?: () => void;
   currentUser?: any;
 }
 
@@ -38,6 +39,7 @@ export default function AlbumHero({
   handleRenameAlbum,
   handleDeleteAlbum,
   startSlideshow,
+  onInviteClick,
   currentUser
 }: AlbumHeroProps) {
   return (
@@ -110,19 +112,30 @@ export default function AlbumHero({
           </div>
 
           {/* Shared Album Indicators */}
-          {currentUser && album.userId && album.userId._id === currentUser.id && album.sharedWith && album.sharedWith.length > 0 && (
+          {currentUser && album.userId && (album.userId === currentUser.id || album.userId._id === currentUser.id) && (
             <div className="flex items-center gap-2 pt-2">
               <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Shared With:</span>
-              <div className="flex -space-x-1.5">
-                {album.sharedWith.map(sw => (
-                  <div key={sw._id} className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase" title={sw.name}>
-                    {sw.name.substring(0, 2)}
-                  </div>
-                ))}
+              <div className="flex items-center">
+                <div className="flex -space-x-1.5 mr-3">
+                  {album.sharedWith && album.sharedWith.length > 0 ? album.sharedWith.map(sw => (
+                    <div key={sw._id} className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase" title={sw.name}>
+                      {sw.name.substring(0, 2)}
+                    </div>
+                  )) : (
+                    <span className="text-white/40 text-xs italic ml-1 mr-1">Just you</span>
+                  )}
+                </div>
+                <button 
+                  onClick={onInviteClick} 
+                  className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md shadow-lg border border-white/30 ml-1 transition-all hover:scale-105 outline-none" 
+                  title="Invite Friends"
+                >
+                  <UserPlus size={18} strokeWidth={2.5} className="text-white ml-[2px]" />
+                </button>
               </div>
             </div>
           )}
-          {currentUser && album.userId && album.userId._id !== currentUser.id && (
+          {currentUser && album.userId && album.userId !== currentUser.id && album.userId._id !== currentUser.id && (
             <div className="flex items-center gap-2 pt-2">
               <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded border border-white/10 flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold uppercase">
