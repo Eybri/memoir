@@ -394,7 +394,7 @@ export default function MemoryGrid({
               </div>
 
               <div
-                className="relative z-10 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[90px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-3 sm:gap-[18px]"
+                className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[130px] sm:auto-rows-[180px] md:auto-rows-[210px] gap-4 sm:gap-[18px]"
                 style={{ gridAutoFlow: 'dense', borderRadius: '12px' }}
               >
                 {chapter.piles.map((pile, pileIndex) => {
@@ -461,12 +461,11 @@ export default function MemoryGrid({
                           transformStyle: 'preserve-3d',
                           zIndex: 1,
                           /* Polaroid frame: thin on 3 sides, thick on bottom */
-                          padding: '6px 6px 28px 6px',
                           background: '#ffffff',
                           boxShadow: '0 8px 32px -4px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10)',
                           borderRadius: '2px',
                         }}
-                        className="w-full h-full relative"
+                        className="w-full h-full relative p-[4px] pb-[20px] sm:p-[6px] sm:pb-[28px]"
                       >
                         {/* FRONT FACE */}
                         <div
