@@ -198,8 +198,8 @@ export default function AlbumDetailsPage() {
   const handleRenameAlbum = async () => {
     if (!editedTitle.trim() || !album) return;
     try {
-      const updated = await updateAlbum(albumId, { title: editedTitle.trim() });
-      setAlbum(updated);
+      await updateAlbum(albumId, { title: editedTitle.trim() });
+      setAlbum(prev => prev ? { ...prev, title: editedTitle.trim() } : prev);
       setIsEditingTitle(false);
     } catch (error) {
       console.error('Failed to rename album:', error);

@@ -119,16 +119,19 @@ export default function AlbumHero({
               <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Shared With:</span>
               <div className="flex items-center">
                 <div className="flex -space-x-1.5 mr-3">
-                  {album.sharedWith && album.sharedWith.length > 0 ? album.sharedWith.map(sw => (
-                    <button 
-                      key={sw._id} 
-                      onClick={() => onRemoveCollaborator?.(sw._id, sw.name)}
-                      className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase hover:bg-red-500 hover:scale-110 hover:z-20 transition-all focus:outline-none" 
-                      title={`Remove ${sw.name}`}
-                    >
-                      {sw.name.substring(0, 2)}
-                    </button>
-                  )) : (
+                  {album.sharedWith && album.sharedWith.length > 0 ? album.sharedWith.map(sw => {
+                    const nameStr = typeof sw === 'string' ? '' : (sw.name || '');
+                    return (
+                      <button 
+                        key={sw._id || sw} 
+                        onClick={() => onRemoveCollaborator?.(sw._id || sw, nameStr)}
+                        className="w-6 h-6 rounded-full bg-amber-600 border border-white/20 text-[9px] flex items-center justify-center text-white font-bold shadow-md z-10 uppercase hover:bg-red-500 hover:scale-110 hover:z-20 transition-all focus:outline-none" 
+                        title={`Remove ${nameStr || 'User'}`}
+                      >
+                        {nameStr ? nameStr.substring(0, 2) : 'U'}
+                      </button>
+                    );
+                  }) : (
                     <span className="text-white/40 text-xs italic ml-1 mr-1">Just you</span>
                   )}
                 </div>
@@ -146,9 +149,9 @@ export default function AlbumHero({
             <div className="flex items-center gap-2 pt-2">
               <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded border border-white/10 flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold uppercase">
-                  {album.userId.name.substring(0, 2)}
+                  {album.userId.name ? album.userId.name.substring(0, 2) : 'U'}
                 </div>
-                <span className="text-white/90 text-xs font-bold tracking-wide">Shared by {album.userId.name}</span>
+                <span className="text-white/90 text-xs font-bold tracking-wide">Shared by {album.userId.name || 'Unknown'}</span>
               </div>
             </div>
           )}
