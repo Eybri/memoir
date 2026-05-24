@@ -20,13 +20,20 @@ import {
   LogOut,
   Bell,
   UserMinus,
-  Users
+  Users,
+  Check,
+  X,
+  UserPlus,
+  BookOpen,
+  Trash2,
+  Inbox,
+  MessageSquare
 } from 'lucide-react';
 import { Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
-import { searchUsers, fetchFriends, sendFriendRequest, removeFriend, fetchPendingRequests, fetchSentRequests, acceptFriendRequest, rejectFriendRequest, UserBasic } from '@/lib/api';
+import { searchUsers, fetchFriends, sendFriendRequest, removeFriend, fetchPendingRequests, fetchSentRequests, acceptFriendRequest, rejectFriendRequest, UserBasic, Notification, fetchNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from '@/lib/api';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface HeaderProps {
@@ -60,6 +67,142 @@ export default function Header({
   const [sentRequests, setSentRequests] = React.useState<any[]>([]);
   const [friendToRemove, setFriendToRemove] = React.useState<{id: string, name: string} | null>(null);
   const [snackbar, setSnackbar] = React.useState<{open: boolean, message: string, severity: 'success'|'error'|'info'}>({open: false, message: '', severity: 'info'});
+
+  // Notifications States
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const [isNotifOpen, setIsNotifOpen] = React.useState(false);
+  const notifRef = React.useRef<HTMLDivElement>(null);
+
+  const unreadCount = React.useMemo(() => {
+    return notifications.filter(n => !n.isRead).length;
+  }, [notifications]);
+
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchNotifications();
+      setNotifications(data);
+    } catch(e) {
+      console.error('Failed to fetch notifications', e);
+    }
+  };
+
+  // Close notifications menu on click outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    }
+    if (isNotifOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNotifOpen]);
+
+  React.useEffect(() => {
+    if (user && isDashboard) {
+      loadNotifications();
+      const interval = setInterval(() => {
+        loadNotifications();
+      }, 4000); // 4 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user, isDashboard]);
+
+  // Load when notifications popover opens
+  React.useEffect(() => {
+    if (isNotifOpen) {
+      loadNotifications();
+    }
+  }, [isNotifOpen]);
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setSnackbar({ open: true, message: 'All notifications marked as read', severity: 'success' });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(id);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAcceptRequestFromNotif = async (notifId: string, requestId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await acceptFriendRequest(requestId);
+      await markNotificationRead(notifId);
+      loadFriends();
+      loadNotifications();
+      setSnackbar({ open: true, message: 'Friend request accepted!', severity: 'success' });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || 'Failed to accept request', severity: 'error' });
+    }
+  };
+
+  const handleRejectRequestFromNotif = async (notifId: string, requestId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await rejectFriendRequest(requestId);
+      await markNotificationRead(notifId);
+      loadFriends();
+      loadNotifications();
+      setSnackbar({ open: true, message: 'Friend request rejected', severity: 'info' });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || 'Failed to reject request', severity: 'error' });
+    }
+  };
+
+  const handleNotificationClick = async (notif: Notification) => {
+    if (!notif.isRead) {
+      await handleMarkAsRead(notif._id);
+    }
+    setIsNotifOpen(false);
+
+    if ((notif.type === 'album_shared' || notif.type === 'photo_caption_added') && notif.relatedId) {
+      router.push(`/album/${notif.relatedId}`);
+    } else if (notif.type === 'friend_request_received') {
+      setIsProfileOpen(true);
+    }
+  };
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return 'Just now';
+    const seconds = Math.floor(diffMs / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  };
 
   React.useEffect(() => {
     if (isProfileOpen && user) {
@@ -110,14 +253,24 @@ export default function Header({
   const handleAcceptRequest = async (requestId: string) => {
     try {
       await acceptFriendRequest(requestId);
+      const relatedNotif = notifications.find(n => n.relatedId === requestId && n.type === 'friend_request_received');
+      if (relatedNotif) {
+        await markNotificationRead(relatedNotif._id);
+      }
       loadFriends();
+      loadNotifications();
     } catch(e) { console.error(e) }
   }
 
   const handleRejectRequest = async (requestId: string) => {
     try {
       await rejectFriendRequest(requestId);
+      const relatedNotif = notifications.find(n => n.relatedId === requestId && n.type === 'friend_request_received');
+      if (relatedNotif) {
+        await markNotificationRead(relatedNotif._id);
+      }
       loadFriends();
+      loadNotifications();
     } catch(e) { console.error(e) }
   }
 
@@ -256,19 +409,171 @@ export default function Header({
 
 
             {/* Notifications Bell */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <IconButton 
-                className={`p-2.5 rounded-full border relative transition-all duration-500 ${
-                  nostalgiaMode 
-                    ? 'bg-[#3c2f1f]/5 border-[#3c2f1f]/10 text-amber-800 hover:bg-[#3c2f1f]/10' 
-                    : 'bg-white/20 border-white/20 text-amber-700 hover:bg-white/40'
-                }`}
-              >
-                <Bell size={16} />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-600 rounded-full" />
-              </IconButton>
-            </motion.div>
+            <div className="relative" ref={notifRef}>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <IconButton 
+                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  className={`p-2.5 rounded-full border relative transition-all duration-500 ${
+                    isNotifOpen
+                      ? nostalgiaMode 
+                        ? 'bg-[#3c2f1f]/10 border-[#3c2f1f]/25 text-amber-800'
+                        : 'bg-[#fffdf0]/40 border-amber-900/20 text-amber-900'
+                      : nostalgiaMode 
+                        ? 'bg-[#3c2f1f]/5 border-[#3c2f1f]/10 text-amber-800 hover:bg-[#3c2f1f]/10' 
+                        : 'bg-white/20 border-white/20 text-amber-700 hover:bg-white/40'
+                  }`}
+                >
+                  <Bell size={16} />
+                  {unreadCount > 0 && (
+                    <>
+                      <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                      <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-600 rounded-full" />
+                    </>
+                  )}
+                </IconButton>
+              </motion.div>
+
+              {/* Notification Popover Dropdown */}
+              {isNotifOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className={`absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border shadow-xl z-50 overflow-hidden ${
+                    nostalgiaMode 
+                      ? 'bg-[#f4efe2] border-[#dcd2be] text-[#3c2f1f]' 
+                      : 'bg-[#fffdf0] border-amber-900/10 text-amber-950 shadow-amber-900/5'
+                  }`}
+                >
+                  {/* Dropdown Header */}
+                  <div className={`p-4 flex items-center justify-between border-b ${
+                    nostalgiaMode ? 'border-[#dcd2be]' : 'border-amber-900/10'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <Typography className="font-display font-black text-sm uppercase tracking-wider">
+                        Notifications
+                      </Typography>
+                      {unreadCount > 0 && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          nostalgiaMode ? 'bg-[#3c2f1f]/15 text-[#3c2f1f]' : 'bg-amber-600/15 text-amber-700'
+                        }`}>
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={handleMarkAllAsRead}
+                        className="text-[10px] sm:text-xs font-bold text-amber-700 hover:text-amber-800 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Dropdown Items List */}
+                  <div className="max-h-[360px] overflow-y-auto divide-y divide-[#3c2f1f]/5">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 flex flex-col items-center justify-center text-center opacity-60">
+                        <Inbox size={32} strokeWidth={1.5} className="mb-2 text-amber-700/80" />
+                        <Typography className="text-xs italic font-serif">
+                          No notifications yet.
+                        </Typography>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => {
+                        const notifInitials = notif.senderId?.name
+                          ? notif.senderId.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                          : '?';
+                        return (
+                          <div 
+                            key={notif._id}
+                            onClick={() => handleNotificationClick(notif)}
+                            className={`p-4 flex items-start gap-3 transition-colors cursor-pointer group ${
+                              !notif.isRead 
+                                ? nostalgiaMode ? 'bg-[#3c2f1f]/3' : 'bg-amber-500/5' 
+                                : 'hover:bg-black/5'
+                            }`}
+                          >
+                            {/* Unread dot indicator */}
+                            {!notif.isRead && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-600 self-center mt-1 flex-shrink-0" />
+                            )}
+
+                            {/* Avatar/Icon wrapper */}
+                            <div className="flex-shrink-0 relative">
+                              <Avatar 
+                                sx={{ 
+                                  width: 32, 
+                                  height: 32, 
+                                  fontSize: '11px', 
+                                  fontWeight: 'bold',
+                                  bgcolor: nostalgiaMode ? '#5c4a3d' : '#f59e0b' 
+                                }}
+                              >
+                                {notifInitials}
+                              </Avatar>
+                              <div className={`absolute -bottom-1 -right-1 p-0.5 rounded-full text-white ${
+                                notif.type === 'friend_request_received' ? 'bg-blue-500' :
+                                notif.type === 'friend_request_accepted' ? 'bg-green-500' :
+                                notif.type === 'photo_caption_added' ? 'bg-amber-600' : 'bg-purple-500'
+                              }`}>
+                                {notif.type === 'friend_request_received' && <UserPlus size={10} />}
+                                {notif.type === 'friend_request_accepted' && <Check size={10} />}
+                                {notif.type === 'album_shared' && <BookOpen size={10} />}
+                                {notif.type === 'photo_caption_added' && <MessageSquare size={10} />}
+                              </div>
+                            </div>
+
+                            {/* Text / Message area */}
+                            <div className="flex-grow min-w-0">
+                              <Typography className={`text-xs leading-relaxed font-medium break-words ${
+                                !notif.isRead ? 'font-bold' : ''
+                              }`}>
+                                {notif.message}
+                              </Typography>
+                              
+                              {/* Relative Time */}
+                              <span className="text-[9px] opacity-60 block mt-1">
+                                {formatRelativeTime(notif.createdAt)}
+                              </span>
+
+                              {/* Action buttons (only for friend request received, and if request is unread) */}
+                              {notif.type === 'friend_request_received' && !notif.isRead && notif.relatedId && (
+                                <div className="flex gap-2 mt-2">
+                                  <button
+                                    onClick={(e) => handleAcceptRequestFromNotif(notif._id, notif.relatedId || '', e)}
+                                    className="bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold px-3 py-1 rounded transition-colors"
+                                  >
+                                    Accept
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleRejectRequestFromNotif(notif._id, notif.relatedId || '', e)}
+                                    className="bg-transparent hover:bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold px-3 py-1 rounded transition-colors"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Delete/Dismiss Action */}
+                            <IconButton 
+                              size="small" 
+                              onClick={(e) => handleDeleteNotification(notif._id, e)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-400 hover:text-red-600 hover:bg-red-50/20"
+                              title="Delete notification"
+                            >
+                              <Trash2 size={12} />
+                            </IconButton>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </div>
 
             {/* Circular Profile Avatar */}
             {user && (

@@ -166,7 +166,8 @@ export default function AlbumDetailsPage() {
       files.map(async (file) => {
         try {
           const newPhoto = await uploadPhoto(file);
-          await updatePhotoAlbum(newPhoto._id, albumId);
+          const targetAlbumId = albumId === 'unassigned' ? null : albumId;
+          await updatePhotoAlbum(newPhoto._id, targetAlbumId);
         } catch (error) {
           console.error(`Upload failed for ${file.name}:`, error);
         } finally {
