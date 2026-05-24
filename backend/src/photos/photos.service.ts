@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { Photo } from '../schemas/photo.schema';
 import { Album } from '../schemas/album.schema';
 import { CloudinaryService } from './cloudinary.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PhotosService {
@@ -11,6 +12,7 @@ export class PhotosService {
     @InjectModel(Photo.name) private photoModel: Model<Photo>,
     @InjectModel(Album.name) private albumModel: Model<Album>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(userId: string, url: string, publicId: string) {
@@ -83,7 +85,46 @@ export class PhotosService {
       createdAt: new Date(),
     });
 
-    return photo.save();
+    const savedPhoto = await photo.save();
+
+    // Trigger notification to other participants of the album
+    if (photo.albumId) {
+      try {
+        const album = await this.albumModel
+          .findById(photo.albumId)
+          .populate('userId', '_id name email')
+          .populate('sharedWith', '_id name email');
+
+        if (album) {
+          const author = await this.albumModel.db.model('User').findById(userId);
+          const authorName = author?.name || 'Someone';
+
+          const participants = [
+            album.userId,
+            ...(album.sharedWith || [])
+          ];
+
+          const otherParticipants = participants.filter(
+            p => p._id.toString() !== userId
+          );
+
+          for (const participant of otherParticipants) {
+            await this.notificationsService.create(
+              participant._id.toString(),
+              userId,
+              'photo_caption_added',
+              `${authorName} added a note to a photo in "${album.title}": "${text}"`,
+              album._id.toString(),
+              { albumTitle: album.title }
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Failed to notify participants on new caption/note', err);
+      }
+    }
+
+    return savedPhoto;
   }
 
   async searchByCaption(userId: string, query: string) {
