@@ -3,12 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from '../schemas/user.schema';
 import { FriendRequest } from '../schemas/friend-request.schema';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(FriendRequest.name) private friendRequestModel: Model<FriendRequest>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async searchByEmail(email: string, currentUserId: string) {
@@ -52,7 +54,19 @@ export class UsersService {
       senderId: new Types.ObjectId(senderId),
       receiverId: new Types.ObjectId(receiverId),
     });
-    return req.save();
+    const savedRequest = await req.save();
+    try {
+      await this.notificationsService.create(
+        receiverId,
+        senderId,
+        'friend_request_received',
+        `${sender?.name || 'Someone'} sent you a friend request.`,
+        savedRequest._id.toString()
+      );
+    } catch (err) {
+      console.error('Failed to create notification for friend request', err);
+    }
+    return savedRequest;
   }
 
   async getPendingRequests(userId: string) {
@@ -79,6 +93,19 @@ export class UsersService {
 
     await this.userModel.findByIdAndUpdate(userId, { $addToSet: { friends: request.senderId } });
     await this.userModel.findByIdAndUpdate(request.senderId, { $addToSet: { friends: new Types.ObjectId(userId) } });
+
+    try {
+      const acceptor = await this.userModel.findById(userId);
+      await this.notificationsService.create(
+        String(request.senderId),
+        userId,
+        'friend_request_accepted',
+        `${acceptor?.name || 'Someone'} accepted your friend request.`,
+        requestId
+      );
+    } catch (err) {
+      console.error('Failed to create notification for accepted friend request', err);
+    }
 
     return { success: true };
   }

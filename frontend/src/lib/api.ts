@@ -312,3 +312,72 @@ export async function removeFriend(friendId: string): Promise<UserBasic[]> {
   if (!response.ok) throw new Error('Failed to remove friend');
   return response.json();
 }
+
+// Notifications API
+export interface Notification {
+  _id: string;
+  recipientId: string;
+  senderId?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  type: 'friend_request_received' | 'friend_request_accepted' | 'album_shared' | 'photo_caption_added';
+  isRead: boolean;
+  message: string;
+  relatedId?: string;
+  metadata?: {
+    albumTitle?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchNotifications(): Promise<Notification[]> {
+  const token = localStorage.getItem('token');
+  if (!token) return [];
+
+  try {
+    const response = await fetch(`${API_URL}/notifications`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      console.warn('Failed to fetch notifications:', response.status || response.statusText);
+      return [];
+    }
+    return response.json();
+  } catch (error) {
+    console.warn('Network error fetching notifications:', error);
+    return [];
+  }
+}
+
+export async function markNotificationRead(id: string): Promise<Notification> {
+  const response = await fetch(`${API_URL}/notifications/${id}/read`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to mark notification as read');
+  return response.json();
+}
+
+export async function markAllNotificationsRead(): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_URL}/notifications/read-all`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to mark all notifications as read');
+  return response.json();
+}
+
+export async function deleteNotification(id: string): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_URL}/notifications/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to delete notification');
+  return response.json();
+}
