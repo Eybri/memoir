@@ -455,7 +455,6 @@ export default function MemoryGrid({
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        whileHover={{ scale: 1.01, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
                         style={{
                           transformStyle: 'preserve-3d',
@@ -494,7 +493,7 @@ export default function MemoryGrid({
                             <img
                               src={photo.url}
                               alt="Scrapbook Collage Piece"
-                              className={`w-full h-full object-cover transition-transform duration-300 hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
+                              className={`w-full h-full object-cover ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                             />
                             
                             {/* Selection Checkbox */}
@@ -679,7 +678,6 @@ export default function MemoryGrid({
                       {/* Polaroid Card */}
                       <motion.div
                         animate={{ rotate: baseTilt }}
-                        whileHover={{ rotate: 0, scale: 1.01, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 18 }}
                         className="w-full relative bg-white p-1.5 pb-3 sm:pb-5 shadow-lg border border-amber-100/80 rounded-xl"
                       >
@@ -704,7 +702,7 @@ export default function MemoryGrid({
                           <img
                             src={photo.url}
                             alt="Scrapbook Memory"
-                            className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
+                            className={`w-full h-full object-cover ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                           />
                           
                           {/* Selection Checkbox */}

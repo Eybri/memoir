@@ -114,7 +114,7 @@ export default function AlbumGallery({
             <img
               src={photo.url}
               alt="Gallery Photo"
-              className={`w-full h-full object-cover transition-transform duration-150 group-hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
+              className={`w-full h-full object-cover ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
             />
             
             {/* Selection Checkbox */}
@@ -123,14 +123,14 @@ export default function AlbumGallery({
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg ${
                   selectedPhotoIds.has(photo._id) 
                     ? 'bg-amber-500 border-amber-500 text-white' 
-                    : 'bg-black/30 border-white/80 hover:bg-black/50'
+                    : 'bg-black/30 border-white/80'
                 }`}>
                   {selectedPhotoIds.has(photo._id) && <Check size={14} strokeWidth={4} />}
                 </div>
               </div>
             )}
             
-            <div className={`absolute inset-0 transition-colors duration-300 ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'bg-amber-500/20' : 'bg-black/0 group-hover:bg-black/10'}`} />
+            <div className={`absolute inset-0 transition-colors duration-300 ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'bg-amber-500/20' : 'bg-black/0'}`} />
           </div>
         ))}
       </div>
