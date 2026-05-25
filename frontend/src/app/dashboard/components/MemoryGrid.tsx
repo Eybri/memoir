@@ -14,6 +14,7 @@ import {
   Mail,
   Check
 } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 interface Album {
   _id: string;
@@ -89,6 +90,7 @@ export default function MemoryGrid({
   onToggleSelection,
   onLongPress
 }: MemoryGridProps) {
+  const { user } = useAuth();
   
   // Chapter & Stacking calculation
   const chapters = React.useMemo(() => {
@@ -584,14 +586,16 @@ export default function MemoryGrid({
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <Typography key={i} style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
-                                    — {cap.text}
+                                  <Box key={i} sx={{ mb: 1.5 }}>
+                                    <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px' }}>
+                                      {cap.text}
+                                    </Typography>
                                     {cap.authorId && cap.authorId.name ? (
-                                      <span style={{ fontSize: '9px', color: '#b45309', marginLeft: '4px' }}>
-                                        (by {cap.authorId.name})
-                                      </span>
+                                      <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '10px', color: '#b45309', textAlign: 'right', marginTop: '2px', paddingRight: '4px', fontStyle: 'italic' }}>
+                                        — {(cap.authorId._id === user?.id || cap.authorId === user?.id) ? 'Me' : cap.authorId.name}
+                                      </Typography>
                                     ) : null}
-                                  </Typography>
+                                  </Box>
                                 ))
                               )}
                             </div>
