@@ -14,6 +14,7 @@ import {
   Mail,
   Check
 } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 interface Album {
   _id: string;
@@ -25,7 +26,7 @@ interface Album {
 interface Photo {
   _id: string;
   url: string;
-  captions: { text: string; authorId: string; createdAt: string }[];
+  captions: { text: string; authorId: any; createdAt: string }[];
   takenAt: string;
   albumId?: string;
 }
@@ -89,6 +90,7 @@ export default function MemoryGrid({
   onToggleSelection,
   onLongPress
 }: MemoryGridProps) {
+  const { user } = useAuth();
   
   // Chapter & Stacking calculation
   const chapters = React.useMemo(() => {
@@ -455,7 +457,6 @@ export default function MemoryGrid({
 
                       <motion.div
                         animate={{ rotateY: isFlipped ? 180 : 0, rotate: baseTilt }}
-                        whileHover={{ scale: 1.01, rotate: 0, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 120, damping: 14 }}
                         style={{
                           transformStyle: 'preserve-3d',
@@ -494,7 +495,7 @@ export default function MemoryGrid({
                             <img
                               src={photo.url}
                               alt="Scrapbook Collage Piece"
-                              className={`w-full h-full object-cover transition-transform duration-300 hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
+                              className={`w-full h-full object-cover ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                             />
                             
                             {/* Selection Checkbox */}
@@ -585,9 +586,16 @@ export default function MemoryGrid({
                                 </Typography>
                               ) : (
                                 photo.captions.map((cap, i) => (
-                                  <Typography key={i} style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
-                                    — {cap.text}
-                                  </Typography>
+                                  <Box key={i} sx={{ mb: 1.5 }}>
+                                    <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px' }}>
+                                      {cap.text}
+                                    </Typography>
+                                    {cap.authorId && cap.authorId.name ? (
+                                      <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '10px', color: '#b45309', textAlign: 'right', marginTop: '2px', paddingRight: '4px', fontStyle: 'italic' }}>
+                                        — {(cap.authorId._id === user?.id || cap.authorId === user?.id) ? 'Me' : cap.authorId.name}
+                                      </Typography>
+                                    ) : null}
+                                  </Box>
                                 ))
                               )}
                             </div>
@@ -679,7 +687,6 @@ export default function MemoryGrid({
                       {/* Polaroid Card */}
                       <motion.div
                         animate={{ rotate: baseTilt }}
-                        whileHover={{ rotate: 0, scale: 1.01, zIndex: 20 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 18 }}
                         className="w-full relative bg-white p-1.5 pb-3 sm:pb-5 shadow-lg border border-amber-100/80 rounded-xl"
                       >
@@ -704,7 +711,7 @@ export default function MemoryGrid({
                           <img
                             src={photo.url}
                             alt="Scrapbook Memory"
-                            className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01] ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
+                            className={`w-full h-full object-cover ${isSelectionMode && selectedPhotoIds?.has(photo._id) ? 'scale-[1.03] brightness-90' : ''}`}
                           />
                           
                           {/* Selection Checkbox */}

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Dialog, Box, Stack, IconButton, Typography, Button, TextField } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, Trash2, Download, RotateCcw, BookOpen, Send } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 interface Photo {
   _id: string;
   url: string;
-  captions: { text: string; authorId: string; createdAt: string }[];
+  captions: { text: string; authorId: any; createdAt: string }[];
   takenAt: string;
   albumId?: string;
 }
@@ -39,6 +40,7 @@ export default function PhotoDetailDialog({
   onSetAsCover,
   onUpdatePhotoAlbum
 }: PhotoDetailDialogProps) {
+  const { user } = useAuth();
   const [isFlipped, setIsFlipped] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -247,31 +249,46 @@ export default function PhotoDetailDialog({
                   {/* Red margin line */}
                   <div style={{ position: 'absolute', top: 0, bottom: 0, left: '44px', width: '1.5px', background: 'rgba(200,80,80,0.35)' }} />
 
-                  <Box style={{ paddingLeft: '52px' }}>
-                    <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '13px', color: '#b45309', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                  <Box style={{ paddingLeft: '52px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '13px', color: '#b45309', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '16px', flexShrink: 0 }}>
                       Notes / Memories
                     </Typography>
 
                     {/* Existing captions */}
-                    <Box style={{ marginBottom: '16px', maxHeight: '200px', overflowY: 'auto' }}>
+                    <Box style={{ marginBottom: '16px', flexGrow: 1, overflowY: 'auto', paddingRight: '8px' }}>
                       {photo.captions.length === 0 ? (
                         <Typography style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '16px', color: '#9ca3af', fontStyle: 'italic', lineHeight: '28px' }}>
                           No notes written yet...
                         </Typography>
                       ) : (
                         photo.captions.map((cap, i) => (
-                          <Typography
-                            key={i}
-                            style={{
-                              fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
-                              fontSize: '16px',
-                              color: '#374151',
-                              lineHeight: '28px',
-                              fontStyle: 'italic',
-                            }}
-                          >
-                            — {cap.text}
-                          </Typography>
+                          <Box key={i} sx={{ mb: 3 }}>
+                            <Typography
+                              style={{
+                                fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
+                                fontSize: '16px',
+                                color: '#374151',
+                                lineHeight: '28px',
+                              }}
+                            >
+                              {cap.text}
+                            </Typography>
+                            {cap.authorId && cap.authorId.name ? (
+                              <Typography
+                                style={{
+                                  fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
+                                  fontSize: '14px',
+                                  color: '#b45309',
+                                  textAlign: 'right',
+                                  marginTop: '4px',
+                                  paddingRight: '12px',
+                                  fontStyle: 'italic'
+                                }}
+                              >
+                                — {(cap.authorId._id === user?.id || cap.authorId === user?.id) ? 'Me' : cap.authorId.name}
+                              </Typography>
+                            ) : null}
+                          </Box>
                         ))
                       )}
                     </Box>

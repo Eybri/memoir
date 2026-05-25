@@ -41,6 +41,7 @@ export class PhotosService {
           { albumId: { $in: accessibleAlbumIds } }
         ]
       })
+      .populate({ path: 'captions.authorId', select: '_id name', model: 'User' })
       .sort({ takenAt: -1 })
       .exec();
   }
