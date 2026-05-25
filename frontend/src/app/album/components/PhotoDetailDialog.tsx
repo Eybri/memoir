@@ -6,7 +6,7 @@ import { Calendar, Trash2, Download, RotateCcw, BookOpen, Send } from 'lucide-re
 interface Photo {
   _id: string;
   url: string;
-  captions: { text: string; authorId: string; createdAt: string }[];
+  captions: { text: string; authorId: any; createdAt: string }[];
   takenAt: string;
   albumId?: string;
 }
@@ -260,18 +260,23 @@ export default function PhotoDetailDialog({
                         </Typography>
                       ) : (
                         photo.captions.map((cap, i) => (
-                          <Typography
-                            key={i}
-                            style={{
-                              fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
-                              fontSize: '16px',
-                              color: '#374151',
-                              lineHeight: '28px',
-                              fontStyle: 'italic',
-                            }}
-                          >
-                            — {cap.text}
-                          </Typography>
+                            <Typography
+                              key={i}
+                              style={{
+                                fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
+                                fontSize: '16px',
+                                color: '#374151',
+                                lineHeight: '28px',
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              — {cap.text}
+                              {cap.authorId && cap.authorId.name ? (
+                                <span style={{ fontSize: '12px', color: '#b45309', marginLeft: '6px' }}>
+                                  (by {cap.authorId.name})
+                                </span>
+                              ) : null}
+                            </Typography>
                         ))
                       )}
                     </Box>

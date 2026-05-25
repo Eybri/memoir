@@ -25,7 +25,7 @@ interface Album {
 interface Photo {
   _id: string;
   url: string;
-  captions: { text: string; authorId: string; createdAt: string }[];
+  captions: { text: string; authorId: any; createdAt: string }[];
   takenAt: string;
   albumId?: string;
 }
@@ -586,6 +586,11 @@ export default function MemoryGrid({
                                 photo.captions.map((cap, i) => (
                                   <Typography key={i} style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive", fontSize: '12px', color: '#374151', lineHeight: '19px', fontStyle: 'italic' }}>
                                     — {cap.text}
+                                    {cap.authorId && cap.authorId.name ? (
+                                      <span style={{ fontSize: '9px', color: '#b45309', marginLeft: '4px' }}>
+                                        (by {cap.authorId.name})
+                                      </span>
+                                    ) : null}
                                   </Typography>
                                 ))
                               )}
